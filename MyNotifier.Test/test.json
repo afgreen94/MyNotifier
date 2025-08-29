@@ -1,0 +1,28 @@
+//[
+//  {
+//    "Definition": {
+//      "Id": {},
+//      "Name": "Hello World",
+//      "Description": "Goodbye World"
+//    },
+//    "EventModuleModels": [
+//      {
+//        "EventModuleDefinition": {
+//          "UpdaterDefinitions": [
+//            {
+//              "ParameterDefinitions": [
+
+//              ]
+//            }
+//          ]
+//        }
+//      }
+//    ]
+//  }
+//]
+
+{
+  "Id": "f0d0f4dc-c7dc-4247-b529-7ca2884fad00",
+  "Name": "hello",
+  "Description": "goodbye"
+}
