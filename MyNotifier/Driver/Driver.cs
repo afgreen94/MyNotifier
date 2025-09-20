@@ -79,36 +79,36 @@ namespace MyNotifier
         {
 
 
-            using var scope = serviceProvider.CreateScope();
+            //using var scope = serviceProvider.CreateScope();
 
-            var applicationConfiguration = scope.ServiceProvider.GetRequiredService<IApplicationConfiguration>();
-            var updaterFactory = scope.ServiceProvider.GetRequiredService<IUpdaterFactory>();
-            var commandNotifierWrapper = scope.ServiceProvider.GetRequiredService<CommandNotifierWrapper>();
-            var controlObject = scope.ServiceProvider.GetRequiredService<CommandObject>();
-
-
-            foreach (var sessionInterest in sessionInterests)
-            {
-                var interest = sessionInterest.BuildInterest(updaterFactory);
-
-                foreach(var eventModule in interest.EventModules)
-                {
-                    foreach (var kvp in eventModule.UpdaterParameterWrappers)
-                    {
-                        UpdaterParametersWrapper wrapper = kvp.Value;
-                        IUpdater updater = wrapper.Updater;
+            //var applicationConfiguration = scope.ServiceProvider.GetRequiredService<IApplicationConfiguration>();
+            //var updaterFactory = scope.ServiceProvider.GetRequiredService<IUpdaterFactory>();
+            //var commandNotifierWrapper = scope.ServiceProvider.GetRequiredService<CommandNotifierWrapper>();
+            //var controlObject = scope.ServiceProvider.GetRequiredService<CommandObject>();
 
 
-                        await updater.InitializeAsync().ConfigureAwait(false);
+            //foreach (var sessionInterest in sessionInterests)
+            //{
+            //    var interest = sessionInterest.BuildInterest(updaterFactory);
 
-                    }
-                }
+            //    foreach(var eventModule in interest.EventModules)
+            //    {
+            //        foreach (var kvp in eventModule.UpdaterParameterWrappers)
+            //        {
+            //            UpdaterParametersWrapper wrapper = kvp.Value;
+            //            IUpdater updater = wrapper.Updater;
 
-                this.interestPool.TryAdd(interest);
-            }
+
+            //            await updater.InitializeAsync().ConfigureAwait(false);
+
+            //        }
+            //    }
+
+            //    this.interestPool.TryAdd(interest);
+            //}
 
 
-            await commandNotifierWrapper.ConnectAsync(null).ConfigureAwait(false);
+            //await commandNotifierWrapper.ConnectAsync(null).ConfigureAwait(false);
 
 
             //var interestPoolController = new InterestPool.Controller();
