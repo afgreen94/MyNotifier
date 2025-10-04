@@ -30,7 +30,7 @@ namespace MyNotifier
         public DriverLoopSettings DriverLoopSettings
         {
             get { return this.driverLoopSettings; }
-            set { this.DriverLoopSettings = value; }
+            set { this.driverLoopSettings = value; }
         }
 
         public ApplicationConfiguration(IConfiguration innerConfiguration) : base(innerConfiguration) => this.BuildAndValidate(); //logic in constructor 
