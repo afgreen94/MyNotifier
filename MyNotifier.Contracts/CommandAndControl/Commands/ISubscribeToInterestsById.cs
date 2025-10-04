@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 namespace MyNotifier.Contracts.CommandAndControl.Commands
 {
     public interface ISubscribeToInterestsByIdDefinition : ICommandDefinition { }
-    public interface ISubscribeToNewInterestsById : ICommand { }
+    public interface ISubscribeToInterestsById : ICommand { }
 }

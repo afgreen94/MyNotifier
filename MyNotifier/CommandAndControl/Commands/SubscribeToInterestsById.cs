@@ -19,7 +19,7 @@ namespace MyNotifier.CommandAndControl.Commands
         public Type FactoryType => throw new NotImplementedException();
         public Type CommandType => throw new NotImplementedException();
     }
-    public class SubscribeToInterestsById : ISubscribeToNewInterestsById
+    public class SubscribeToInterestsById : ISubscribeToInterestsById
     {
         private readonly ICommandDefinition definition = new SubscribeToInterestsByIdsDefinition();
         public ICommandDefinition Definition => this.definition;
