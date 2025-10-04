@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace MyNotifier.Contracts.EventModules
 {
-    public interface ICache : ICache<IEventModule> { }
+    public interface ICache : ICache<IEventModule>, ICache<IEventModuleDefinition> { }
 }

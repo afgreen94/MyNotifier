@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using ParameterValidator = MyNotifier.Parameters.ParameterValidator;
 using MyNotifier.Updaters;
 using MyNotifier.Contracts.EventModules;
+using ICache = MyNotifier.Contracts.EventModules.ICache;
 
 namespace MyNotifier.EventModules
 {
@@ -18,7 +19,7 @@ namespace MyNotifier.EventModules
 
         private readonly IEventModuleProvider provider;
         private readonly IUpdaterFactory updaterFactory;
-        private readonly IEventModuleCache cache;
+        private readonly Contracts.EventModules.ICache cache;
         private readonly IConfiguration configuration;
         private readonly ICallContext<EventModuleFactory> callContext;
 
@@ -26,7 +27,7 @@ namespace MyNotifier.EventModules
 
         public EventModuleFactory(IEventModuleProvider provider,
                                   IUpdaterFactory updaterFactory,
-                                  IEventModuleCache cache,
+                                  Contracts.EventModules.ICache cache,
                                   IConfiguration configuration,
                                   ICallContext<EventModuleFactory> callContext)
         {
@@ -54,7 +55,7 @@ namespace MyNotifier.EventModules
 
                     eventModuleDefinition = getEventModuleDefinitionResult.Result;
 
-                    this.cache.Add(eventModuleDefinition);
+                    this.cache.Add(eventModuleDefinition.Id, eventModuleDefinition);
                 }
 
                 var eventModule = new EventModule() { Definition = eventModuleDefinition };
@@ -138,7 +139,7 @@ namespace MyNotifier.EventModules
                 var getDefinitionResult = await this.provider.GetEventModuleDefinitionAsync(eventModuleDefinitionId).ConfigureAwait(false);  //may not exist! 
                 if (!getDefinitionResult.Success) return CallResult<IEventModuleDefinition>.BuildFailedCallResult(getDefinitionResult, $"Failed to retrieve event module definition with id: {eventModuleDefinitionId}: {{0}}");
 
-                this.cache.Add(definition);
+                this.cache.Add(definition.Id, definition);
 
                 return new CallResult<IEventModuleDefinition>(definition);
             }
