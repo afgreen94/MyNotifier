@@ -51,7 +51,7 @@ namespace MyNotifier.CommandAndControl
             this.configuration = configuration; 
             this.callContext = callContext;
 
-            commandValidator = new(configuration);
+            this.commandValidator = new(configuration);
         }
 
 
@@ -61,14 +61,14 @@ namespace MyNotifier.CommandAndControl
         {
             try
             {
-                if (!isInitialized || forceReinitialize)
+                if (!this.isInitialized || forceReinitialize)
                 {
-                    publisher = publisherFactory.GetNotifierPublisher();
+                    this.publisher = this.publisherFactory.GetNotifierPublisher();
 
                     var initializePublisherResult = await publisher.InitializeAsync().ConfigureAwait(false);
                     if (!initializePublisherResult.Success) return CallResult.BuildFailedCallResult(initializePublisherResult, "Failed to initialize command publisher: {0}");
 
-                    isInitialized = true;
+                    this.isInitialized = true;
                 }
 
                 return new CallResult();
@@ -80,10 +80,10 @@ namespace MyNotifier.CommandAndControl
         {
             try
             {
-                if (!isInitialized) return new CallResult(false, "Not Initialized.");
+                if (!this.isInitialized) return new CallResult(false, "Not Initialized.");
 
-                if (!supportedCommandDefinitionServiceTypes.Contains(command.Definition.ServiceType)) return new CallResult(false, $"Unsupported command type: {command.Definition.Name}");
-                if (!commandValidator.TryValidateCommand(command, out var errorText)) return new CallResult(false, $"Invalid command: {errorText}");
+                if (!this.supportedCommandDefinitionServiceTypes.Contains(command.Definition.ServiceType)) return new CallResult(false, $"Unsupported command type: {command.Definition.Name}");
+                if (!this.commandValidator.TryValidateCommand(command, out var errorText)) return new CallResult(false, $"Invalid command: {errorText}");
 
                 var commandJson = JsonSerializer.Serialize(command);
                 var data = defaultEncoding.GetBytes(commandJson);
