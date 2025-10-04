@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using MyNotifier.CommandAndControl.Commands;
 using MyNotifier.Contracts.CommandAndControl;
+using MyNotifier.Contracts.CommandAndControl.Commands;
 
 namespace MyNotifier.CommandAndControl
 {
@@ -29,7 +30,7 @@ namespace MyNotifier.CommandAndControl
         [
             typeof(IChangeApplicationConfigurationDefinition),
             typeof(IRegisterAndSubscribeToNewInterestsDefinition),
-            typeof(ISubscribeToInterestsByDefinitionIds),
+            typeof(ISubscribeToInterestsByIdDefinition),
             typeof(IUnsubscribeFromInterestsByIdDefinition)
         ];
 

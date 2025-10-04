@@ -14,9 +14,9 @@ namespace MyNotifier.CommandAndControl
         public Parameter[] Parameters => throw new NotImplementedException();
     }
 
-    public abstract class InterestModelsCommand : Command, IInterestModelCommand { public virtual InterestModel[] InterestModels { get; set; } }
-    //public abstract class InterestDefinitionIdsCommand : Command, IInterestDefinitionIdsCommand { public virtual Guid[] InterestDefinitionIds { get; set; } }
-    public abstract class ApplicationConfigurationCommand : Command, IApplicationConfigurationCommand { public virtual IApplicationConfiguration ApplicationConfiguration { get; set; } }
+    //public abstract class InterestModelsCommand : Command, IInterestModelCommand { public virtual InterestModel[] InterestModels { get; set; } }
+    ////public abstract class InterestDefinitionIdsCommand : Command, IInterestDefinitionIdsCommand { public virtual Guid[] InterestDefinitionIds { get; set; } }
+    //public abstract class ApplicationConfigurationCommand : Command, IApplicationConfigurationCommand { public virtual IApplicationConfiguration ApplicationConfiguration { get; set; } }
 
 
 
