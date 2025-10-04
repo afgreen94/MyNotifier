@@ -16,13 +16,13 @@ namespace MyNotifier.Updaters
     {
         private readonly IUpdaterDefinitionProvider provider;
         private readonly IUpdaterModuleLoader moduleLoader;
-        private readonly IUpdaterCache cache;
+        private readonly Contracts.Updaters.ICache cache;
         private readonly IConfiguration configuration;
         private readonly ICallContext<UpdaterFactory> callContext;
 
         public UpdaterFactory(IUpdaterDefinitionProvider provider,
                               IUpdaterModuleLoader moduleLoader,
-                              IUpdaterCache cache,
+                              Contracts.Updaters.ICache cache,
                               IConfiguration configuration,
                               ICallContext<UpdaterFactory> callContext)
         {
@@ -60,7 +60,7 @@ namespace MyNotifier.Updaters
                 if (updater == null) return new CallResult<IUpdater>(false, $"could not inject updater of type: {getUpdaterDefinitionResult.Result.ModuleDescription.TypeFullName}");
 
                 //this.cache.Add(getUpdaterDefinitionResult.Result); //already added from GetUpdaterDefinitionCore() 
-                this.cache.Add(updater);
+                this.cache.Add(updater.Definition.Id, updater);
 
                 return new CallResult<IUpdater>(updater);
             }
@@ -78,7 +78,7 @@ namespace MyNotifier.Updaters
                 var getUpdaterDefinitionResult = await this.provider.GetUpdaterDefinitionAsync(updaterDefinitionId).ConfigureAwait(false);
                 if (!getUpdaterDefinitionResult.Success) return getUpdaterDefinitionResult;
 
-                this.cache.Add(getUpdaterDefinitionResult.Result);
+                this.cache.Add(getUpdaterDefinitionResult.Result.Id, getUpdaterDefinitionResult.Result);
 
                 return getUpdaterDefinitionResult;
             }
