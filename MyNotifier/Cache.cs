@@ -22,6 +22,9 @@ namespace MyNotifier
         public bool TryGetValue(Guid id, out IEventModule value) => this.TryGetValue<IEventModule>(id, out value);
         public void Add(Guid id, IEventModule value) => this.Add<IEventModule>(id, value);
 
+        public bool TryGetValue(Guid id, out IEventModuleDefinition value) => this.TryGetValue<IEventModuleDefinition>(id, out value);
+        public void Add(Guid id, IEventModuleDefinition value) => this.Add<IEventModuleDefinition>(id, value);
+
         public bool TryGetValue(Guid id, out IUpdater value) => this.TryGetValue<IUpdater>(id, out value);
         public void Add(Guid id, IUpdater value) => this.Add<IUpdater>(id, value);
         public bool TryGetValue(Guid id, out IUpdaterDefinition value) => this.TryGetValue<IUpdaterDefinition>(id, out value);
