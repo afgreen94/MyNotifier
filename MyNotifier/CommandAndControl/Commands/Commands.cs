@@ -1,13 +1,13 @@
 ﻿using MyNotifier.Contracts.Base;
-using MyNotifier.Contracts.Commands;
 using MyNotifier.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MyNotifier.Contracts.CommandAndControl.Commands;
 
-namespace MyNotifier.Commands
+namespace MyNotifier.CommandAndControl.Commands
 {
     public abstract class Command : ICommand 
     {

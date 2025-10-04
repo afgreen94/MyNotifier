@@ -4,15 +4,15 @@ using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.Notifiers;
 using MyNotifier.Contracts.Publishers;
 using MyNotifier.Contracts.Notifications;
-using MyNotifier.Contracts.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using MyNotifier.Contracts.CommandAndControl.Commands;
 
-namespace MyNotifier.Commands
+namespace MyNotifier.CommandAndControl.Commands
 {
 
 
@@ -49,7 +49,7 @@ namespace MyNotifier.Commands
             this.configuration = configuration; 
             this.callContext = callContext;
 
-            this.commandValidator = new(configuration);
+            commandValidator = new(configuration);
         }
 
 
@@ -59,14 +59,14 @@ namespace MyNotifier.Commands
         {
             try
             {
-                if (!this.isInitialized || forceReinitialize)
+                if (!isInitialized || forceReinitialize)
                 {
-                    this.publisher = this.publisherFactory.GetNotifierPublisher();
+                    publisher = publisherFactory.GetNotifierPublisher();
 
-                    var initializePublisherResult = await this.publisher.InitializeAsync().ConfigureAwait(false);
+                    var initializePublisherResult = await publisher.InitializeAsync().ConfigureAwait(false);
                     if (!initializePublisherResult.Success) return CallResult.BuildFailedCallResult(initializePublisherResult, "Failed to initialize command publisher: {0}");
 
-                    this.isInitialized = true;
+                    isInitialized = true;
                 }
 
                 return new CallResult();
@@ -78,15 +78,15 @@ namespace MyNotifier.Commands
         {
             try
             {
-                if (!this.isInitialized) return new CallResult(false, "Not Initialized.");
+                if (!isInitialized) return new CallResult(false, "Not Initialized.");
 
-                if (!this.supportedCommandDefinitionServiceTypes.Contains(command.Definition.ServiceType)) return new CallResult(false, $"Unsupported command type: {command.Definition.Name}");
-                if (!this.commandValidator.TryValidateCommand(command, out var errorText)) return new CallResult(false, $"Invalid command: {errorText}");
+                if (!supportedCommandDefinitionServiceTypes.Contains(command.Definition.ServiceType)) return new CallResult(false, $"Unsupported command type: {command.Definition.Name}");
+                if (!commandValidator.TryValidateCommand(command, out var errorText)) return new CallResult(false, $"Invalid command: {errorText}");
 
                 var commandJson = JsonSerializer.Serialize(command);
-                var data = this.defaultEncoding.GetBytes(commandJson);
+                var data = defaultEncoding.GetBytes(commandJson);
 
-                var publishResult = await this.publisher.PublishAsync(new PublishArgs()
+                var publishResult = await publisher.PublishAsync(new PublishArgs()
                 {
                     InterestId = Guid.Empty,
                     UpdaterId = Guid.Empty,
@@ -96,7 +96,7 @@ namespace MyNotifier.Commands
                         NotificationDataTypeArgs = new DataTypeArgs()
                         {
                             DataType = NotificationDataType.String_Json,
-                            Description = this.defaultCommandDescription  //ultimately, encoding should be configurable 
+                            Description = defaultCommandDescription  //ultimately, encoding should be configurable 
                         }
                     },
                     UpdateTime = DateTime.UtcNow,

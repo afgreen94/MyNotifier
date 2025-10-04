@@ -14,7 +14,7 @@ using System.Threading;
 using MyNotifier.Contracts.FileIOManager;
 using System.Reflection;
 using MyNotifier.Notifiers;
-using MyNotifier.Commands;
+using MyNotifier.CommandAndControl.Commands;
 
 namespace MyNotifier
 {

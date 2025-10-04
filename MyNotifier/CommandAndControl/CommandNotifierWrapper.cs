@@ -1,5 +1,5 @@
 ﻿using MyNotifier.Base;
-using MyNotifier.Commands;
+using MyNotifier.CommandAndControl.Commands;
 using MyNotifier.Contracts;
 using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.Notifiers;
@@ -10,10 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using ICommand = MyNotifier.Contracts.Commands.ICommand;
-using MyNotifier.Contracts.Commands;
+using ICommand = MyNotifier.Contracts.CommandAndControl.Commands.ICommand;
 
-namespace MyNotifier.Notifiers
+namespace MyNotifier.CommandAndControl
 {
     public class CommandNotifierWrapper : INotifier
     {
@@ -22,17 +21,17 @@ namespace MyNotifier.Notifiers
 
         private readonly HashSet<ExpectedCommandResultToken> expectedCommandResults = [];
 
-        public bool Connected => this.notifier.Connected;
+        public bool Connected => notifier.Connected;
 
         public CommandNotifierWrapper(INotifier notifier) { this.notifier = notifier; }
 
-        public ValueTask<ICallResult> ConnectAsync(object connectArg) => this.notifier.ConnectAsync(connectArg);
-        public ValueTask<ICallResult> DisconnectAsync() => this.notifier.DisconnectAsync();
-        public void Subscribe(INotifier.ISubscriber subscriber) => this.notifier.Subscribe(subscriber);
-        public void Unsubscribe(INotifier.ISubscriber subscriper) => this.notifier.Unsubscribe(subscriper);
+        public ValueTask<ICallResult> ConnectAsync(object connectArg) => notifier.ConnectAsync(connectArg);
+        public ValueTask<ICallResult> DisconnectAsync() => notifier.DisconnectAsync();
+        public void Subscribe(INotifier.ISubscriber subscriber) => notifier.Subscribe(subscriber);
+        public void Unsubscribe(INotifier.ISubscriber subscriper) => notifier.Unsubscribe(subscriper);
 
 
-        public void RegisterExpectedCommandResult(ExpectedCommandResultToken ecrToken) => this.expectedCommandResults.Add(ecrToken);
+        public void RegisterExpectedCommandResult(ExpectedCommandResultToken ecrToken) => expectedCommandResults.Add(ecrToken);
         private void CheckExpiries() { }
     }
 
@@ -62,20 +61,20 @@ namespace MyNotifier.Notifiers
         {
             try
             {
-                if(!this.isInitialized || forceReinitialize)
+                if(!isInitialized || forceReinitialize)
                 {
 
                     //subscribe to notifier with COMMANDS target-type mask 
-                    this.commandNotifier.Subscribe(new CommandNotifierSubscriber(this));
+                    commandNotifier.Subscribe(new CommandNotifierSubscriber(this));
 
                     //connect notifier if not connected 
-                    if (!this.commandNotifier.Connected)
+                    if (!commandNotifier.Connected)
                     {
-                        var connectResult = await this.commandNotifier.ConnectAsync(null).ConfigureAwait(false);
+                        var connectResult = await commandNotifier.ConnectAsync(null).ConfigureAwait(false);
                         if (!connectResult.Success) return CallResult.BuildFailedCallResult(connectResult, "Failed to connect to command notifier: {0}");
                     }
 
-                    this.isInitialized = true;
+                    isInitialized = true;
                 }
 
                 return new CallResult();
@@ -86,9 +85,9 @@ namespace MyNotifier.Notifiers
 
         public void RegisterControllable(IControllable controllable, bool allowOverwrite = false) //may pass in controllables from ctor 
         {
-            if (this.controllables.ContainsKey(controllable.Definition.Id) && !allowOverwrite) throw new Exception("Cannot overwrite existing controllable.");
+            if (controllables.ContainsKey(controllable.Definition.Id) && !allowOverwrite) throw new Exception("Cannot overwrite existing controllable.");
 
-            this.controllables[controllable.Definition.Id] = controllable;
+            controllables[controllable.Definition.Id] = controllable;
         }
 
 
@@ -102,9 +101,9 @@ namespace MyNotifier.Notifiers
         protected async ValueTask OnCommandAsync(INotifier sender, Notification notification)
         {
             //parse command type 
-            var command = this.ParseCommand(notification);
+            var command = ParseCommand(notification);
             //adjust appropriate controllables 
-            this.AdjustControllable(command);
+            AdjustControllable(command);
         }
 
 
@@ -134,7 +133,7 @@ namespace MyNotifier.Notifiers
         }
 
         public abstract class Controllable<TCommand> : IControllable
-            where TCommand : MyNotifier.Contracts.Commands.ICommand
+            where TCommand : ICommand
         {
             public IControllable.IDefinition Definition => throw new NotImplementedException();
 
@@ -144,7 +143,7 @@ namespace MyNotifier.Notifiers
 
                 if (command is not TCommand coreCommand) throw new Exception("I always forget if C# allows narrowing casts. probably not explicityly tbh.");
 
-                this.OnCommandCore(coreCommand); //does C# allow narrowing casts? I always forget this...
+                OnCommandCore(coreCommand); //does C# allow narrowing casts? I always forget this...
             }
 
             protected abstract void OnCommandCore(TCommand command);
@@ -166,7 +165,7 @@ namespace MyNotifier.Notifiers
 
             public Definition Definition => definition;
 
-            public ValueTask OnNotificationAsync(object sender, Notification notification) => this.commandObject.OnCommandAsync((INotifier)sender, notification);
+            public ValueTask OnNotificationAsync(object sender, Notification notification) => commandObject.OnCommandAsync((INotifier)sender, notification);
         }
     }
 

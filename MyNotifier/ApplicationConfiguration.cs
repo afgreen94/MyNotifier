@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MyNotifier.Base;
-using MyNotifier.Commands;
+using MyNotifier.CommandAndControl.Commands;
 using MyNotifier.Contracts;
 using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.Proxy;

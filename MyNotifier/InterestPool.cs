@@ -1,4 +1,4 @@
-﻿using MyNotifier.Commands;
+﻿using MyNotifier.CommandAndControl.Commands;
 using MyNotifier.Contracts;
 using MyNotifier.Contracts.Updaters;
 using System;
