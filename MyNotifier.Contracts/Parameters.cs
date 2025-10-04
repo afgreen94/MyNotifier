@@ -48,9 +48,9 @@ namespace MyNotifier.Contracts
     public enum ParameterType
     {
         Byte,
+        Bool,
         Char,
         String,
-        Bool,
         Int,
         Long,
         Double

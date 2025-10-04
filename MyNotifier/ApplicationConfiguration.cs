@@ -65,14 +65,14 @@ namespace MyNotifier
         //    return ret;
         //}
 
-        public class Controller : IControllable<ChangeApplicationConfiguration>
-        {
-            private readonly IApplicationConfiguration applicationConfiguration;
+        //public class Controller : IControllable<ChangeApplicationConfiguration>
+        //{
+        //    private readonly IApplicationConfiguration applicationConfiguration;
 
-            public void OnCommand(ChangeApplicationConfiguration command)
-            {
+        //    public void OnCommand(ChangeApplicationConfiguration command)
+        //    {
 
-            }
-        }
+        //    }
+        //}
     }
 }

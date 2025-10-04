@@ -82,46 +82,46 @@ namespace MyNotifier
             return true;
         }
 
-        public class Controller : IControllable<RegisterAndSubscribeToNewInterests>, IControllable<SubscribeToInterestsByDefinitionIds>, IControllable<UnsubscribeFromInterests>
-        {
+        //public class Controller : IControllable<RegisterAndSubscribeToNewInterests>, IControllable<SubscribeToInterestsByDefinitionIds>, IControllable<UnsubscribeFromInterests>
+        //{
 
-            private readonly InterestPool interestPool;
-            private readonly IInterestFactory interestFactory;
+        //    private readonly InterestPool interestPool;
+        //    private readonly IInterestFactory interestFactory;
 
-            public Controller(IInterestFactory interestFactory) { this.interestFactory = interestFactory; }
+        //    public Controller(IInterestFactory interestFactory) { this.interestFactory = interestFactory; }
 
-            public void OnCommand(RegisterAndSubscribeToNewInterests command)
-            {
-                var interestModels = command.InterestModels;
+        //    public void OnCommand(RegisterAndSubscribeToNewInterests command)
+        //    {
+        //        var interestModels = command.InterestModels;
 
-                foreach (var interestModel in interestModels)
-                {
-                    if (this.interestPool.Contains(interestModel.Definition.Id)) { continue; } //what do ?
+        //        foreach (var interestModel in interestModels)
+        //        {
+        //            if (this.interestPool.Contains(interestModel.Definition.Id)) { continue; } //what do ?
 
-                    IInterest interest = default;
+        //            IInterest interest = default;
                     
-                    //var interest = await this.interestFactory.GetInterestAsync(interestModel).ConfigureAwait(false); //make callback async 
+        //            //var interest = await this.interestFactory.GetInterestAsync(interestModel).ConfigureAwait(false); //make callback async 
 
-                    var added = this.interestPool.TryAdd(interest);
-                }
-            }
+        //            var added = this.interestPool.TryAdd(interest);
+        //        }
+        //    }
 
-            public void OnCommand(UnsubscribeFromInterests command)
-            {
-                var interestModels = command.InterestModels;
+        //    public void OnCommand(UnsubscribeFromInterests command)
+        //    {
+        //        var interestModels = command.InterestModels;
 
-                foreach (var interestModel in interestModels)
-                {
-                    if (!this.interestPool.Contains(interestModel.Definition.Id)) { continue; } //what do ?
+        //        foreach (var interestModel in interestModels)
+        //        {
+        //            if (!this.interestPool.Contains(interestModel.Definition.Id)) { continue; } //what do ?
 
-                    var removed = this.interestPool.TryRemove(interestModel.Definition.Id);
-                }
-            }
+        //            var removed = this.interestPool.TryRemove(interestModel.Definition.Id);
+        //        }
+        //    }
 
-            public void OnCommand(SubscribeToInterestsByDefinitionIds command)
-            {
-                throw new NotImplementedException();
-            }
-        }
+        //    public void OnCommand(SubscribeToInterestsByDefinitionIds command)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+        //}
     }
 }

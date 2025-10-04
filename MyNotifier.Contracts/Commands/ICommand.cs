@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 
 namespace MyNotifier.Contracts.Commands
 {
-    public interface ICommand { IDefinition Definition { get; } }
+    public interface ICommand 
+    {
+        ICommandDefinition Definition { get; }
+        Parameter[] Parameters { get; }
+    }
 
     public interface IInterestModelCommand : ICommand { InterestModel[] InterestModels { get; } }
     //public interface IInterestDefinitionIdsCommand : ICommand { Guid[] InterestDefinitionIds { get; } }

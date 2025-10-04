@@ -24,12 +24,12 @@ namespace MyNotifier.Commands
         private readonly IConfiguration configuration;
         private readonly ICallContext<CommandApi> callContext;
 
-        private readonly HashSet<Type> supportedCommandTypes =  //from config 
+        private readonly HashSet<Type> supportedCommandDefinitionTypes =  //from config 
         [
-            typeof(ChangeApplicationConfiguration),
-            typeof(RegisterAndSubscribeToNewInterests),
-            typeof(SubscribeToInterestsByDefinitionIds),
-            typeof(UnsubscribeFromInterests)
+            typeof(IChangeApplicationConfigurationDefinition),
+            typeof(IRegisterAndSubscribeToNewInterestsDefinition),
+            typeof(ISubscribeToInterestsByDefinitionIds),
+            typeof(IUnsubscribeFromInterestsByIdDefinition)
         ];
 
         private readonly CommandValidator commandValidator;
@@ -80,8 +80,8 @@ namespace MyNotifier.Commands
             {
                 if (!this.isInitialized) return new CallResult(false, "Not Initialized.");
 
-                var commandType = command.GetType();
-                if (!this.supportedCommandTypes.Contains(commandType)) return new CallResult(false, $"Unsupported command type: {commandType.Name}");
+                //var commandType = command.GetType();
+                if (!this.supportedCommandDefinitionTypes.Contains(command.Definition.ServiceType)) return new CallResult(false, $"Unsupported command type: {command.Definition.Name}");
                 if (!this.commandValidator.TryValidateCommand(command, out var errorText)) return new CallResult(false, $"Invalid command: {errorText}");
 
                 var commandJson = JsonSerializer.Serialize(command);

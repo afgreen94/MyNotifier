@@ -20,7 +20,7 @@ namespace MyNotifier.Notifiers
 
         private readonly INotifier notifier;
 
-        private readonly HashSet<ExpectedCommandResultToken> expectedCommandResults = new();
+        private readonly HashSet<ExpectedCommandResultToken> expectedCommandResults = [];
 
         public bool Connected => this.notifier.Connected;
 
