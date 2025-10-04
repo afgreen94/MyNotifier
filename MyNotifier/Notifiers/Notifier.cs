@@ -20,7 +20,7 @@ namespace MyNotifier.Notifiers
 
         protected bool connected = false;
         
-        protected delegate void NotificationEventHandler(object sender, Notification notification);
+        protected delegate ValueTask NotificationEventHandler(object sender, Notification notification);
         protected event NotificationEventHandler subscriptions;
 
         public virtual bool Connected => this.connected;
@@ -34,8 +34,8 @@ namespace MyNotifier.Notifiers
         public abstract ValueTask<ICallResult> ConnectAsync(object connectArg);
         public abstract ValueTask<ICallResult> DisconnectAsync();
 
-        public virtual void Subscribe(INotifier.ISubscriber subscriber) => this.subscriptions += subscriber.OnNotification;
-        public virtual void Unsubscribe(INotifier.ISubscriber subscriber) => this.subscriptions -= subscriber.OnNotification;
+        public virtual void Subscribe(INotifier.ISubscriber subscriber) => this.subscriptions += subscriber.OnNotificationAsync;
+        public virtual void Unsubscribe(INotifier.ISubscriber subscriber) => this.subscriptions -= subscriber.OnNotificationAsync;
         public virtual void OnNotification(Notification notification) => this.subscriptions(this, notification);
 
         public interface IConfiguration : IConfigurationWrapper { }

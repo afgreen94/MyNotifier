@@ -19,7 +19,7 @@ namespace MyNotifier.Contracts.Notifiers
         public interface ISubscriber
         {
             Definition Definition { get; }
-            void OnNotification(object sender, Notification notification);
+            ValueTask OnNotificationAsync(object sender, Notification notification);
         }
     }
 

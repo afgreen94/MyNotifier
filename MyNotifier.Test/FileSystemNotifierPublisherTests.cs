@@ -376,7 +376,7 @@ namespace MyNotifier.Test
             private Definition definition = new() { Id = Guid.NewGuid(), Name = "", Description = "" };
             public Definition Definition => this.definition;
             public IList<Notification> ReceivedNotifications = [];
-            public void OnNotification(object sender, Notification notification) => this.ReceivedNotifications.Add(notification);
+            public async ValueTask OnNotificationAsync(object sender, Notification notification) => this.ReceivedNotifications.Add(notification);
         }
 
         #endregion Helpers

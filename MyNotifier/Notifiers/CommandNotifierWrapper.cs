@@ -99,7 +99,7 @@ namespace MyNotifier.Notifiers
         }
 
 
-        protected void OnCommand(INotifier sender, Notification notification)
+        protected async ValueTask OnCommandAsync(INotifier sender, Notification notification)
         {
             //parse command type 
             var command = this.ParseCommand(notification);
@@ -166,7 +166,7 @@ namespace MyNotifier.Notifiers
 
             public Definition Definition => definition;
 
-            public void OnNotification(object sender, Notification notification) => this.commandObject.OnCommand((INotifier)sender, notification);
+            public ValueTask OnNotificationAsync(object sender, Notification notification) => this.commandObject.OnCommandAsync((INotifier)sender, notification);
         }
     }
 
