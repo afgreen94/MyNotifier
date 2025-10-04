@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using ParameterValidator = MyNotifier.Parameters.ParameterValidator;
 using MyNotifier.Updaters;
 using MyNotifier.Contracts.EventModules;
-using ICache = MyNotifier.Contracts.EventModules.ICache;
 
 namespace MyNotifier.EventModules
 {
