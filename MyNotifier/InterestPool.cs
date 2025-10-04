@@ -1,4 +1,7 @@
-﻿using MyNotifier.CommandAndControl.Commands;
+﻿using MyNotifier.CommandAndControl;
+using MyNotifier.CommandAndControl.Commands;
+using MyNotifier.Contracts.CommandAndControl;
+using MyNotifier.Contracts.CommandAndControl.Commands;
 using MyNotifier.Contracts;
 using MyNotifier.Contracts.Updaters;
 using System;
@@ -64,6 +67,12 @@ namespace MyNotifier
             finally { this.accessSemaphore.Release(); }
         }
 
+        //public void Update() { }
+        //public async Task UpdateAsync() { }
+        //public bool TryUpdate() { }
+        //public async Task<bool> TryUpdateAsync() { }
+
+
         private bool TryAddCore(IInterest interest, bool forceOverwrite = false)
         {
             if (this.innerDictionary.ContainsKey(interest.Definition.Id) && !forceOverwrite) return false;
@@ -88,9 +97,9 @@ namespace MyNotifier
         //    private readonly InterestPool interestPool;
         //    private readonly IInterestFactory interestFactory;
 
-        //    public Controller(IInterestFactory interestFactory) { this.interestFactory = interestFactory; }
+        //    public Controller(InterestPool interestPool, IInterestFactory interestFactory) { this.interestPool = interestPool; this.interestFactory = interestFactory; }
 
-        //    public void OnCommand(RegisterAndSubscribeToNewInterests command)
+        //    public async ValueTask OnCommandAsync(RegisterAndSubscribeToNewInterests command)
         //    {
         //        var interestModels = command.InterestModels;
 
@@ -99,14 +108,14 @@ namespace MyNotifier
         //            if (this.interestPool.Contains(interestModel.Definition.Id)) { continue; } //what do ?
 
         //            IInterest interest = default;
-                    
+
         //            //var interest = await this.interestFactory.GetInterestAsync(interestModel).ConfigureAwait(false); //make callback async 
 
         //            var added = this.interestPool.TryAdd(interest);
         //        }
         //    }
 
-        //    public void OnCommand(UnsubscribeFromInterests command)
+        //    public async ValueTask OnCommandAsync(UnsubscribeFromInterests command)
         //    {
         //        var interestModels = command.InterestModels;
 
@@ -118,7 +127,7 @@ namespace MyNotifier
         //        }
         //    }
 
-        //    public void OnCommand(SubscribeToInterestsByDefinitionIds command)
+        //    public async ValueTask OnCommandAsync(SubscribeToInterestsByDefinitionIds command)
         //    {
         //        throw new NotImplementedException();
         //    }

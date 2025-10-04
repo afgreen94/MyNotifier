@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyNotifier.CommandAndControl.Commands
+namespace MyNotifier.CommandAndControl
 {
     //public abstract class CommandDefinition : ICommandDefinition
     //{

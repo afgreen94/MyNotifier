@@ -10,9 +10,10 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using MyNotifier.Contracts.CommandAndControl.Commands;
+using MyNotifier.CommandAndControl.Commands;
+using MyNotifier.Contracts.CommandAndControl;
 
-namespace MyNotifier.CommandAndControl.Commands
+namespace MyNotifier.CommandAndControl
 {
 
 

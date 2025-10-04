@@ -1,7 +1,6 @@
 ﻿using MyNotifier.Base;
 using MyNotifier.CommandAndControl.Commands;
 using MyNotifier.Contracts.CommandAndControl;
-using MyNotifier.Contracts.CommandAndControl.Commands;
 using MyNotifier.Contracts;
 using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.Notifiers;

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyNotifier.Contracts.CommandAndControl.Commands
+namespace MyNotifier.Contracts.CommandAndControl
 {
     public interface ICommandApi
     {
