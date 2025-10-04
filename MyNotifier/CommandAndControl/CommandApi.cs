@@ -65,7 +65,7 @@ namespace MyNotifier.CommandAndControl
                 {
                     this.publisher = this.publisherFactory.GetNotifierPublisher();
 
-                    var initializePublisherResult = await publisher.InitializeAsync().ConfigureAwait(false);
+                    var initializePublisherResult = await this.publisher.InitializeAsync().ConfigureAwait(false);
                     if (!initializePublisherResult.Success) return CallResult.BuildFailedCallResult(initializePublisherResult, "Failed to initialize command publisher: {0}");
 
                     this.isInitialized = true;
