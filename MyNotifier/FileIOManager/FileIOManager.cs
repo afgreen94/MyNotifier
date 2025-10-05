@@ -207,15 +207,18 @@ namespace MyNotifier.FileIOManager
 
         protected virtual string GetRootNameFromPath(string path) => path.Split(this.DirectorySeparator)[0];
         protected virtual string GetLeafNameFromPath(string path) => path.Split(this.DirectorySeparator)[^1];
-        protected virtual string BuildAppendedPath(string path0, string path1)
+        protected virtual string BuildAppendedPath(string root, params string[] paths)                 
         {
-            var parts0 = path0.Split(this.DirectorySeparator);
-            var parts1 = path1.Split(this.DirectorySeparator);
-
             var ret = new List<string>();
 
-            AddTo(ret, parts0);
-            AddTo(ret, parts1);
+            var rootParts = root.Split(this.DirectorySeparator);
+            AddTo(ret, rootParts);
+
+            foreach(var p in paths)
+            {
+                var parts = p.Split(this.DirectorySeparator);
+                AddTo(ret, parts);
+            }
 
             return string.Join(this.DirectorySeparator, ret);
         }
