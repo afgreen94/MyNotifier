@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace MyNotifier.Proxy
+namespace MyNotifier.Proxy.EventModules
 {
 
 
@@ -35,7 +35,7 @@ namespace MyNotifier.Proxy
         {
             try
             {
-                var createEventModuleDefinitionStreamResult = this.proxyIOManager.CreateEventModuleStream(eventModuleDefinitionId);
+                var createEventModuleDefinitionStreamResult = proxyIOManager.CreateEventModuleStream(eventModuleDefinitionId);
                 if (!createEventModuleDefinitionStreamResult.Success) return CallResult<IEventModuleDefinition>.BuildFailedCallResult(createEventModuleDefinitionStreamResult, $"Failed to create read stream for event module definition with id: {eventModuleDefinitionId}: {{0}}");
 
                 string json;

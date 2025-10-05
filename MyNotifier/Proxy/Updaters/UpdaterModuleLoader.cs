@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyNotifier.Proxy
+namespace MyNotifier.Proxy.Updaters
 {
     public interface IProxyIOManager
     {
@@ -18,7 +18,7 @@ namespace MyNotifier.Proxy
     }
 
     public interface IProxyUpdaterModuleLoader : IUpdaterModuleLoader { }
-    public class UpdaterModuleLoader : Updaters.UpdaterModuleLoader, IProxyUpdaterModuleLoader
+    public class UpdaterModuleLoader : MyNotifier.Updaters.UpdaterModuleLoader, IProxyUpdaterModuleLoader
     {
 
         private readonly IProxyIOManager proxyIOManager;
@@ -32,7 +32,7 @@ namespace MyNotifier.Proxy
                 //var modulePath = this.proxyIOManager.BuildModulePath(updaterDefinition.ModuleDescription);
                 //var createDllReadStreamResult = this.fileIOManager.CreateReadFileStream(modulePath);
 
-                var createModuleStreamResult = this.proxyIOManager.CreateModuleReadStream(updaterDefinition.ModuleDescription);
+                var createModuleStreamResult = proxyIOManager.CreateModuleReadStream(updaterDefinition.ModuleDescription);
                 if (!createModuleStreamResult.Success) return CallResult<byte[]>.BuildFailedCallResult(createModuleStreamResult, $"Failed to create module read stream for updater: {updaterDefinition.Id}-{updaterDefinition.Name}: {0}");
 
                 using var dllReadStream = createModuleStreamResult.Result;
@@ -47,8 +47,8 @@ namespace MyNotifier.Proxy
             catch (Exception ex) { return CallResult<byte[]>.FromException(ex); }
         }
 
-        public new interface IConfiguration : Updaters.UpdaterModuleLoader.IConfiguration { }
-        public new class Configuration : Updaters.UpdaterModuleLoader.Configuration
+        public new interface IConfiguration : MyNotifier.Updaters.UpdaterModuleLoader.IConfiguration { }
+        public new class Configuration : MyNotifier.Updaters.UpdaterModuleLoader.Configuration
         {
             public Configuration(IApplicationConfiguration innerApplicationConfiguration) : base(innerApplicationConfiguration)
             {
