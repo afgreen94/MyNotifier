@@ -21,7 +21,7 @@ namespace MyNotifier.CommandAndControl.Commands
     }
     public class UnsubscribeFromInterestsById : IUnsubscribeFromInterestsById
     {
-        private readonly ICommandDefinition definition = new UnsubscribeFromInterestsByIdDefinition();
+        private readonly IUnsubscribeFromInterestsByIdDefinition definition = new UnsubscribeFromInterestsByIdDefinition();
         public ICommandDefinition Definition => this.definition;
 
         public Parameter[] Parameters => throw new NotImplementedException();

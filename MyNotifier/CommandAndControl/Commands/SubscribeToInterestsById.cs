@@ -21,7 +21,7 @@ namespace MyNotifier.CommandAndControl.Commands
     }
     public class SubscribeToInterestsById : ISubscribeToInterestsById
     {
-        private readonly ICommandDefinition definition = new SubscribeToInterestsByIdsDefinition();
+        private readonly ISubscribeToInterestsByIdDefinition definition = new SubscribeToInterestsByIdsDefinition();
         public ICommandDefinition Definition => this.definition;
 
         public Parameter[] Parameters => throw new NotImplementedException();

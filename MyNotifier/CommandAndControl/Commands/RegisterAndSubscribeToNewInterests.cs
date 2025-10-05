@@ -21,7 +21,7 @@ namespace MyNotifier.CommandAndControl.Commands
     }
     public class RegisterAndSubscribeToNewInterests : IRegisterAndSubscribeToNewInterests
     {
-        private readonly ICommandDefinition definition = new RegisterAndSubscribeToNewInterestsDefinition();
+        private readonly IRegisterAndSubscribeToNewInterestsDefinition definition = new RegisterAndSubscribeToNewInterestsDefinition();
         public ICommandDefinition Definition => this.definition;
 
         public Parameter[] Parameters => throw new NotImplementedException();

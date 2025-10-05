@@ -22,7 +22,7 @@ namespace MyNotifier.CommandAndControl.Commands
     }
     public class ChangeApplicationConfiguration : IChangeApplicationConfiguration
     {
-        private readonly ICommandDefinition definition = new ChangeApplicationConfigurationDefinition();
+        private readonly IChangeApplicationConfigurationDefinition definition = new ChangeApplicationConfigurationDefinition();
         public ICommandDefinition Definition => this.definition;
 
         public Parameter[] Parameters => throw new NotImplementedException();
