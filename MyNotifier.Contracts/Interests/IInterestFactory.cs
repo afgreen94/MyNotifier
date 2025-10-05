@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IEventModuleDefinition = MyNotifier.Contracts.EventModules.IDefinition;
 using IEventModuleFactory = MyNotifier.Contracts.EventModules.IFactory;
+using IEventModuleParameterValues = MyNotifier.Contracts.EventModules.IParameterValues;
 
 namespace MyNotifier.Contracts.Interests
 {

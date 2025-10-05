@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MyNotifier.Contracts.EventModules
 {
-    public interface IEventModuleParameterValues
+    public interface IParameterValues
     {
         IReadOnlyDictionary<Guid, ParameterValue[]> UpdaterParameters { get; }
     }

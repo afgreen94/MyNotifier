@@ -14,6 +14,7 @@ using IUpdaterFactory = MyNotifier.Contracts.Updaters.IFactory;
 using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 using IEventModuleDefinition = MyNotifier.Contracts.EventModules.IDefinition;
 using CustomEventModuleDefinition = MyNotifier.Contracts.EventModules.CustomDefinition;
+using IEventModuleParameterValues = MyNotifier.Contracts.EventModules.IParameterValues;
 
 namespace MyNotifier.EventModules
 {
