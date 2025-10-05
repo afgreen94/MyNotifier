@@ -43,7 +43,7 @@ namespace MyNotifier.Contracts.FileIOManager
 
             string GetRootFromPath(string path);
             string GetLeafFromPath(string path);
-            string BuildAppendedPath(string rootPath, string path);
+            string BuildAppendedPath(string rootPath, params string[] paths);
         }
 
     }

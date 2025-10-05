@@ -277,7 +277,7 @@ namespace MyNotifier.FileIOManager
 
             public string GetLeafFromPath(string path) => ((FileIOManager)this.fileIOManager).GetLeafNameFromPath(path);
             public string GetRootFromPath(string path) => ((FileIOManager)this.fileIOManager).GetRootNameFromPath(path);
-            public string BuildAppendedPath(string rootPath, string path) => ((FileIOManager)this.fileIOManager).BuildAppendedPath(rootPath, path);
+            public string BuildAppendedPath(string rootPath, params string[] paths) => ((FileIOManager)this.fileIOManager).BuildAppendedPath(rootPath, paths);
         }
     }
 }
