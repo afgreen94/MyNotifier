@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 
 namespace MyNotifier.Contracts.Updaters
 {
-    public interface IUpdaterDefinitionProvider
+    public interface IDefinitionProvider
     {
-        ValueTask<ICallResult<IUpdaterDefinition>> GetUpdaterDefinitionAsync(Guid updaterDefinitionId);
+        ValueTask<ICallResult<IUpdaterDefinition>> GetAsync(Guid updaterDefinitionId);
     }
 }

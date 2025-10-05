@@ -8,10 +8,9 @@ using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 
 namespace MyNotifier.Contracts.Updaters
 {
-    public interface IUpdaterSet  //updaters that share parameter values ie {pd0} -> updater0, updater1, ...  updaterN
+    public interface IFactory
     {
-        IDefinition Definition { get; }
-        IUpdaterDefinition UpdaterDefinitions { get; }
-        IParameterDefinition CommonParameterDefinitions { get; }
+        ValueTask<ICallResult<IUpdater>> GetAsync(Guid updaterDefinitionId);
+        ValueTask<ICallResult<IUpdaterDefinition>> GetDefinitionAsync(Guid updaterDefinitionId);
     }
 }

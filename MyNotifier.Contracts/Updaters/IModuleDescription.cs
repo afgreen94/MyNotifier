@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MyNotifier.Contracts.Updaters
 {
-    public interface IUpdaterModuleDescription
+    public interface IModuleDescription : Base.IDefinition
     {
         //Type Type { get; }
         string AssemblyName { get; }
@@ -16,8 +17,12 @@ namespace MyNotifier.Contracts.Updaters
         //IUpdaterDefinition ? //one contains the other ? 
     }
 
-    public class UpdaterModuleDescription : IUpdaterModuleDescription
+    public class ModuleDescription : IModuleDescription
     {
+        public Guid Id { get; set;  }
+        public string Name { get; set;  }
+        public string Description { get; set; }
+
         //public Type Type { get; set; }
         public string AssemblyName { get; set; }
         public string TypeFullName { get; set; }

@@ -10,42 +10,43 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 
 namespace MyNotifier.Updaters
 {
 
 
 
-    public abstract class UpdaterModuleLoader : IUpdaterModuleLoader
+    public abstract class ModuleLoader : IModuleLoader
     {
 
         protected readonly IConfiguration configuration;
-        protected readonly ICallContext<UpdaterModuleLoader> callContext;
+        protected readonly ICallContext<ModuleLoader> callContext;
 
         protected HashSet<Guid> loadedUpdaterIds = new();
 
-        protected UpdaterModuleLoader(IConfiguration configuration, ICallContext<UpdaterModuleLoader> callContext)
+        protected ModuleLoader(IConfiguration configuration, ICallContext<ModuleLoader> callContext)
         {
             this.configuration = configuration;
             this.callContext = callContext;
         }
 
-        public async ValueTask<IUpdaterModuleLoader.IResult> LoadModuleAsync(IUpdaterDefinition updaterDefinition) => await LoadModuleCoreAsync(updaterDefinition).ConfigureAwait(false);
-        public async IAsyncEnumerable<IUpdaterModuleLoader.IResult> LoadModulesAsync(params IUpdaterDefinition[] updaterDefinitions) { foreach (var updaterDefinition in updaterDefinitions) yield return await LoadModuleCoreAsync(updaterDefinition).ConfigureAwait(false); } //this may not work. something about try/catch in asyncEnumerables 
+        public async ValueTask<IModuleLoader.IResult> LoadModuleAsync(IUpdaterDefinition updaterDefinition) => await this.LoadModuleCoreAsync(updaterDefinition).ConfigureAwait(false);
+        public async IAsyncEnumerable<IModuleLoader.IResult> LoadModulesAsync(params IUpdaterDefinition[] updaterDefinitions) { foreach (var updaterDefinition in updaterDefinitions) yield return await this.LoadModuleCoreAsync(updaterDefinition).ConfigureAwait(false); } //this may not work. something about try/catch in asyncEnumerables 
 
-        protected virtual async ValueTask<IUpdaterModuleLoader.IResult> LoadModuleCoreAsync(IUpdaterDefinition updaterDefinition)
+        protected virtual async ValueTask<IModuleLoader.IResult> LoadModuleCoreAsync(IUpdaterDefinition updaterDefinition)
         {
             try
             {
                 if (this.loadedUpdaterIds.Contains(updaterDefinition.Id)) return new Result() { Success = true, Result = updaterDefinition };
 
-                var moduleBytesResult = await LoadModuleBytesAsync(updaterDefinition).ConfigureAwait(false);
+                var moduleBytesResult = await this.LoadModuleBytesAsync(updaterDefinition).ConfigureAwait(false);
 
                 if (!moduleBytesResult.Success) return new Result() { Success = false, ErrorText = moduleBytesResult.ErrorText };
 
                 var assembly = Assembly.Load(moduleBytesResult.Result);
 
-                if (!TryValidateAssemblyForUpdaterDefinition(assembly, updaterDefinition, out var errorText)) return new Result() { Success = false, ErrorText = errorText };
+                if (!this.TryValidateAssemblyForUpdaterDefinition(assembly, updaterDefinition, out var errorText)) return new Result() { Success = false, ErrorText = errorText };
 
                 this.loadedUpdaterIds.Add(updaterDefinition.Id);
 
@@ -99,6 +100,6 @@ namespace MyNotifier.Updaters
             }
         }
 
-        public class Result : CallResult<IUpdaterDefinition>, IUpdaterModuleLoader.IResult { }
+        public class Result : CallResult<IUpdaterDefinition>, IModuleLoader.IResult { }
     }
 }

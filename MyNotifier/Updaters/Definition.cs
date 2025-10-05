@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MyNotifier.Updaters
 {
-    public abstract class UpdaterDefinition : IUpdaterDefinition //also in Updater.cs, will figure this out later 
+    public abstract class Definition : MyNotifier.Contracts.Updaters.IDefinition //also in Updater.cs, will figure this out later 
     {
         public abstract Guid Id { get; }
         public abstract string Name { get; }
@@ -32,7 +32,7 @@ namespace MyNotifier.Updaters
             }
         }
 
-        public abstract IUpdaterModuleDescription ModuleDescription { get; }
+        public abstract IModuleDescription ModuleDescription { get; }
         protected abstract IParameterDefinition[] GetParameterDefinitionsCore();
 
         //dependencies? 

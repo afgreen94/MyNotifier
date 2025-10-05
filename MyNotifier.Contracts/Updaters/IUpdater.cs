@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MyNotifier.Contracts.Updaters;
 using MyNotifier.Contracts.Notifications;
+using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 
 namespace MyNotifier.Contracts.Updaters
 {

@@ -1,11 +1,18 @@
 ﻿using MyNotifier.Contracts;
 using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.Updaters;
+using MyNotifier.Contracts.EventModules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
+using UpdaterDefinitionModel = MyNotifier.Contracts.Updaters.DefinitionModel;
+using CustomUpdaterDefinition = MyNotifier.Contracts.Updaters.CustomDefinition;
+using IEventModuleDefinition = MyNotifier.Contracts.EventModules.IDefinition;
+using EventModuleDefinitionModel = MyNotifier.Contracts.EventModules.DefinitionModel;
+using CustomEventModuleDefinition = MyNotifier.Contracts.EventModules.CustomDefinition;
 
 namespace MyNotifier
 {
@@ -117,7 +124,7 @@ namespace MyNotifier
                 Name = definition.Name,
                 Description = definition.Description,
                 Dependencies = definition.Dependencies,
-                ModuleDescription = new UpdaterModuleDescription()
+                ModuleDescription = new ModuleDescription()
                 {
                     AssemblyName = definition.ModuleDescription.AssemblyName,
                     TypeFullName = definition.ModuleDescription.TypeFullName,

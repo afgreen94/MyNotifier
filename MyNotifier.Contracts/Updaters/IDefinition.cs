@@ -8,24 +8,24 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MyNotifier.Contracts.Updaters
 {
-    public interface IUpdaterDefinition : IDefinition
+    public interface IDefinition : MyNotifier.Contracts.Base.IDefinition
     {
         IParameterDefinition[] ParameterDefinitions { get; }
-        IUpdaterModuleDescription ModuleDescription { get; } // for now, definition includes module description, could decouple later 
+        IModuleDescription ModuleDescription { get; } // for now, definition includes module description, could decouple later 
         HashSet<ServiceDescriptor> Dependencies { get; }
     }
 
-    public class CustomUpdaterDefinition : Definition, IUpdaterDefinition
+    public class CustomDefinition : Definition, IDefinition
     {
         public IParameterDefinition[] ParameterDefinitions { get; set; }
-        public IUpdaterModuleDescription ModuleDescription { get; set;  }
+        public IModuleDescription ModuleDescription { get; set;  }
         public HashSet<ServiceDescriptor> Dependencies { get; set; }
     }
 
-    public class UpdaterDefinitionModel : Definition, IDefinition
+    public class DefinitionModel : Definition, MyNotifier.Contracts.Base.IDefinition
     {
         public ParameterDefinition[] ParameterDefinitions { get; set; }
-        public UpdaterModuleDescription ModuleDescription { get; set; }
+        public ModuleDescription ModuleDescription { get; set; }
         public HashSet<ServiceDescriptor> Dependencies { get; set; }
     }
 }

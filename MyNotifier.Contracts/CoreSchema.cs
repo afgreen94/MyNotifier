@@ -1,5 +1,6 @@
 ﻿using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.Updaters;
+using MyNotifier.Contracts.EventModules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using IDefinition = MyNotifier.Contracts.Base.IDefinition;
+using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 
 namespace MyNotifier.Contracts
 {
@@ -103,75 +106,6 @@ namespace MyNotifier.Contracts
     {
         public Definition Definition { get; set; }
         public EventModuleModel[] EventModuleModels { get; set; }
-    }
-
-
-    public interface IEventModuleDefinition : IDefinition
-    {
-        IUpdaterDefinition[] UpdaterDefinitions { get; }
-        //IUpdaterSet CommonUpdaterDefinitions { get; }
-    }
-
-    public class EventModuleDefinitionModel : Definition
-    {
-        public UpdaterDefinitionModel[] UpdaterDefinitions { get; set; }
-    }
-
-
-    public interface IEventModule
-    {
-        IEventModuleDefinition Definition { get; }
-        IDictionary<Guid, UpdaterParametersWrapper> UpdaterParameterWrappers { get; }
-    }
-
-    public class EventModule : IEventModule
-    {
-        public IEventModuleDefinition Definition { get; set; }
-        public IDictionary<Guid, UpdaterParametersWrapper> UpdaterParameterWrappers { get; set; } = new Dictionary<Guid, UpdaterParametersWrapper>();
-    }
-
-    public class EventModuleModel
-    {
-        public EventModuleDefinitionModel Definition { get; set; }
-        public Dictionary<Guid, Parameter[]> Parameters { get; set; }
-    }
-
-    public abstract class EventModuleDefinitionBase : IEventModuleDefinition //type of event
-    {
-        public abstract Guid Id { get; }
-        public abstract string Name { get; }
-        public abstract string Description { get; }
-        public abstract IUpdaterDefinition[] UpdaterDefinitions { get; }
-    }
-
-    public class CustomEventModuleDefinition : IEventModuleDefinition
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public IUpdaterDefinition[] UpdaterDefinitions { get; set; }
-    }
-
-    //public class EventModule : IEventModule //event (collection of updaters w/ parameters) //event module should have hash [emDefn.Id + parameterValues hash]
-    //{
-    //    public IEventModuleDefinition Definition { get; set; }
-    //    public HashSet<UpdaterParameterWrapper> UpdaterParameterWrappers { get; set; }
-    //}
-
-    public class EventModuleDescription
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-
-        public IDictionary<Guid, Parameter[]> Parameters { get; set; }
-    }
-
-
-    public class UpdaterParametersWrapper 
-    {
-        public IUpdater Updater { get; set; }
-        public Parameter[] Parameters { get; set; } //parameter[][] !!! for now, 1 set of parameters per updater. 1 updater per module. eventually make graph or something to allow for multiple sets of parameters for same updater  
     }
 
     public class Event

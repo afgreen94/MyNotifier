@@ -9,24 +9,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 
 namespace MyNotifier.Updaters
 {
-    public class UpdaterFactory : IUpdaterFactory
+    public class Factory : MyNotifier.Contracts.Updaters.IFactory
     {
-        private readonly IUpdaterDefinitionProvider provider;
-        private readonly IUpdaterModuleLoader moduleLoader;
+        private readonly IDefinitionProvider definitionProvider;
+        private readonly IModuleLoader moduleLoader;
         private readonly Contracts.Updaters.ICache cache;
         private readonly IConfiguration configuration;
-        private readonly ICallContext<UpdaterFactory> callContext;
+        private readonly ICallContext<Factory> callContext;
 
-        public UpdaterFactory(IUpdaterDefinitionProvider provider,
-                              IUpdaterModuleLoader moduleLoader,
+        public Factory(IDefinitionProvider definitionProvider,
+                              IModuleLoader moduleLoader,
                               Contracts.Updaters.ICache cache,
                               IConfiguration configuration,
-                              ICallContext<UpdaterFactory> callContext)
+                              ICallContext<Factory> callContext)
         {
-            this.provider = provider;
+            this.definitionProvider = definitionProvider;
             this.moduleLoader = moduleLoader;
             this.cache = cache;
             this.configuration = configuration;
@@ -35,13 +36,13 @@ namespace MyNotifier.Updaters
 
         //public async ValueTask<ICallResult> InitializeAsync() => throw new NotImplementedException();
 
-        public async ValueTask<ICallResult<IUpdater>> GetUpdaterAsync(Guid updaterDefinitionId)
+        public async ValueTask<ICallResult<IUpdater>> GetAsync(Guid updaterDefinitionId)
         {
             try
             {
                 if (this.cache.TryGetValue(updaterDefinitionId, out IUpdater cachedUpdater)) return new CallResult<IUpdater>(cachedUpdater);
 
-                var getUpdaterDefinitionResult = await this.GetUpdaterDefinitionCoreAsync(updaterDefinitionId).ConfigureAwait(false);
+                var getUpdaterDefinitionResult = await this.GetDefinitionCoreAsync(updaterDefinitionId).ConfigureAwait(false);
                 if (!getUpdaterDefinitionResult.Success) return CallResult<IUpdater>.BuildFailedCallResult(getUpdaterDefinitionResult, "{0}");
 
                 var loadModuleResult = await this.moduleLoader.LoadModuleAsync(getUpdaterDefinitionResult.Result).ConfigureAwait(false);
@@ -67,15 +68,15 @@ namespace MyNotifier.Updaters
             catch (Exception ex) { return CallResult<IUpdater>.FromException(ex); } //handle this 
         }
 
-        public async ValueTask<ICallResult<IUpdaterDefinition>> GetUpdaterDefinitionAsync(Guid updaterDefinitionId) => await this.GetUpdaterDefinitionCoreAsync(updaterDefinitionId).ConfigureAwait(false);
+        public async ValueTask<ICallResult<IUpdaterDefinition>> GetDefinitionAsync(Guid updaterDefinitionId) => await this.GetDefinitionCoreAsync(updaterDefinitionId).ConfigureAwait(false);
 
-        private async ValueTask<ICallResult<IUpdaterDefinition>> GetUpdaterDefinitionCoreAsync(Guid updaterDefinitionId)
+        private async ValueTask<ICallResult<IUpdaterDefinition>> GetDefinitionCoreAsync(Guid updaterDefinitionId)
         {
             try
             {
                 if (this.cache.TryGetValue(updaterDefinitionId, out IUpdaterDefinition updaterDefinition)) return new CallResult<IUpdaterDefinition>(updaterDefinition);
 
-                var getUpdaterDefinitionResult = await this.provider.GetUpdaterDefinitionAsync(updaterDefinitionId).ConfigureAwait(false);
+                var getUpdaterDefinitionResult = await this.definitionProvider.GetAsync(updaterDefinitionId).ConfigureAwait(false);
                 if (!getUpdaterDefinitionResult.Success) return getUpdaterDefinitionResult;
 
                 this.cache.Add(getUpdaterDefinitionResult.Result.Id, getUpdaterDefinitionResult.Result);

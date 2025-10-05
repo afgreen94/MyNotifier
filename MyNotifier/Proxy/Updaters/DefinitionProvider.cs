@@ -7,25 +7,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 
 namespace MyNotifier.Proxy.Updaters
 {
-    public class UpdaterDefinitionProvider : IUpdaterDefinitionProvider
+    public class DefinitionProvider : IDefinitionProvider
     {
-        private readonly IProxyIOManager proxyIOManager;
-        private readonly ICallContext<UpdaterDefinitionProvider> callContext;
+        private readonly IIOManager ioManager;
+        private readonly ICallContext<DefinitionProvider> callContext;
 
-        public UpdaterDefinitionProvider(IProxyIOManager proxyIOManager, ICallContext<UpdaterDefinitionProvider> callContext)
+        public DefinitionProvider(IIOManager ioManager, ICallContext<DefinitionProvider> callContext)
         {
-            this.proxyIOManager = proxyIOManager;
+            this.ioManager = ioManager;
             this.callContext = callContext;
         }
 
-        public async ValueTask<ICallResult<IUpdaterDefinition>> GetUpdaterDefinitionAsync(Guid updaterDefinitionId)
+        public async ValueTask<ICallResult<IUpdaterDefinition>> GetAsync(Guid updaterDefinitionId)
         {
             try
             {
-                var retrieveUpdaterDefinitionResult = await this.proxyIOManager.RetrieveUpdaterDefinitionAsync(updaterDefinitionId);
+                var retrieveUpdaterDefinitionResult = await this.ioManager.RetrieveUpdaterDefinitionAsync(updaterDefinitionId);
                 if(retrieveUpdaterDefinitionResult.Success) return CallResult<IUpdaterDefinition>.BuildFailedCallResult(retrieveUpdaterDefinitionResult, $"Failed to retrieve updater definition with Id: {updaterDefinitionId}: {{0}}");
 
                 return new CallResult<IUpdaterDefinition>(retrieveUpdaterDefinitionResult.Result);

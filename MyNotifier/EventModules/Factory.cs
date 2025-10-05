@@ -1,6 +1,7 @@
 ﻿using MyNotifier.Base;
 using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.Updaters;
+using MyNotifier.Contracts.EventModules;
 using MyNotifier.Contracts;
 using System;
 using System.Collections.Generic;
@@ -9,26 +10,29 @@ using System.Text;
 using System.Threading.Tasks;
 using ParameterValidator = MyNotifier.Parameters.ParameterValidator;
 using MyNotifier.Updaters;
-using MyNotifier.Contracts.EventModules;
+using IUpdaterFactory = MyNotifier.Contracts.Updaters.IFactory;
+using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
+using IEventModuleDefinition = MyNotifier.Contracts.EventModules.IDefinition;
+using CustomEventModuleDefinition = MyNotifier.Contracts.EventModules.CustomDefinition;
 
 namespace MyNotifier.EventModules
 {
-    public class EventModuleFactory : IEventModuleFactory
+    public class Factory : MyNotifier.Contracts.EventModules.IFactory
     {
 
-        private readonly IEventModuleProvider provider;
+        private readonly IProvider provider;
         private readonly IUpdaterFactory updaterFactory;
         private readonly Contracts.EventModules.ICache cache;
         private readonly IConfiguration configuration;
-        private readonly ICallContext<EventModuleFactory> callContext;
+        private readonly ICallContext<Factory> callContext;
 
         private ParameterValidator parameterValidator = new();
 
-        public EventModuleFactory(IEventModuleProvider provider,
-                                  IUpdaterFactory updaterFactory,
-                                  Contracts.EventModules.ICache cache,
-                                  IConfiguration configuration,
-                                  ICallContext<EventModuleFactory> callContext)
+        public Factory(IProvider provider,
+                       IUpdaterFactory updaterFactory,
+                       Contracts.EventModules.ICache cache,
+                       IConfiguration configuration,
+                       ICallContext<Factory> callContext)
         {
             this.provider = provider;
             this.updaterFactory = updaterFactory;
@@ -40,6 +44,16 @@ namespace MyNotifier.EventModules
 
         public IUpdaterFactory UpdaterFactory => this.updaterFactory;
 
+        public ValueTask<ICallResult<IEventModule>> GetAsync(Guid eventModuleId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ValueTask<ICallResult<IEventModuleDefinition>> GetDefinitionAsync(Guid eventModuleDefinitionId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async ValueTask<ICallResult<IEventModule>> GetEventModuleAsync(Guid eventModuleDefinitionId, IEventModuleParameterValues parameterValues) //ParameterValue[][] parameterValues)
         {
             try
@@ -49,7 +63,7 @@ namespace MyNotifier.EventModules
 
                 if (!this.cache.TryGetValue(eventModuleDefinitionId, out IEventModuleDefinition eventModuleDefinition))
                 {
-                    var getEventModuleDefinitionResult = await this.provider.GetEventModuleDefinitionAsync(eventModuleDefinitionId);
+                    var getEventModuleDefinitionResult = await this.provider.GetDefinitionAsync(eventModuleDefinitionId);
                     if (!getEventModuleDefinitionResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getEventModuleDefinitionResult, $"Failed to retrieve event module definition with id: {eventModuleDefinitionId}: {{0}}");
 
                     eventModuleDefinition = getEventModuleDefinitionResult.Result;
@@ -57,7 +71,7 @@ namespace MyNotifier.EventModules
                     this.cache.Add(eventModuleDefinition.Id, eventModuleDefinition);
                 }
 
-                var eventModule = new EventModule() { Definition = eventModuleDefinition };
+                var eventModule = new CustomEventModule() { Definition = eventModuleDefinition };
 
                 foreach (var updaterDefinition in eventModule.Definition.UpdaterDefinitions)
                 {
@@ -65,7 +79,7 @@ namespace MyNotifier.EventModules
                     var validParameters = this.parameterValidator.TryValidateAndBuildParameters(updaterDefinition.ParameterDefinitions, parameterValues.UpdaterParameters[updaterDefinition.Id], out var parameters, out var errorText);
                     if (!validParameters) return new CallResult<IEventModule>(false, $"Invalid parameters for event module with id: {eventModuleDefinitionId} and updater definition id: {updaterDefinition.Id}: {errorText}");
 
-                    var getUpdaterResult = await this.updaterFactory.GetUpdaterAsync(updaterDefinition.Id).ConfigureAwait(false);
+                    var getUpdaterResult = await this.updaterFactory.GetAsync(updaterDefinition.Id).ConfigureAwait(false);
                     if (!getUpdaterResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getUpdaterResult, $"Failed to get updater with definition id: {updaterDefinition.Id} for event module with definition id: {eventModuleDefinitionId}: {{0}}"); 
 
                     eventModule.UpdaterParameterWrappers.Add(updaterDefinition.Id, new UpdaterParametersWrapper()
@@ -90,7 +104,7 @@ namespace MyNotifier.EventModules
 
                 for (int i = 0; i < updaterDefinitions.Length; i++) updaterDefinitions[i] = ModelTranslator.ToUpdaterDefinition(model.Definition.UpdaterDefinitions[i]);
 
-                var eventModule = new EventModule()
+                var eventModule = new CustomEventModule()
                 {
                     Definition = new CustomEventModuleDefinition()
                     {
@@ -108,7 +122,7 @@ namespace MyNotifier.EventModules
                     bool validParameters = this.parameterValidator.TryValidateParameters(updaterDefinition.ParameterDefinitions, model.Parameters[updaterDefinition.Id], out var errorText);
                     if(!validParameters) return new CallResult<IEventModule>(false, $"Invalid parameters for event module with id: {eventModule.Definition.Id} and updater definition id: {updaterDefinition.Id}: {errorText}");
 
-                    var getUpdaterResult = await this.updaterFactory.GetUpdaterAsync(updaterDefinition.Id).ConfigureAwait(false);
+                    var getUpdaterResult = await this.updaterFactory.GetAsync(updaterDefinition.Id).ConfigureAwait(false);
                     if (!getUpdaterResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getUpdaterResult, $"Failed to get updater with definition id: {updaterDefinition.Id} for event module with definition id: {eventModule.Definition.Id}: {{0}}");
 
                     eventModule.UpdaterParameterWrappers.Add(updaterDefinition.Id, new UpdaterParametersWrapper()
@@ -135,7 +149,7 @@ namespace MyNotifier.EventModules
             {
                 if (this.cache.TryGetValue(eventModuleDefinitionId, out IEventModuleDefinition definition)) return new CallResult<IEventModuleDefinition>(definition);
 
-                var getDefinitionResult = await this.provider.GetEventModuleDefinitionAsync(eventModuleDefinitionId).ConfigureAwait(false);  //may not exist! 
+                var getDefinitionResult = await this.provider.GetDefinitionAsync(eventModuleDefinitionId).ConfigureAwait(false);  //may not exist! 
                 if (!getDefinitionResult.Success) return CallResult<IEventModuleDefinition>.BuildFailedCallResult(getDefinitionResult, $"Failed to retrieve event module definition with id: {eventModuleDefinitionId}: {{0}}");
 
                 this.cache.Add(definition.Id, definition);

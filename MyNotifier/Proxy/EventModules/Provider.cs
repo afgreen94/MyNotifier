@@ -2,40 +2,36 @@
 using MyNotifier.Contracts;
 using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.EventModules;
+using MyNotifier.Contracts.Proxy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using IEventModuleDefinition = MyNotifier.Contracts.EventModules.IDefinition;
+using EventModuleDefinitionModel = MyNotifier.Contracts.EventModules.DefinitionModel;
 
 namespace MyNotifier.Proxy.EventModules
 {
 
-
-    public interface IEventModuleProviderProxyIOManager
-    {
-        ICallResult<Stream> CreateEventModuleDefinitionStream(Guid eventModuleDefinitionId);
-        ICallResult<Stream> CreateEventModuleStream(Guid eventModuleId);
-    }
-
-    public class EventModuleProvider : IEventModuleProvider
+    public class Provider : IProvider
     {
 
-        private readonly IEventModuleProviderProxyIOManager proxyIOManager;
-        private readonly ICallContext<EventModuleProvider> callContext;
+        private readonly IIOManager ioManager;
+        private readonly ICallContext<Provider> callContext;
 
-        public EventModuleProvider(IEventModuleProviderProxyIOManager proxyIOManager, ICallContext<EventModuleProvider> callContext)
+        public Provider(IIOManager ioManager, ICallContext<Provider> callContext)
         {
-            this.proxyIOManager = proxyIOManager;
+            this.ioManager = ioManager;
             this.callContext = callContext;
         }
 
-        public async ValueTask<ICallResult<IEventModuleDefinition>> GetEventModuleDefinitionAsync(Guid eventModuleDefinitionId)
+        public async ValueTask<ICallResult<IEventModuleDefinition>> GetDefinitionAsync(Guid eventModuleDefinitionId)
         {
             try
             {
-                var createEventModuleDefinitionStreamResult = proxyIOManager.CreateEventModuleStream(eventModuleDefinitionId);
+                var createEventModuleDefinitionStreamResult = this.ioManager.CreateEventModuleStream(eventModuleDefinitionId);
                 if (!createEventModuleDefinitionStreamResult.Success) return CallResult<IEventModuleDefinition>.BuildFailedCallResult(createEventModuleDefinitionStreamResult, $"Failed to create read stream for event module definition with id: {eventModuleDefinitionId}: {{0}}");
 
                 string json;
@@ -53,16 +49,7 @@ namespace MyNotifier.Proxy.EventModules
             catch(Exception ex) { return CallResult<IEventModuleDefinition>.FromException(ex); }
         }
 
-        public ValueTask<ICallResult<IEventModule>> GetEventModuleAsync(Guid eventModuleId) => throw new NotImplementedException();
-        //{
-        //    try
-        //    {
-        //        var createEventModuleDefinitionStreamResult = this.proxyIOManager.CreateEventModuleStream(eventModuleDefinitionId);
-        //        if (!createEventModuleDefinitionStreamResult.Success) return CallResult<IEventModuleDefinition>.BuildFailedCallResult(createEventModuleDefinitionStreamResult, $"Failed to create read stream for event module definition with id: {eventModuleDefinitionId}: {{0}}");
+        public ValueTask<ICallResult<IEventModule>> GetAsync(Guid eventModuleId) => throw new NotImplementedException();
 
-
-        //    }
-        //    catch (Exception ex) { return CallResult<IEventModule>.FromException(ex); }
-        //}
     }
 }

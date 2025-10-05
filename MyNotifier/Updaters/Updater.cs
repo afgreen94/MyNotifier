@@ -8,6 +8,7 @@ using MyNotifier.Contracts;
 using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.Updaters;
 using MyNotifier.Contracts.Notifications;
+using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 
 namespace MyNotifier.Updaters
 {

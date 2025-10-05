@@ -9,24 +9,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 
 namespace MyNotifier.Proxy.Updaters
 {
-    public class UpdaterModuleLoader : MyNotifier.Updaters.UpdaterModuleLoader, IProxyUpdaterModuleLoader
+    public class ModuleLoader : MyNotifier.Updaters.ModuleLoader, IModuleLoader
     {
+        private readonly IIOManager ioManager;
 
-        private readonly IProxyIOManager proxyIOManager;
-
-        public UpdaterModuleLoader(IProxyIOManager proxyIOManager, IConfiguration configuration, ICallContext<UpdaterModuleLoader> callContext) : base(configuration, callContext) { }
+        public ModuleLoader(IIOManager ioManager, IConfiguration configuration, ICallContext<ModuleLoader> callContext) : base(configuration, callContext) { this.ioManager = ioManager; }
 
         protected override async Task<ICallResult<byte[]>> LoadModuleBytesAsync(IUpdaterDefinition updaterDefinition)
         {
             try
             {
-                //var modulePath = this.proxyIOManager.BuildModulePath(updaterDefinition.ModuleDescription);
-                //var createDllReadStreamResult = this.fileIOManager.CreateReadFileStream(modulePath);
-
-                var createModuleStreamResult = this.proxyIOManager.CreateModuleReadStream(updaterDefinition.ModuleDescription);
+                var createModuleStreamResult = this.ioManager.CreateUpdaterModuleReadStream(updaterDefinition.ModuleDescription);
                 if (!createModuleStreamResult.Success) return CallResult<byte[]>.BuildFailedCallResult(createModuleStreamResult, $"Failed to create module read stream for updater: {updaterDefinition.Id}-{updaterDefinition.Name}: {0}");
 
                 using var dllReadStream = createModuleStreamResult.Result;
@@ -41,8 +38,8 @@ namespace MyNotifier.Proxy.Updaters
             catch (Exception ex) { return CallResult<byte[]>.FromException(ex); }
         }
 
-        public new interface IConfiguration : MyNotifier.Updaters.UpdaterModuleLoader.IConfiguration { }
-        public new class Configuration : MyNotifier.Updaters.UpdaterModuleLoader.Configuration
+        public new interface IConfiguration : MyNotifier.Updaters.ModuleLoader.IConfiguration { }
+        public new class Configuration : MyNotifier.Updaters.ModuleLoader.Configuration
         {
             public Configuration(IApplicationConfiguration innerApplicationConfiguration) : base(innerApplicationConfiguration)
             {
