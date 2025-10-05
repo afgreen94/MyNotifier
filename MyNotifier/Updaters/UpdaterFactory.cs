@@ -56,8 +56,8 @@ namespace MyNotifier.Updaters
 
                 foreach (var dependency in getUpdaterDefinitionResult.Result.Dependencies) serviceCollection.TryAdd(dependency);
 
-                var updater = serviceCollection.BuildServiceProvider().GetRequiredService(updaterType) as IUpdater;
-                if (updater == null) return new CallResult<IUpdater>(false, $"could not inject updater of type: {getUpdaterDefinitionResult.Result.ModuleDescription.TypeFullName}");
+                if (serviceCollection.BuildServiceProvider().GetRequiredService(updaterType) is not IUpdater updater) 
+                    return new CallResult<IUpdater>(false, $"could not inject updater of type: {getUpdaterDefinitionResult.Result.ModuleDescription.TypeFullName}");
 
                 //this.cache.Add(getUpdaterDefinitionResult.Result); //already added from GetUpdaterDefinitionCore() 
                 this.cache.Add(updater.Definition.Id, updater);
