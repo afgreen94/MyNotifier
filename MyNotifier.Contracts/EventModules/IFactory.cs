@@ -11,10 +11,10 @@ namespace MyNotifier.Contracts.EventModules
 {
     public interface IFactory : IProvider, IDefinitionProvider
     {
-        ValueTask<ICallResult<IEventModule>> GetEventModuleAsync(EventModuleModel model);
-        ValueTask<ICallResult<IEventModule>> GetEventModuleAsync(IDefinition definition, IParameterValues parameterValues);
-        ValueTask<ICallResult<IEventModule>> GetEventModuleAsync(Guid eventModuleDefinitionId, IParameterValues parameterValues); //ParameterValue[][]); //need parameters  
-        ValueTask<ICallResult<IEventModule>> GetEventModuleAsync(string eventModuleString); //parameters included in hash
+        ValueTask<ICallResult<IEventModule>> GetAsync(EventModuleModel model);
+        ValueTask<ICallResult<IEventModule>> GetAsync(IDefinition definition, IParameterValues parameterValues);
+        ValueTask<ICallResult<IEventModule>> GetAsync(Guid eventModuleDefinitionId, IParameterValues parameterValues); //ParameterValue[][]); //need parameters  
+        ValueTask<ICallResult<IEventModule>> GetAsync(string eventModuleString); //parameters included in hash
 
         IUpdaterFactory UpdaterFactory { get; }
     }

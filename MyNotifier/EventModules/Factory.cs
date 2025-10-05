@@ -45,17 +45,8 @@ namespace MyNotifier.EventModules
 
         public IUpdaterFactory UpdaterFactory => this.updaterFactory;
 
-        public ValueTask<ICallResult<IEventModule>> GetAsync(Guid eventModuleId)
-        {
-            throw new NotImplementedException();
-        }
 
-        public ValueTask<ICallResult<IEventModuleDefinition>> GetDefinitionAsync(Guid eventModuleDefinitionId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async ValueTask<ICallResult<IEventModule>> GetEventModuleAsync(Guid eventModuleDefinitionId, IEventModuleParameterValues parameterValues) //ParameterValue[][] parameterValues)
+        public async ValueTask<ICallResult<IEventModule>> GetAsync(Guid eventModuleDefinitionId, IEventModuleParameterValues parameterValues) //ParameterValue[][] parameterValues)
         {
             try
             {
@@ -97,7 +88,7 @@ namespace MyNotifier.EventModules
             catch (Exception ex) { return CallResult<IEventModule>.FromException(ex); }//return new CallResult(); } //handle 
 
         }
-        public async ValueTask<ICallResult<IEventModule>> GetEventModuleAsync(EventModuleModel model)  //persist custom event module definitions?
+        public async ValueTask<ICallResult<IEventModule>> GetAsync(EventModuleModel model)  //persist custom event module definitions?
         {
             try
             {
@@ -140,11 +131,11 @@ namespace MyNotifier.EventModules
 
         }
 
-        public ValueTask<ICallResult<IEventModule>> GetEventModuleAsync(Guid eventModuleId) => throw new NotImplementedException();//event module instance id 
-        public ValueTask<ICallResult<IEventModule>> GetEventModuleAsync(string eventModuleString) => throw new NotImplementedException(); //event Module string representation/hash/json 
-        public ValueTask<ICallResult<IEventModule>> GetEventModuleAsync(IEventModuleDefinition definition, IEventModuleParameterValues parameterValues) => throw new NotImplementedException();
+        public ValueTask<ICallResult<IEventModule>> GetAsync(Guid eventModuleId) => throw new NotImplementedException();//event module instance id 
+        public ValueTask<ICallResult<IEventModule>> GetAsync(string eventModuleString) => throw new NotImplementedException(); //event Module string representation/hash/json 
+        public ValueTask<ICallResult<IEventModule>> GetAsync(IEventModuleDefinition definition, IEventModuleParameterValues parameterValues) => throw new NotImplementedException();
 
-        public async ValueTask<ICallResult<IEventModuleDefinition>> GetEventModuleDefinitionAsync(Guid eventModuleDefinitionId)
+        public async ValueTask<ICallResult<IEventModuleDefinition>> GetDefinitionAsync(Guid eventModuleDefinitionId)
         {
             try
             {
