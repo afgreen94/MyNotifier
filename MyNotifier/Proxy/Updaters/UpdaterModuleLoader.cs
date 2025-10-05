@@ -2,6 +2,7 @@
 using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.Updaters;
 using MyNotifier.Contracts;
+using MyNotifier.Contracts.Proxy.Updaters;
 using MyNotifier.Updaters;
 using System;
 using System.Collections.Generic;
@@ -11,13 +12,6 @@ using System.Threading.Tasks;
 
 namespace MyNotifier.Proxy.Updaters
 {
-    public interface IProxyIOManager
-    {
-        ICallResult<Stream> CreateModuleReadStream(IUpdaterModuleDescription moduleDescription);
-        //string BuildModulePath(IUpdaterModuleDescription moduleDescription);
-    }
-
-    public interface IProxyUpdaterModuleLoader : IUpdaterModuleLoader { }
     public class UpdaterModuleLoader : MyNotifier.Updaters.UpdaterModuleLoader, IProxyUpdaterModuleLoader
     {
 
@@ -32,7 +26,7 @@ namespace MyNotifier.Proxy.Updaters
                 //var modulePath = this.proxyIOManager.BuildModulePath(updaterDefinition.ModuleDescription);
                 //var createDllReadStreamResult = this.fileIOManager.CreateReadFileStream(modulePath);
 
-                var createModuleStreamResult = proxyIOManager.CreateModuleReadStream(updaterDefinition.ModuleDescription);
+                var createModuleStreamResult = this.proxyIOManager.CreateModuleReadStream(updaterDefinition.ModuleDescription);
                 if (!createModuleStreamResult.Success) return CallResult<byte[]>.BuildFailedCallResult(createModuleStreamResult, $"Failed to create module read stream for updater: {updaterDefinition.Id}-{updaterDefinition.Name}: {0}");
 
                 using var dllReadStream = createModuleStreamResult.Result;
