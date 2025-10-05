@@ -17,7 +17,7 @@ namespace MyNotifier.Contracts.Proxy
         FileStructureSettings FileStructure { get; }
     }
 
-    public class ProxySettings : IProxySettings //: FileServerSettings //proxy file server settings 
+    public class ProxySettings : IProxySettings //: FileServerSettings //proxy file server settings  //encapsulate paths into proxySettings 
     {
         public FileStorageProvider ProxyHost { get; set; }
         public bool AllowRecreateProxyFileSystem { get; set; } = false;
@@ -39,6 +39,7 @@ namespace MyNotifier.Contracts.Proxy
 
         public FileSystemObjectNameAssertWrapper LibraryFolder { get; set; } = new() { Name = "Library", SemanticName = "Library", Assert = true };
         public FileSystemObjectNameAssertWrapper DllsFolder { get; set; } = new() { Name = "Dlls", SemanticName = "Dlls", Assert = true };
+        public FileSystemObjectNameAssertWrapper UpdaterDefinitionsFolder { get; set; } = new() { Name = "UpdaterDefinitions", SemanticName = "UpdaterDefinitions", Assert = true }; //assert here should be true, maybe proxy initializer checks for non-zero count 
         public FileSystemObjectNameAssertWrapper EventModuleDefinitionsFolder = new() { Name = "EventModuleDefinitions", SemanticName = "EventModuleDefinitions", Assert = true }; //assert here is conditional, true for now 
         public FileSystemObjectNameAssertWrapper EventModuleModelsFolder = new() { Name = "EventModuleModels", SemanticName = "EventModuleModels", Assert = true }; //assert here is conditional, true for now 
 
@@ -56,6 +57,7 @@ namespace MyNotifier.Contracts.Proxy
 
             ret.LibraryFolder = new() { Path = wrapper.BuildAppendedPath(ret.RootFolder.Path, this.LibraryFolder.Name), Name = this.LibraryFolder.Name, SemanticName = this.LibraryFolder.SemanticName, Assert = this.LibraryFolder.Assert };
             ret.DllsFolder = new() { Path = wrapper.BuildAppendedPath(ret.LibraryFolder.Path, this.DllsFolder.Name), Name = this.DllsFolder.Name, SemanticName = this.DllsFolder.SemanticName, Assert = this.DllsFolder.Assert };
+            ret.UpdaterDefinitionsFolder = new() { Path = wrapper.BuildAppendedPath(ret.LibraryFolder.Path, this.UpdaterDefinitionsFolder.Name), Name = this.UpdaterDefinitionsFolder.Name, SemanticName = this.UpdaterDefinitionsFolder.SemanticName, Assert = this.UpdaterDefinitionsFolder.Assert };
             ret.EventModuleDefinitionsFolder = new() { Path = wrapper.BuildAppendedPath(ret.LibraryFolder.Path, this.EventModuleDefinitionsFolder.Name), Name = this.EventModuleDefinitionsFolder.Name, SemanticName = this.EventModuleDefinitionsFolder.SemanticName, Assert = this.EventModuleDefinitionsFolder.Assert };
             ret.EventModuleModelsFolder = new() { Path = wrapper.BuildAppendedPath(ret.LibraryFolder.Path, this.EventModuleModelsFolder.Name), Name = this.EventModuleModelsFolder.Name, SemanticName = this.EventModuleModelsFolder.SemanticName, Assert = this.EventModuleModelsFolder.Assert };
 
@@ -74,6 +76,7 @@ namespace MyNotifier.Contracts.Proxy
         public FileSystemObjectPathAssertWrapper ExceptionsFolder { get; set; }
         public FileSystemObjectPathAssertWrapper LibraryFolder { get; set; }
         public FileSystemObjectPathAssertWrapper DllsFolder { get; set; }
+        public FileSystemObjectPathAssertWrapper UpdaterDefinitionsFolder { get; set; }
         public FileSystemObjectPathAssertWrapper EventModuleDefinitionsFolder { get; set; }
         public FileSystemObjectPathAssertWrapper EventModuleModelsFolder { get; set; }
 
@@ -88,6 +91,7 @@ namespace MyNotifier.Contracts.Proxy
             this.ExceptionsFolder,
             this.LibraryFolder,
             this.DllsFolder,
+            this.UpdaterDefinitionsFolder,
             this.EventModuleDefinitionsFolder,
             this.EventModuleModelsFolder
         }.GetEnumerator();
