@@ -62,7 +62,8 @@ namespace MyNotifier.Proxy
                 //reflectively activate relevant updaters, add to session service collection later
                 
                 //maybe should have dedicated method for setting proxySetting, could include validation 
-                var proxyIOManagerInitializeResult = this.proxyIOManager.Initialize(proxySettings ?? this.configuration.ProxySettings, true); if (!proxyIOManagerInitializeResult.Success) return BuildFailedResult(proxyIOManagerInitializeResult);
+                var proxyIOManagerInitializeResult = await this.proxyIOManager.InitializeAsync(proxySettings ?? this.configuration.ProxySettings, true).ConfigureAwait(false); 
+                if (!proxyIOManagerInitializeResult.Success) return BuildFailedResult(proxyIOManagerInitializeResult);
 
                 var validateSystemProxyResult = await this.proxyIOManager.EnsureProxyFileSystemAsync().ConfigureAwait(false); if (!validateSystemProxyResult.Success) return BuildFailedResult(validateSystemProxyResult);
 
@@ -243,7 +244,7 @@ namespace MyNotifier.Proxy
         public interface IProxyFileServerInitializerIOManager 
         {
             IProxySettings ProxySettings { get; } //maybe should have dedicated Set Method ? //idk maybe should not be exposed 
-            ICallResult Initialize(IProxySettings proxySettings, bool forceReInitialize = false);
+            Task<ICallResult> InitializeAsync(IProxySettings proxySettings, bool forceReInitialize = false);
             ValueTask<ICallResult> EnsureProxyFileSystemAsync();
             ValueTask<ICallResult<Catalog>> LoadCatalogAsync();
             ValueTask<ICallResult<InterestModel[]>> LoadInterestModelsAsync();
@@ -274,13 +275,16 @@ namespace MyNotifier.Proxy
             public ProxyFileServerInitializerIOManager(IFileIOManager fileIOManager, ICallContext<ProxyFileServerInitializerIOManager> callContext) { this.fileIOManager = fileIOManager; this.callContext = callContext; }
 
 
-            public ICallResult Initialize(IProxySettings proxySettings, bool forceReInitialize = false)
+            public async Task<ICallResult> InitializeAsync(IProxySettings proxySettings, bool forceReInitialize = false)
             {
                 try
                 {
                     if (!this.isInitialized || forceReInitialize)
                     {
                         var validateProxySettingsResult = this.ValidateProxySettings(); if (!validateProxySettingsResult.Success) return validateProxySettingsResult;
+
+                        var fileIOManagerInitResult = await this.fileIOManager.InitializeAsync().ConfigureAwait(false);
+                        if (!fileIOManagerInitResult.Success) return CallResult.BuildFailedCallResult(fileIOManagerInitResult, "Failed to initialize fileIOManager: {0}");
 
                         this.paths = proxySettings.FileStructure.BuildPaths(new FileIOManager.FileIOManager.Wrapper(this.fileIOManager));
                         this.moduleLoader = new ModuleLoader(this.fileIOManager, this.paths);
