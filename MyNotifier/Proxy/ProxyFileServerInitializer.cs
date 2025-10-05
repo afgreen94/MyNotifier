@@ -26,6 +26,10 @@ using MyNotifier.Contracts.Publishers;
 using MyNotifier.Notifiers;
 using MyNotifier.FileIOManager;
 using System.IO;
+using IUpdaterFactory = MyNotifier.Contracts.Updaters.IFactory;
+using UpdaterFactory = MyNotifier.Updaters.Factory;
+using UpdaterDefinitionModel = MyNotifier.Contracts.Updaters.DefinitionModel;
+using CustomUpdaterDefinition = MyNotifier.Contracts.Updaters.CustomDefinition;
 
 namespace MyNotifier.Proxy
 {
@@ -526,8 +530,8 @@ namespace MyNotifier.Proxy
                     }
                 }
 
-                private string BuildModulePath(IUpdaterModuleDescription moduleDescription) => this.fileIOManagerWrapper.BuildAppendedPath(this.paths.DllsFolder.Path, this.BuildModuleName(moduleDescription));
-                private string BuildModuleName(IUpdaterModuleDescription moduleDescription) => $"{moduleDescription}.dll";
+                private string BuildModulePath(IModuleDescription moduleDescription) => this.fileIOManagerWrapper.BuildAppendedPath(this.paths.DllsFolder.Path, this.BuildModuleName(moduleDescription));
+                private string BuildModuleName(IModuleDescription moduleDescription) => $"{moduleDescription}.dll";
 
                 //private async Task<byte[]> LoadDllBytesFromPathAsync(string path)
                 //{
