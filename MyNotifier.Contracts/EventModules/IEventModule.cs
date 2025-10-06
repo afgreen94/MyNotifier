@@ -46,6 +46,6 @@ namespace MyNotifier.Contracts.EventModules
     public class EventModuleModel
     {
         public DefinitionModel Definition { get; set; }
-        public Dictionary<Guid, Parameter[]> Parameters { get; set; }
+        public Dictionary<Guid, Parameter[]> Parameters { get; set; } //EventModuleParameterValuesModel
     }
 }

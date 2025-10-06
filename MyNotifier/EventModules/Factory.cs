@@ -1,20 +1,22 @@
 ﻿using MyNotifier.Base;
-using MyNotifier.Contracts.Base;
-using MyNotifier.Contracts.Updaters;
-using MyNotifier.Contracts.EventModules;
 using MyNotifier.Contracts;
+using MyNotifier.Contracts.Base;
+using MyNotifier.Contracts.EventModules;
+using MyNotifier.Contracts.Proxy.EventModules;
+using MyNotifier.Contracts.Updaters;
+using MyNotifier.Updaters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using ParameterValidator = MyNotifier.Parameters.ParameterValidator;
-using MyNotifier.Updaters;
-using IUpdaterFactory = MyNotifier.Contracts.Updaters.IFactory;
-using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
-using IEventModuleDefinition = MyNotifier.Contracts.EventModules.IDefinition;
 using CustomEventModuleDefinition = MyNotifier.Contracts.EventModules.CustomDefinition;
+using IEventModuleDefinition = MyNotifier.Contracts.EventModules.IDefinition;
 using IEventModuleParameterValues = MyNotifier.Contracts.EventModules.IParameterValues;
+using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
+using IUpdaterFactory = MyNotifier.Contracts.Updaters.IFactory;
+using ParameterValidator = MyNotifier.Parameters.ParameterValidator;
 
 namespace MyNotifier.EventModules
 {
@@ -99,17 +101,11 @@ namespace MyNotifier.EventModules
                 foreach (var updaterDefinition in eventModule.Definition.UpdaterDefinitions)
                 {
                     //can parallelize getValidation of parameters and getUpdater
-                    bool validParameters = this.parameterValidator.TryValidateParameters(updaterDefinition.ParameterDefinitions, model.Parameters[updaterDefinition.Id], out var errorText);
+                    var validParameters = this.parameterValidator.TryValidateParameters(updaterDefinition.ParameterDefinitions, model.Parameters[updaterDefinition.Id], out var errorText);
                     if (!validParameters) return new CallResult<IEventModule>(false, $"Invalid parameters for event module with Id: {eventModule.Definition.Id} and updater definition Id: {updaterDefinition.Id}: {errorText}");
 
-                    var getUpdaterResult = await this.updaterFactory.GetAsync(updaterDefinition.Id).ConfigureAwait(false);
-                    if (!getUpdaterResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getUpdaterResult, $"Failed to produce updater with definition Id: {updaterDefinition.Id} for event module with definition Id: {eventModule.Definition.Id}: {{0}}");
-
-                    eventModule.UpdaterParameterWrappers.Add(updaterDefinition.Id, new UpdaterParametersWrapper()
-                    {
-                        Updater = getUpdaterResult.Result,
-                        Parameters = model.Parameters[updaterDefinition.Id]
-                    });
+                    var populateResult = await this.PopulateUpdaterAndParametersAsync(eventModule, updaterDefinition.Id, model.Parameters[updaterDefinition.Id], eventModule.Definition.Id).ConfigureAwait(false);
+                    if (!populateResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(populateResult, $"Failed to produce event module with definition Id: {eventModule.Definition.Id}: {{0}}");
                 }
 
 
@@ -118,7 +114,14 @@ namespace MyNotifier.EventModules
             catch (Exception ex) { return CallResult<IEventModule>.FromException(ex); }
 
         }
-        public ValueTask<ICallResult<IEventModule>> GetAsync(IEventModuleDefinition definition, IEventModuleParameterValues parameterValues) => throw new NotImplementedException();
+        public async ValueTask<ICallResult<IEventModule>> GetAsync(IEventModuleDefinition definition, IEventModuleParameterValues parameterValues)
+        {
+            try
+            {
+                throw new NotImplementedException();
+            }
+            catch (Exception ex) { return CallResult<IEventModule>.FromException(ex); }
+        }
         public async ValueTask<ICallResult<IEventModule>> GetAsync(Guid eventModuleDefinitionId, IEventModuleParameterValues parameterValues) //ParameterValue[][] parameterValues)
         {
             try
@@ -143,14 +146,8 @@ namespace MyNotifier.EventModules
                     var validParameters = this.parameterValidator.TryValidateAndBuildParameters(updaterDefinition.ParameterDefinitions, parameterValues.UpdaterParameters[updaterDefinition.Id], out var parameters, out var errorText);
                     if (!validParameters) return new CallResult<IEventModule>(false, $"Invalid parameters for event module with Id: {eventModuleDefinitionId} and updater definition Id: {updaterDefinition.Id}: {errorText}");
 
-                    var getUpdaterResult = await this.updaterFactory.GetAsync(updaterDefinition.Id).ConfigureAwait(false);
-                    if (!getUpdaterResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getUpdaterResult, $"Failed to produce updater with definition Id: {updaterDefinition.Id} for event module with definition Id: {eventModuleDefinitionId}: {{0}}"); 
-
-                    eventModule.UpdaterParameterWrappers.Add(updaterDefinition.Id, new UpdaterParametersWrapper()
-                    {
-                        Updater = getUpdaterResult.Result,
-                        Parameters = parameters
-                    });
+                    var populateResult = await this.PopulateUpdaterAndParametersAsync(eventModule, updaterDefinition.Id, parameters, eventModule.Definition.Id).ConfigureAwait(false);
+                    if (!populateResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(populateResult, $"Failed to produce event module with definition Id: {eventModule.Definition.Id}: {{0}}");
                 }
 
                 //could cache eventModules by hash or something 
@@ -160,7 +157,57 @@ namespace MyNotifier.EventModules
             catch (Exception ex) { return CallResult<IEventModule>.FromException(ex); }//return new CallResult(); } //handle 
 
         }
-        public ValueTask<ICallResult<IEventModule>> GetAsync(string eventModuleString) => throw new NotImplementedException(); //event Module string representation/hash/json 
+        //event Module string representation/hash/json
+        public async ValueTask<ICallResult<IEventModule>> GetAsync(string eventModuleString)
+        {
+            try
+            {
+                throw new NotImplementedException();
+            }
+            catch (Exception ex) { return CallResult<IEventModule>.FromException(ex); }
+        }
+
+        //Build logic different between model.ParameterValues & IEventModuleParameterValues, should liken these 
+        //private async Task<ICallResult<IEventModule>> GetCoreAsync(IEventModuleDefinition definition, IEventModuleParameterValues parametervalues)
+        //{
+        //    try
+        //    {
+        //        var eventModule = new CustomEventModule() { Definition = definition };
+
+        //        foreach (var updaterDefinition in eventModule.Definition.UpdaterDefinitions)
+        //        {
+        //            //can parallelize getValidation of parameters and getUpdater
+        //            var validParameters = this.parameterValidator.TryValidateAndBuildParameters(updaterDefinition.ParameterDefinitions, parameterValues.UpdaterParameters[updaterDefinition.Id], out var parameters, out var errorText);
+        //            if (!validParameters) return new CallResult<IEventModule>(false, $"Invalid parameters for event module with Id: {definition.Id} and updater definition Id: {updaterDefinition.Id}: {errorText}");
+
+        //            var populateResult = await this.PopulateUpdaterAndParametersAsync(eventModule, updaterDefinition.Id, parameters, eventModule.Definition.Id).ConfigureAwait(false);
+        //            if (!populateResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(populateResult, $"Failed to produce event module with definition Id: {eventModule.Definition.Id}: {{0}}");
+        //        }
+
+        //        //could cache eventModules by hash or something 
+
+        //        return new CallResult<IEventModule>(eventModule);
+        //    }
+        //    catch (Exception ex) { return CallResult<IEventModule>.FromException(ex); }
+        //}
+
+        private async Task<ICallResult> PopulateUpdaterAndParametersAsync(IEventModule eventModule, Guid updaterDefinitionId, Parameter[] parameters, Guid eventModuleDefinitionId)
+        {
+            try
+            {
+                var getUpdaterResult = await this.updaterFactory.GetAsync(updaterDefinitionId).ConfigureAwait(false);
+                if (!getUpdaterResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getUpdaterResult, $"Failed to populate event module with definition Id: {eventModuleDefinitionId} with updater with definition Id: {updaterDefinitionId} for event module: {{0}}");
+
+                eventModule.UpdaterParameterWrappers.Add(updaterDefinitionId, new UpdaterParametersWrapper()
+                {
+                    Updater = getUpdaterResult.Result,
+                    Parameters = parameters
+                });
+
+                return new CallResult();
+
+            } catch(Exception ex) { return CallResult.FromException(ex); }
+        }
 
         //common getUpdater and validateParameters logic 
         //private async ValueTask PopulateUpdaterParameterWrappersAsync(EventModule eventModule, Func<IUpdaterDefinition, Parameter[]> getValidParameters)
