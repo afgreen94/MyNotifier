@@ -16,9 +16,9 @@ using UpdaterDefinitionModel = MyNotifier.Contracts.Updaters.DefinitionModel;
 using IEventModuleDefinition = MyNotifier.Contracts.EventModules.IDefinition;
 using EventModuleDefinitionModel = MyNotifier.Contracts.EventModules.DefinitionModel;
 
-namespace MyNotifier.Proxy
+namespace MyNotifier.Proxy //namespacing??
 {
-    public abstract class IOManager : IIOManager //should not be abstract class ? //allow method calls to reinitialize?
+    public abstract partial class IOManager : IIOManager //should not be abstract class ? //allow method calls to reinitialize? //should not be abstract 
     {
 
         protected readonly IFileIOManager fileIOManager;
@@ -44,66 +44,6 @@ namespace MyNotifier.Proxy
         {
             throw new NotImplementedException();
         }
-
-        #region Updaters
-
-        public virtual async Task<ICallResult<IUpdaterDefinition>> RetrieveUpdaterDefinitionAsync(Guid updaterDefinitionId)
-        {
-            if (!this.isInitialized) return new CallResult<IUpdaterDefinition>(false, "Not initialized");
-
-            try
-            {
-                var retrieveModelResult = await this.RetrieveDefinitionModelAsync<UpdaterDefinitionModel>(this.paths.UpdaterDefinitionsFolder.Path, updaterDefinitionId, "Updater").ConfigureAwait(false);
-                if (!retrieveModelResult.Success) return new CallResult<IUpdaterDefinition>(false, retrieveModelResult.ErrorText);
-
-                var updaterDefinition = ModelTranslator.ToUpdaterDefinition(retrieveModelResult.Result);
-
-                return new CallResult<IUpdaterDefinition>(updaterDefinition);
-            }
-            catch (Exception ex) { return CallResult<IUpdaterDefinition>.FromException(ex); }
-        }
-
-        public ICallResult<Stream> CreateUpdaterModuleReadStream(IModuleDescription moduleDescription)
-        {
-            if (!this.isInitialized) return new CallResult<Stream>(false, "Not initialized.");
-
-            try
-            {
-                var modulePath = this.fileIOManagerWrapper.BuildAppendedPath(this.paths.DllsFolder.Path, moduleDescription.AssemblyName);
-
-                return this.fileIOManager.CreateReadFileStream(modulePath);
-
-            } catch (Exception ex) { return CallResult<Stream>.FromException(ex); }
-        }
-
-        #endregion Updaters
-
-        #region EventModules
-
-        public async Task<ICallResult<IEventModuleDefinition>> RetrieveEventModuleDefinitionAsync(Guid eventModuleDefinitionId)
-        {
-            if (!this.isInitialized) return new CallResult<IEventModuleDefinition>(false, "Not initialized.");
-
-            try
-            {
-                var retrieveModelResult = await this.RetrieveDefinitionModelAsync<EventModuleDefinitionModel>(this.paths.EventModuleDefinitionsFolder.Path, eventModuleDefinitionId, "EventModule").ConfigureAwait(false);
-                if (!retrieveModelResult.Success) return new CallResult<IEventModuleDefinition>(false, retrieveModelResult.ErrorText);
-
-                var eventModuleDefinition = ModelTranslator.ToEventModuleDefinition(retrieveModelResult.Result);
-
-                return new CallResult<IEventModuleDefinition>(eventModuleDefinition);
-
-            } catch (Exception ex) { return CallResult<IEventModuleDefinition>.FromException(ex); }
-        }
-
-        public ICallResult<Stream> CreateEventModuleStream(Guid eventModuleId)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion EventModules
-
-        #region Helpers
 
         protected async Task<ICallResult<TModel>> RetrieveDefinitionModelAsync<TModel>(string path, Guid id, string semanticNamePrefix)
         {
@@ -139,8 +79,6 @@ namespace MyNotifier.Proxy
         //}
 
         //protected static ICallResult<T> BuildFailedToDeserializeJsonCallResult<T>(string semanticNamePrefix, Guid id) => BuildFailedToReadFileCallResult<T>(semanticNamePrefix, id, "Failed to deserialize json (empty or invalid).");
-
-        #endregion Helpers
 
         public interface IConfiguration : IApplicationConfigurationWrapper { }
         public class Configuration : IConfiguration
