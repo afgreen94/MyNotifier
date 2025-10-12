@@ -9,6 +9,6 @@ namespace MyNotifier.Contracts.Interests
 {
     public interface IProvider
     {
-        ValueTask<ICallResult> GetAsync(Guid interestId);
+        ValueTask<ICallResult<IInterest>> GetAsync(Guid interestId);
     }
 }

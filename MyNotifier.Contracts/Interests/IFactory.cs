@@ -14,7 +14,7 @@ namespace MyNotifier.Contracts.Interests
     public interface IFactory : IProvider
     {
         ValueTask<ICallResult<IInterest>> GetAsync(InterestModel model);
-        ValueTask<ICallResult> GetAsync(Guid[] eventModuleDefinitionsIds, IDictionary<Guid, IEventModuleParameterValues[]> parameterValues);
+        ValueTask<ICallResult<IInterest>> GetAsync(Guid[] eventModuleDefinitionIds, IDictionary<Guid, IEventModuleParameterValues[]> parameterValues);
         ValueTask<ICallResult<IInterest>> GetAsync(IEventModuleDefinition[] eventModuleDefinitions, IDictionary<Guid, IEventModuleParameterValues[]> parameterValues);
         ValueTask<ICallResult<IInterest>> GetAsync(string interestString);
 

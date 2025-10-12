@@ -20,8 +20,8 @@ namespace MyNotifier.Contracts.Updaters
     {
         bool UpdateAvailable { get; }
         DateTime UpdatedAt { get; }
-        byte[] Data { get; }
         DataTypeArgs TypeArgs { get; }
+        byte[] Data { get; }
     }
     public interface IUpdaterArgs { object FactoryArgs { get; } object Arg { get; } }
 }

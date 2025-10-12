@@ -25,6 +25,7 @@ namespace MyNotifier.Contracts.Proxy
         public FileStructureSettings FileStructure { get; set; }
     }
 
+    //This can be refactored. Use graph for file structure 
     public class FileStructureSettings
     {
         public FileSystemObjectNameAssertWrapper RootFolder { get; set; } = new() { Name = "MyNotifier", SemanticName = "Root", Assert = true };

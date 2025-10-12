@@ -16,6 +16,6 @@ namespace MyNotifier.Contracts.CommandAndControl
     public interface IControllable<TCommand> : IControllable
         where TCommand : ICommand   
     {
-        ValueTask OnCommandAsync(TCommand command);
+        ValueTask<ICommandResult<TCommand>> OnCommandAsync(TCommand command); //ICallResult? 
     }
 }
