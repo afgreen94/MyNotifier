@@ -26,12 +26,13 @@ namespace MyNotifier.CommandAndControl
         private readonly IConfiguration configuration;
         private readonly ICallContext<CommandApi> callContext;
 
-        private readonly HashSet<Type> supportedCommandDefinitionServiceTypes =  //from config 
+        private readonly HashSet<Type> supportedCommandDefinitionServiceTypes =  //from config ??
         [
             typeof(IChangeApplicationConfigurationDefinition),
             typeof(IRegisterAndSubscribeToNewInterestsDefinition),
             typeof(ISubscribeToInterestsByIdDefinition),
-            typeof(IUnsubscribeFromInterestsByIdDefinition)
+            typeof(IUnsubscribeFromInterestsByIdDefinition),
+            typeof(IUpdateInterestsByIdDefinition)
         ];
 
         private readonly CommandValidator commandValidator;
@@ -92,15 +93,15 @@ namespace MyNotifier.CommandAndControl
                 {
                     InterestId = Guid.Empty,
                     UpdaterId = Guid.Empty,
-                    TypeArgs = new TypeArgs()
-                    {
-                        NotificationType = NotificationType.Command,
-                        NotificationDataTypeArgs = new DataTypeArgs()
-                        {
-                            DataType = NotificationDataType.String_Json,
-                            Description = defaultCommandDescription  //ultimately, encoding should be configurable 
-                        }
-                    },
+                    //TypeArgs = new TypeArgs()
+                    //{
+                    //    NotificationType = NotificationType.Command,
+                    //    NotificationDataTypeArgs = new DataTypeArgs()
+                    //    {
+                    //        DataType = NotificationDataType.String_Json,
+                    //        Description = defaultCommandDescription  //ultimately, encoding should be configurable 
+                    //    }
+                    //},
                     UpdateTime = DateTime.UtcNow,
                     Data = data
                 }).ConfigureAwait(false);

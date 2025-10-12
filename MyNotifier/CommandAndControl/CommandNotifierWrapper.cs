@@ -135,7 +135,7 @@ namespace MyNotifier.CommandAndControl
 
             public Definition Definition => this.definition;
 
-            public ValueTask OnNotificationAsync(object sender, Notification notification) => this.commandObject.OnCommandAsync((INotifier)sender, notification);
+            public async ValueTask OnNotificationAsync(object sender, Notification notification) => await this.commandObject.OnCommandAsync((INotifier)sender, notification).ConfigureAwait(false);
         }
     }
 
