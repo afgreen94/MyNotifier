@@ -8,6 +8,6 @@ namespace MyNotifier.Contracts.EventModules
 {
     public interface IParameterValues
     {
-        IReadOnlyDictionary<Guid, ParameterValue[]> UpdaterParameters { get; }
+        IReadOnlyDictionary<Guid, ParameterValue[]> UpdaterParameters { get; } //<Guid, ParameterValues[][]>, multiple parameters sets for same IDefinition, implement this !!! 
     }
 }

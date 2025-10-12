@@ -183,7 +183,7 @@ namespace MyNotifier.Proxy
 
             private void RegisterNotifierPublisherAndServerNotifierServices(IServiceCollection services)
             {
-                services.AddScoped<INotificationFileSystemObjectTranslator, DefaultTranslator>();
+                //services.AddScoped<INotificationFileSystemObjectTranslator, DefaultTranslator>();
 
                 this.RegisterNotifierPublisherServices(services);
                 this.RegisterServerNotifierServices(services);
@@ -208,11 +208,11 @@ namespace MyNotifier.Proxy
 
             private void RegisterNotifierPublisherServices(IServiceCollection services)
             {
-                services.AddSingleton(this.BuildNotifierPublisherConfiguration());
+                //services.AddSingleton(this.BuildNotifierPublisherConfiguration());
 
-                services.AddScoped<INotificationFileSystemObjectTranslator, DefaultTranslator>();
-                services.AddScoped<ICallContext<FileNotifierPublisher>, CallContext<FileNotifierPublisher>>();
-                services.AddScoped<INotifierPublisher, FileNotifierPublisher>();
+                //services.AddScoped<INotificationFileSystemObjectTranslator, DefaultTranslator>();
+                //services.AddScoped<ICallContext<FileNotifierPublisher>, CallContext<FileNotifierPublisher>>();
+                //services.AddScoped<INotifierPublisher, FileNotifierPublisher>();
             }
 
             private void RegisterServerNotifierServices(IServiceCollection services)
@@ -223,17 +223,17 @@ namespace MyNotifier.Proxy
                 services.AddScoped<IFileNotifier, FileNotifier>();
             }
 
-            private FileNotifierPublisher.IConfiguration BuildNotifierPublisherConfiguration()  //still have to figure out config wire-up + update on command 
-            {
+            //private FileNotifierPublisher.IConfiguration BuildNotifierPublisherConfiguration()  //still have to figure out config wire-up + update on command 
+            //{
 
-                var config = new FileNotifierPublisher.Configuration(null)
-                {
+            //    var config = new FileNotifierPublisher.Configuration(null)
+            //    {
 
-                };
+            //    };
 
 
-                return config;
-            }
+            //    return config;
+            //}
 
             private FileNotifier.IConfiguration BuildNotifierConfiguration()
             {

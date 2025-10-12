@@ -15,6 +15,7 @@ namespace MyNotifier.Contracts
          */
 
     //should be built dynamically by initializer using exposed properties of relevant classes, this way additions can be centralized in their respective classes. eventually use attribute for enum <-> string conversion 
+    //also...can do this with attributes rather than map class //NEED TO HANDLE THIS !!! 
     public class EnumStringMaps
     {
         private static readonly IReadOnlyDictionary<SystemScheme, string> systemSchemeToString = new Dictionary<SystemScheme, string>() { { SystemScheme.ProxyFileIOServer, "PROXYFILEIOSERVER" }, { SystemScheme.DirectToClient, "DIRECTTOCLIENT" } };
@@ -37,5 +38,7 @@ namespace MyNotifier.Contracts
         public static NotificationType GetNotificationType(string str) => stringToNotificationType[str.ToUpper()];
         public static string GetString(NotificationFileType type) => notificationFileTypeToString[type];
         public static NotificationFileType GetNotificationFileType(string str) => stringToNotificationFileType[str.ToUpper()];
+        public static string GetString(NotificationDataType type) => throw new NotImplementedException();
+        public static NotificationDataType GetNotificationDataType(string str) => throw new NotImplementedException();
     }
 }

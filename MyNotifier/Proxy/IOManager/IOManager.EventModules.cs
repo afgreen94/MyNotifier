@@ -22,7 +22,7 @@ namespace MyNotifier.Proxy
     {
         public async Task<ICallResult<IEventModuleDefinition>> RetrieveEventModuleDefinitionAsync(Guid eventModuleDefinitionId)
         {
-            if (!this.isInitialized) return new CallResult<IEventModuleDefinition>(false, "Not initialized.");
+            if (!this.isInitialized) return new CallResult<IEventModuleDefinition>(false, NotInitializedMessage);
 
             try
             {

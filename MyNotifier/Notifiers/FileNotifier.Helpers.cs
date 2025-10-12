@@ -13,7 +13,7 @@ using MyNotifier.Contracts.Notifications;
 
 namespace MyNotifier.Notifiers
 {
-    public partial class FileNotifier
+    public partial class FileNotifier 
     {
         protected class FileNotifierHelper  //USING WRITE_COMPLETE SIGNAL SCHEME !!! EVENTUALLY WILL WRAP NATURALLY INTO NOTIFICATION POLLING, NO NEED FOR SIGNAL 
         {
@@ -32,7 +32,7 @@ namespace MyNotifier.Notifiers
 
             //cache
             private DateTime nextClearCache = DateTime.UtcNow;
-            private HashSet<string> processedNotificationNamesCache = new(); //names should be unique, could override FolderObj GetHashCode() and cache full objs. using names may be lighter, but making the assumption names are unique(should be true)
+            private HashSet<string> processedNotificationNamesCache = []; //names should be unique, could override FolderObj GetHashCode() and cache full objs. using names may be lighter, but making the assumption names are unique(should be true)
             private long lastNotificationTicks = 0L; //can use lastNotificationTicks to exclude redundant notifications and substitute for cache. however, there is possibilty of notification publication delay causing skips. maybe can only safely use cache //for now, using only cache //should work actually! 
 
             public FileNotifierHelper(IFileIOManager fileIOManager, INotificationFileSystemObjectTranslator translator, IConfiguration configuration)
@@ -42,7 +42,7 @@ namespace MyNotifier.Notifiers
 
                 this.translator = translator;
 
-                this.targetNotificationTypeMask = configuration.AllowedNotificationTypeArgs.ToNotificationType();
+                this.targetNotificationTypeMask = configuration.AllowedNotificationTypeArgs.ToNotificationTypeMask();
 
                 this.configuration = configuration;
             }
@@ -271,52 +271,6 @@ namespace MyNotifier.Notifiers
             private bool IsExcludedNotificationType(NotificationFolderObjectDescription folderObject) => (this.targetNotificationTypeMask & folderObject.Type) == 0;
             private bool IsAlreadyProcessedNotification(NotificationFolderObjectDescription folderObject) => this.processedNotificationNamesCache.Contains(folderObject.Name);
 
-        }
-
-        protected class PollTaskWrapper
-        {
-
-            private BooleanFlag cancelFlag = new() { Value = false };
-            private Task pollTask;
-            private Exception pollTaskException;
-
-            private readonly SemaphoreSlim semaphore = new(1, 1);
-
-            public bool CancelFlagValue => this.cancelFlag.Value;
-            public TaskStatus PollTaskStatus => this.pollTask.Status;
-            public bool PollTaskStillRunning => this.pollTask.Status != TaskStatus.RanToCompletion && this.pollTask.Status != TaskStatus.Faulted && this.pollTask.Status != TaskStatus.Canceled;
-
-            public ICallResult BuildPollTaskFailedCallResult() => new CallResult(true, $"Poll task faulted: {this.pollTaskException.Message}");
-
-            public void SetPollTask(Task pollTask)
-            {
-                try
-                {
-                    this.semaphore.Wait();
-                    this.pollTask = pollTask;
-                }
-                finally { this.semaphore.Release(); }
-            }
-
-            public void TriggerCancelFlag()
-            {
-                try
-                {
-                    this.semaphore.Wait();
-                    this.cancelFlag.Value = true;
-                }
-                finally { this.semaphore.Release(); }
-            }
-
-            public void SetPollTaskException(Exception ex)
-            {
-                try
-                {
-                    this.semaphore.Wait();
-                    this.pollTaskException = ex;
-                }
-                finally { this.semaphore.Release(); }
-            }
         }
     }
 }

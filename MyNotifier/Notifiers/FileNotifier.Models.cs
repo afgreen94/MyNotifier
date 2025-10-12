@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MyNotifier.Contracts.Notifications;
+using MyNotifier.Contracts.Base;
 
 namespace MyNotifier.Notifiers
 {
-    public partial class FileNotifier
+    public partial class FileNotifier : Notifier, IFileNotifier
     {
         public new interface IConfiguration : Notifier.IConfiguration
         {
@@ -48,24 +49,6 @@ namespace MyNotifier.Notifiers
             public string Name { get; set; } = "write_complete";
             public int[] RetrySequenceDelaysMs { get; set; } = [5000, 10000, 30000, 60000]; //not to worry about bottlenecking performance, since running full sequence should really only occur during actual exceptions. will handle oversized file cases later
             public bool DeleteWriteCompleteFileOnDelivered { get; set; } = true;
-        }
-
-        public class AllowedNotificationTypeArgs
-        {
-            public bool Updates { get; set; }
-            public bool Commands { get; set; }
-            public bool Exceptions { get; set; }
-
-            public NotificationType ToNotificationType()
-            {
-                var ret = new NotificationType();
-
-                if (this.Updates) ret += (byte)NotificationType.Update;
-                if (this.Commands) ret += ((byte)NotificationType.Command + (byte)NotificationType.CommandResult); //take this.Commands=true to also permit commandResult types 
-                if (this.Exceptions) ret += (byte)NotificationType.Exception;
-
-                return ret;
-            }
         }
     }
 }

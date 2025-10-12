@@ -20,7 +20,7 @@ namespace MyNotifier.Contracts.FileIOManager
         Task<ICallResult> UploadFileFromAsync(string filePath, Stream sourceStream, bool canOverwrite = false);
         Task<ICallResult> DownloadFileToAsync(string filePath, Stream destinationStream);
         ICallResult<Stream> CreateReadFileStream(string filePath);
-        ICallResult<Stream> CreateWriteFileStream(string filepath, FileMode fileMode, bool overwriteExisting = false);
+        ICallResult<Stream> CreateWriteFileStream(string filePath, FileMode fileMode, bool overwriteExisting = false);
         Task<ICallResult<bool>> DirectoryExistsAsync(string directoryPath);
         Task<ICallResult<string[]>> GetDirectoriesAsync(string directoryPath = "/", string searchPattern = "");
         Task<ICallResult> CreateDirectoryAsync(string directoryPath, bool overwriteExisting = false);

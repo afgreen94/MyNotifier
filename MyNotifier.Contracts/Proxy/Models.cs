@@ -49,13 +49,6 @@ namespace MyNotifier.Contracts.Proxy
         //}
     }
 
-    public class NotificationFolderObject
-    {
-        public NotificationFolderObjectDescription Description { get; set; }
-        public NotificationFileObject MetadataFileObject { get; set; }
-        public NotificationFileObject DataFileObject { get; set; }
-    }
-
     public class NotificationFileObjectDescription : FileSystemObjectDescription
     {
         public NotificationFileType FileType { get; set; }
@@ -81,17 +74,17 @@ namespace MyNotifier.Contracts.Proxy
         public byte[] Data { get; set; }
     }
 
+    public class NotificationFolderObject
+    {
+        public NotificationFolderObjectDescription Description { get; set; }
+        public NotificationFileObject MetadataFileObject { get; set; }
+        public NotificationFileObject DataFileObject { get; set; }
+    }
+
     public class NotificationFilepaths
     {
         public string NotificationFilepath { get; set; }
         public string NotificationMetadataFilepath { get; set; }
-    }
-
-    public class LargeDataFileDownloadOptions
-    {
-        //large file size definition
-        //stream or download 
-        //dispose ? 
     }
 
     public enum NotificationFileType //data, metadata could eventually be combined 

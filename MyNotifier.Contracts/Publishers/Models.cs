@@ -23,7 +23,7 @@ namespace MyNotifier.Contracts.Publishers
     {
         public Guid InterestId { get; set; }
         public Guid UpdaterId { get; set; }
-        public TypeArgs TypeArgs { get; set; }
+        //public TypeArgs TypeArgs { get; set; }
         public DateTime UpdateTime { get; set; }
         public byte[] Data { get; set; }
     }

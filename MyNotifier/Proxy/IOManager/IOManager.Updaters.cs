@@ -22,7 +22,7 @@ namespace MyNotifier.Proxy
     {
         public virtual async Task<ICallResult<IUpdaterDefinition>> RetrieveUpdaterDefinitionAsync(Guid updaterDefinitionId)
         {
-            if (!this.isInitialized) return new CallResult<IUpdaterDefinition>(false, "Not initialized");
+            if (!this.isInitialized) return new CallResult<IUpdaterDefinition>(false, NotInitializedMessage);
 
             try
             {
@@ -38,7 +38,7 @@ namespace MyNotifier.Proxy
 
         public ICallResult<Stream> CreateUpdaterModuleReadStream(IModuleDescription moduleDescription)
         {
-            if (!this.isInitialized) return new CallResult<Stream>(false, "Not initialized.");
+            if (!this.isInitialized) return new CallResult<Stream>(false, NotInitializedMessage);
 
             try
             {

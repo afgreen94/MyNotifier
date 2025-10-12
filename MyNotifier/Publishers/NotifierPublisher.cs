@@ -1,12 +1,13 @@
-﻿using System;
+﻿using MyNotifier.Base;
+using MyNotifier.Contracts;
+using MyNotifier.Contracts.Base;
+using MyNotifier.Contracts.Notifications;
+using MyNotifier.Contracts.Publishers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MyNotifier.Base;
-using MyNotifier.Contracts;
-using MyNotifier.Contracts.Base;
-using MyNotifier.Contracts.Publishers;
 
 namespace MyNotifier.Publishers
 {
@@ -45,6 +46,20 @@ namespace MyNotifier.Publishers
             }
             catch (Exception ex) { return CallResult.FromException(ex); }
         }
+
+
+        protected virtual Notification BuildNotification(PublishArgs args) => throw new NotImplementedException(); //new()
+        //{
+        //    Metadata = new NotificationMetadata()
+        //    {
+        //        Definition = new NotificationDefinition() { InterestId = args.InterestId, UpdaterId = args.UpdaterId },
+        //        TypeArgs = args.TypeArgs,
+        //        UpdatedAt = args.UpdateTime,
+        //        SizeBytes = args.Data.Length,
+        //        //encrypted?
+        //    },
+        //    Data = args.Data
+        //};
 
         protected virtual ValueTask<ICallResult> InitializeCoreAsync() { return new ValueTask<ICallResult>(new CallResult()); }
         protected abstract ValueTask<ICallResult> PublishCoreAsync(PublishArgs publishArgs);

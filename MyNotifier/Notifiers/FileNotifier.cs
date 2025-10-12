@@ -1,15 +1,16 @@
-﻿using MyNotifier.FileIOManager;
+﻿using MyNotifier.Base;
+using MyNotifier.Contracts.Base;
+using MyNotifier.Contracts.FileIOManager;
+using MyNotifier.Contracts.Notifications;
+using MyNotifier.Contracts.Notifiers;
+using MyNotifier.Contracts.Proxy;
+using MyNotifier.FileIOManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using MyNotifier.Base;
-using MyNotifier.Contracts.Base;
-using MyNotifier.Contracts.FileIOManager;
-using MyNotifier.Contracts.Notifiers;
-using MyNotifier.Contracts.Proxy;
 
 namespace MyNotifier.Notifiers
 {
@@ -82,6 +83,16 @@ namespace MyNotifier.Notifiers
             catch (Exception ex) { return CallResult.FromException(ex); }
         }
 
+        protected override ValueTask<ICallResult> ConnectCoreAsync(object connectArg)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<ICallResult<Notification[]>> RetrieveNewNotificationsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
 
         private readonly int EarlyExceptionDelayMs = 2000;
         private void Start()
@@ -114,7 +125,7 @@ namespace MyNotifier.Notifiers
                         break;
                     }
 
-                    foreach (var notification in getNewNotificationsResult.Result) this.OnNotification(notification);
+                    foreach (var notification in getNewNotificationsResult.Result) await this.OnNotificationAsync(notification).ConfigureAwait(false);
 
                     await Task.Delay(this.configuration.NotificationPollingDelayMs).ConfigureAwait(false); //delay 
                 }
