@@ -1,7 +1,9 @@
-﻿using System;
+﻿using MyNotifier.Contracts.Base;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MyNotifier.Base
@@ -45,6 +47,19 @@ namespace MyNotifier.Base
         {
             var parts = assemblyQualifiedTypeName.Split('.');
             return string.Join('.', new ArraySegment<string>(parts, 0, parts.Length - 1));
+        }
+
+        public static async Task<ICallResult<T>> ReadJsonCastAsAsync<T>(Stream stream)
+        {
+            using var sr = new StreamReader(stream);
+
+            var json = await sr.ReadToEndAsync().ConfigureAwait(false);
+            if (string.IsNullOrEmpty(json)) return new CallResult<T>(false, "Json string null or empty.");
+
+            var ret = JsonSerializer.Deserialize<T>(json);
+            if (ret == null) return new CallResult<T>(false, "Deserialized json yieled null object");
+
+            return new CallResult<T>(ret);
         }
     }
 }
