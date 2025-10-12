@@ -16,18 +16,18 @@ namespace MyNotifier.CommandAndControl
     public class CommandNotifierWrapper : INotifier
     {
 
-        private readonly INotifier notifier;
+        private readonly INotifier innerNotifier;
 
         private readonly HashSet<ExpectedCommandResultToken> expectedCommandResults = [];
 
-        public bool Connected => this.notifier.Connected;
+        public bool Connected => this.innerNotifier.Connected;
 
-        public CommandNotifierWrapper(INotifier notifier) { this.notifier = notifier; }
+        public CommandNotifierWrapper(INotifier innerNotifier) { this.innerNotifier = innerNotifier; }
 
-        public ValueTask<ICallResult> ConnectAsync(object connectArg) => this.notifier.ConnectAsync(connectArg);
-        public ValueTask<ICallResult> DisconnectAsync() => this.notifier.DisconnectAsync();
-        public void Subscribe(INotifier.ISubscriber subscriber) => this.notifier.Subscribe(subscriber);
-        public void Unsubscribe(INotifier.ISubscriber subscriper) => this.notifier.Unsubscribe(subscriper);
+        public ValueTask<ICallResult> ConnectAsync(object connectArg) => this.innerNotifier.ConnectAsync(connectArg);
+        public ValueTask<ICallResult> DisconnectAsync() => this.innerNotifier.DisconnectAsync();
+        public void Subscribe(INotifier.ISubscriber subscriber) => this.innerNotifier.Subscribe(subscriber);
+        public void Unsubscribe(INotifier.ISubscriber subscriper) => this.innerNotifier.Unsubscribe(subscriper);
 
 
         public void RegisterExpectedCommandResult(ExpectedCommandResultToken ecrToken) => this.expectedCommandResults.Add(ecrToken);

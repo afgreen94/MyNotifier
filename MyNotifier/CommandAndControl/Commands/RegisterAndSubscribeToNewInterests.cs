@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IEventModuleParameterValues = MyNotifier.Contracts.EventModules.IParameterValues;
 
 namespace MyNotifier.CommandAndControl.Commands
 {
@@ -25,5 +26,23 @@ namespace MyNotifier.CommandAndControl.Commands
         public ICommandDefinition Definition => this.definition;
 
         public Parameter[] Parameters => throw new NotImplementedException();
+    }
+
+    public class RegisterAndSubscribeToNewInterestsWrapper : IRegisterAndSubscribeToNewInterestsWrapper
+    {
+        public IRegisterAndSubscribeToNewInterests InnerCommand => throw new NotImplementedException();
+
+        public INewInterestModel[] NewInterestModels { get; set; }
+
+    }
+
+    public class RegisterAndSubscribeToNewInterestsWrapperBuilder
+    {
+        public IRegisterAndSubscribeToNewInterestsWrapper Build(IRegisterAndSubscribeToNewInterests command, bool suppressValidation = false)
+        {
+
+            throw new NotImplementedException();
+
+        }
     }
 }

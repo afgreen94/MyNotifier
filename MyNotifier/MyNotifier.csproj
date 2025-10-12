@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <Folder Include="Base\Backgrounding\" />
-    <Folder Include="Interests\" />
   </ItemGroup>
 
 </Project>

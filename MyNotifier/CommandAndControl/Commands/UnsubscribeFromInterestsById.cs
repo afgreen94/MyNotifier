@@ -26,4 +26,11 @@ namespace MyNotifier.CommandAndControl.Commands
 
         public Parameter[] Parameters => throw new NotImplementedException();
     }
+
+    public class UnsubscribeFromInterestsByIdWrapper : IUnsubscribeFromInterestsByIdWrapper
+    {
+        public Guid[] InterestIds => throw new NotImplementedException();
+
+        public IUnsubscribeFromInterestsById InnerCommand => throw new NotImplementedException();
+    }
 }

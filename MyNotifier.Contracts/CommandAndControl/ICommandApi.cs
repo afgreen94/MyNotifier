@@ -36,6 +36,8 @@ namespace MyNotifier.Contracts.CommandAndControl
 
     public interface ICommandResult { }
 
+    public interface ICommandResult<TCommand> where TCommand : ICommand { }
+
 
 
     //ICommandSender

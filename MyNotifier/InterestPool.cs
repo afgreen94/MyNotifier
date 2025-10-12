@@ -12,16 +12,20 @@ using System.Threading.Tasks;
 using MyNotifier.Notifiers;
 using static MyNotifier.Driver;
 using MyNotifier.Contracts.Interests;
+using MyNotifier.Contracts.Base;
 
 namespace MyNotifier
 {
-    public class InterestPool //concurrent interest pool 
+    //concurrent interest pool 
+    public partial class InterestPool
     {
 
         private readonly SemaphoreSlim accessSemaphore = new(1, 1);
         private readonly IDictionary<Guid, IInterest> innerDictionary = new Dictionary<Guid, IInterest>();
 
-        public bool Contains(Guid interestId) => this.innerDictionary.ContainsKey(interestId);
+        public Contracts.Base.IDefinition Definition => throw new NotImplementedException();
+
+        public bool Contains(Guid interestId) => this.ContainsCore(interestId);
 
         public bool TryAdd(IInterest interest, bool forceOverwrite = false)
         {
@@ -71,9 +75,32 @@ namespace MyNotifier
         //public async Task UpdateAsync() { }
         //public bool TryUpdate() { }
         //public async Task<bool> TryUpdateAsync() { }
+        //TryGetValue(Id)
+
+        protected bool ContainsCore(Guid interestId) => this.innerDictionary.ContainsKey(interestId);
 
 
-        private bool TryAddCore(IInterest interest, bool forceOverwrite = false)
+        protected void AddCore(IInterest interest, bool forceOverwrite = false)
+        {
+
+        }
+
+        protected async Task AddCoreAsync(IInterest interest, bool forceOverwrite = false)
+        {
+
+        }
+
+        protected void AddCore(IInterest[] interests, bool forceOverwrite = false)
+        {
+
+        }
+
+        protected async Task AddCoreAsync(IInterest[] interests, bool forceOverwrite = false)
+        {
+
+        }
+
+        protected bool TryAddCore(IInterest interest, bool forceOverwrite = false)
         {
             if (this.innerDictionary.ContainsKey(interest.Definition.Id) && !forceOverwrite) return false;
 
@@ -82,7 +109,44 @@ namespace MyNotifier
             return true;
         }
 
-        private bool TryRemoveCore(Guid interestId)
+        protected async Task<bool> TryAddCoreAsync(IInterest interest, bool forceOverwrite = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected bool TryAddCore(IInterest[] interests, bool forceOverwrite = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected async Task<bool> TryAddCoreAsync(IInterest[] interests, bool forceOverwrite = false)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        protected void RemoveCore(Guid interestId, bool suppressException = false)
+        {
+
+        }
+
+        protected async Task RemoveCoreAsync(Guid interestId, bool suppressException = false)
+        {
+
+        }
+
+        protected void RemoveCore(Guid[] interestIds, bool suppressException = false)
+        {
+
+        }
+
+        protected async Task RemoveCoreAsync(Guid[] interestIds, bool suppressException = false)
+        {
+
+        }
+
+
+        protected bool TryRemoveCore(Guid interestId)
         {
             if (!this.innerDictionary.ContainsKey(interestId)) return false;
 
@@ -91,46 +155,9 @@ namespace MyNotifier
             return true;
         }
 
-        //public class Controller : IControllable<RegisterAndSubscribeToNewInterests>, IControllable<SubscribeToInterestsByDefinitionIds>, IControllable<UnsubscribeFromInterests>
-        //{
-
-        //    private readonly InterestPool interestPool;
-        //    private readonly IInterestFactory interestFactory;
-
-        //    public Controller(InterestPool interestPool, IInterestFactory interestFactory) { this.interestPool = interestPool; this.interestFactory = interestFactory; }
-
-        //    public async ValueTask OnCommandAsync(RegisterAndSubscribeToNewInterests command)
-        //    {
-        //        var interestModels = command.InterestModels;
-
-        //        foreach (var interestModel in interestModels)
-        //        {
-        //            if (this.interestPool.Contains(interestModel.Definition.Id)) { continue; } //what do ?
-
-        //            IInterest interest = default;
-
-        //            //var interest = await this.interestFactory.GetInterestAsync(interestModel).ConfigureAwait(false); //make callback async 
-
-        //            var added = this.interestPool.TryAdd(interest);
-        //        }
-        //    }
-
-        //    public async ValueTask OnCommandAsync(UnsubscribeFromInterests command)
-        //    {
-        //        var interestModels = command.InterestModels;
-
-        //        foreach (var interestModel in interestModels)
-        //        {
-        //            if (!this.interestPool.Contains(interestModel.Definition.Id)) { continue; } //what do ?
-
-        //            var removed = this.interestPool.TryRemove(interestModel.Definition.Id);
-        //        }
-        //    }
-
-        //    public async ValueTask OnCommandAsync(SubscribeToInterestsByDefinitionIds command)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+        protected bool TryRemoveCore(Guid[] interestIds)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -8,4 +8,9 @@ namespace MyNotifier.Contracts.CommandAndControl.Commands
 {
     public interface IUnsubscribeFromInterestsByIdDefinition : ICommandDefinition { }
     public interface IUnsubscribeFromInterestsById : ICommand { }
+
+    public interface IUnsubscribeFromInterestsByIdWrapper : ICommandWrapper<IUnsubscribeFromInterestsById>
+    {
+        Guid[] InterestIds { get; }
+    }
 }
