@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace MyNotifier.Contracts.Interests
 {
-    public interface IInterestProvider
+    public interface IProvider
     {
-        ValueTask<ICallResult> GetInterestAsync(Guid interestId);
+        ValueTask<ICallResult> GetAsync(Guid interestId);
     }
 }

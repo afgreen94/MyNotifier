@@ -11,11 +11,12 @@ using IEventModuleParameterValues = MyNotifier.Contracts.EventModules.IParameter
 
 namespace MyNotifier.Contracts.Interests
 {
-    public interface IInterestFactory : IInterestProvider
+    public interface IFactory : IProvider
     {
-        ValueTask<ICallResult<IInterest>> GetInterestAsync(InterestModel model);
-        ValueTask<ICallResult<IInterest>> GetInterestAsync(IEventModuleDefinition eventModuleDefinition, IDictionary<Guid, IEventModuleParameterValues> parameterValues);
-        ValueTask<ICallResult<IInterest>> GetInterestAsync(string interestString);
+        ValueTask<ICallResult<IInterest>> GetAsync(InterestModel model);
+        ValueTask<ICallResult> GetAsync(Guid[] eventModuleDefinitionsIds, IDictionary<Guid, IEventModuleParameterValues[]> parameterValues);
+        ValueTask<ICallResult<IInterest>> GetAsync(IEventModuleDefinition[] eventModuleDefinitions, IDictionary<Guid, IEventModuleParameterValues[]> parameterValues);
+        ValueTask<ICallResult<IInterest>> GetAsync(string interestString);
 
         IEventModuleFactory EventModuleFactory { get; }
     } 
