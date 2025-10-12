@@ -9,7 +9,7 @@ using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 
 namespace MyNotifier
 {
-    public class Catalog
+    public class Catalog : ICatalog
     {
         public IDictionary<Guid, Definition> InterestIdDefinitionMap { get; set; }
         public IDictionary<Guid, IUpdaterDefinition> UpdaterIdDefinitionMap { get; set; }
