@@ -16,14 +16,14 @@ namespace MyNotifier
     {
         public class Subscribers
         {
-            public abstract class SubscriberBase
+            public abstract class Subscriber
             {
                 protected readonly MessageQueue messageQueue;
 
-                protected SubscriberBase(MessageQueue messageQueue) { this.messageQueue = messageQueue; }
+                protected Subscriber(MessageQueue messageQueue) { this.messageQueue = messageQueue; }
             }
 
-            public class UpdateAvailableSubscriber : SubscriberBase, IUpdateSubscriber
+            public class UpdateAvailableSubscriber : Subscriber, IUpdateSubscriber
             {
                 private readonly Guid id = new("");
                 public Guid Id => this.id;
@@ -33,7 +33,7 @@ namespace MyNotifier
                 public void OnUpdateAvailable(UpdateAvailableArgs args) => this.messageQueue.Enqueue(new UpdateAvailableMessage(args));
             }
 
-            public class CommandSubscriber : SubscriberBase, ICommandSubscriber
+            public class CommandSubscriber : Subscriber, ICommandSubscriber
             {
                 private readonly Guid id = new("");
                 public Guid Id => this.id;
@@ -46,7 +46,7 @@ namespace MyNotifier
                 }
             }
 
-            public class FailureSubscriber : SubscriberBase, IFailureSubscriber
+            public class FailureSubscriber : Subscriber, IFailureSubscriber
             {
                 private readonly Guid id = new("");
                 public Guid Id => this.id;
