@@ -12,6 +12,13 @@ using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
 
 namespace MyNotifier.Updaters
 {
+
+    //currently 
+    //update logic is invoked dynamically eg updater.Update(params)
+    //updater should be static eg updater.initialize(params) ... updater.update()
+    //static updater can then be wrapped for dynamic use eg wrapper.update(params) => updater.init(params); updater.update()
+    //default updater should be static, with dynamic updater wrapper as a convenience
+    //TBD !!! 
     public abstract class Updater : IUpdater
     {
 
