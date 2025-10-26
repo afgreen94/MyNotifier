@@ -10,9 +10,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MyNotifier.Contracts.Publishers;
 
 namespace MyNotifier.CommandAndControl
 {
+
+    
+
     public class CommandNotifierWrapper : INotifier
     {
 
@@ -32,6 +36,31 @@ namespace MyNotifier.CommandAndControl
 
         public void RegisterExpectedCommandResult(ExpectedCommandResultToken ecrToken) => this.expectedCommandResults.Add(ecrToken);
         private void CheckExpiries() { }
+    }
+
+
+    public interface ICommandNotifierWrapper
+    {
+        bool Connected { get; set; }
+
+        ValueTask<ICallResult> ConnectAsync(object connectArg);
+        ValueTask<ICallResult> DisconnectAsync();
+
+        void Register(ISubscriber subscriber);
+        void Unregister(Guid subscriberId);
+
+        public interface ISubscriber
+        {
+            Guid Id { get; }
+            ValueTask<ICommandResult> OnCommandAsync(ICommand command);
+        }
+    }
+
+    public interface ICommandNotifierSubscriber
+    {
+        Guid Id { get; }
+
+        ValueTask<ICommandResult> OnCommandAsync(ICommand command);
     }
 
 
@@ -86,13 +115,17 @@ namespace MyNotifier.CommandAndControl
         {
             if (this.controllables.ContainsKey(controllable.Definition.Id) && !allowOverwrite) throw new Exception("Cannot overwrite existing controllable.");
 
-            this.controllables[controllable.Definition.Id] = controllable;
+            this.controllables[controllable.Definition.Id] = controllable; 
         }
 
 
+        private IDictionary<Guid, HashSet<IControllable<ICommand>>> map = new Dictionary<Guid, HashSet<IControllable<ICommand>>>();
         public void RegisterControllable<TCommand>(IControllable<TCommand> controllable, bool allowOverwrite = false)
             where TCommand : ICommand
         {
+            //maybe map to command type instead of just id 
+
+
 
         }
 

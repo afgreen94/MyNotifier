@@ -21,11 +21,9 @@ namespace MyNotifier.Contracts.Publishers
 
     public class PublishArgs
     {
-        public Guid InterestId { get; set; }
-        public Guid UpdaterId { get; set; }
-        //public TypeArgs TypeArgs { get; set; }
-        public DateTime UpdateTime { get; set; }
-        public byte[] Data { get; set; }
+        public Notification Notification { get; }
+        public PublicationChannelArgs Channel { get; }
+
     }
 
     public class PublicationChannelArgs

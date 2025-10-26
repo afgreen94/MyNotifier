@@ -16,119 +16,65 @@ using MyNotifier.Contracts.CommandAndControl.Commands;
 
 namespace MyNotifier.CommandAndControl
 {
-
-
-
-    public class CommandApi : ICommandApi  //could wrap entire command flow, including awaiting command result notification 
+    public abstract class CommandApi : ICommandApi  
     {
-
-        private readonly INotifierPublisherFactory publisherFactory;
-        private readonly IConfiguration configuration;
+        private readonly ICommandIssue commandIssue;
         private readonly ICallContext<CommandApi> callContext;
 
-        private readonly HashSet<Type> supportedCommandDefinitionServiceTypes =  //from config ??
-        [
-            typeof(IChangeApplicationConfigurationDefinition),
-            typeof(IRegisterAndSubscribeToNewInterestsDefinition),
-            typeof(ISubscribeToInterestsByIdDefinition),
-            typeof(IUnsubscribeFromInterestsByIdDefinition),
-            typeof(IUpdateInterestsByIdDefinition)
-        ];
+        public CommandApi(ICommandIssue commandIssue, ICallContext<CommandApi> callContext) { this.commandIssue = commandIssue; this.callContext = callContext; }
 
-        private readonly CommandValidator commandValidator;
-
-        private readonly Encoding defaultEncoding = Encoding.UTF8; //should come from config
-        private readonly string defaultCommandDescription = "JSON.UTF8"; //should be built based on encoding from config 
-
-        private INotifierPublisher publisher;
-
-        private bool isInitialized = false;
-
-        public CommandApi(INotifierPublisherFactory publisherFactory,
-                          IConfiguration configuration,
-                          ICallContext<CommandApi> callContext) 
+        public Task<ICallResult> ChangeApplicationConfigurationAsync(object parameters)
         {
-            this.publisherFactory = publisherFactory;
-            this.configuration = configuration; 
-            this.callContext = callContext;
-
-            this.commandValidator = new(configuration);
+            throw new NotImplementedException();
         }
 
-
-        //public void UsePublisherAndNotifier(INotifierPublisher publisher, INotifier notifier) { this.publisher = publisher; this.notifier = notifier; }  //rather than injection via ctor 
-
-        public async ValueTask<ICallResult> InitializeAsync(bool forceReinitialize = false)
+        public Task<ICommandResult> ChangeApplicationConfigurationAwaitCommandResultAsync(object parameters)
         {
-            try
-            {
-                if (!this.isInitialized || forceReinitialize)
-                {
-                    this.publisher = this.publisherFactory.GetNotifierPublisher();
-
-                    var initializePublisherResult = await this.publisher.InitializeAsync().ConfigureAwait(false);
-                    if (!initializePublisherResult.Success) return CallResult.BuildFailedCallResult(initializePublisherResult, "Failed to initialize command publisher: {0}");
-
-                    this.isInitialized = true;
-                }
-
-                return new CallResult();
-            }
-            catch (Exception ex) { return CallResult.FromException(ex); }
+            throw new NotImplementedException();
         }
 
-        public async Task<ICallResult> IssueCommandAsync(ICommand command)
+        public Task<ICallResult> RegisterAndSubscribeToNewInterestsAsync(object parameters)
         {
-            try
-            {
-                if (!this.isInitialized) return new CallResult(false, "Not Initialized.");
-
-                if (!this.supportedCommandDefinitionServiceTypes.Contains(command.Definition.ServiceType)) return new CallResult(false, $"Unsupported command type: {command.Definition.Name}");
-                if (!this.commandValidator.TryValidateCommand(command, out var errorText)) return new CallResult(false, $"Invalid command: {errorText}");
-
-                var commandJson = JsonSerializer.Serialize(command);
-                var data = defaultEncoding.GetBytes(commandJson);
-
-                var publishResult = await publisher.PublishAsync(new PublishArgs()
-                {
-                    InterestId = Guid.Empty,
-                    UpdaterId = Guid.Empty,
-                    //TypeArgs = new TypeArgs()
-                    //{
-                    //    NotificationType = NotificationType.Command,
-                    //    NotificationDataTypeArgs = new DataTypeArgs()
-                    //    {
-                    //        DataType = NotificationDataType.String_Json,
-                    //        Description = defaultCommandDescription  //ultimately, encoding should be configurable 
-                    //    }
-                    //},
-                    UpdateTime = DateTime.UtcNow,
-                    Data = data
-                }).ConfigureAwait(false);
-
-                if (!publishResult.Success) return CallResult.BuildFailedCallResult(publishResult, "Publish command failed: {0}");
-
-                return new CallResult();
-            }
-            catch (Exception ex) { return CallResult.FromException(ex); }
+            throw new NotImplementedException();
         }
 
-        public Task<ICallResult> IssueCommandAwaitResultAsync(ICommand command) => throw new NotImplementedException(); //will require notifier, notifier will have to suppress unrelated commands/require special config to ignore non-command results 
-
-
-        public interface IConfiguration : IApplicationConfigurationWrapper { }
-        public class Configuration : ApplicationConfigurationWrapper, IConfiguration
+        public Task<ICommandResult> RegisterAndSubscribeToNewInterestsAwaitCommandResultAsync(object parameters)
         {
-            public Configuration(IApplicationConfiguration innerApplicationConfiguration) : base(innerApplicationConfiguration) { }
+            throw new NotImplementedException();
         }
 
-        public class CommandValidator
+        public Task<ICallResult> SubscribeToInterestsByIdAsync(Guid[] interestIds)
         {
-            private readonly IConfiguration configuration;
+            throw new NotImplementedException();
+        }
+        public Task<ICommandResult> SubscribeToInterestsByIdAwaitCommandResultAsync(object parameters)
+        {
+            throw new NotImplementedException();
+        }
 
-            public CommandValidator(IConfiguration configuration) { this.configuration = configuration; }
+        public Task<ICallResult> SubscribeToInterestsByIdAsync(object parameters)
+        {
+            throw new NotImplementedException();
+        }
 
-            public bool TryValidateCommand(ICommand command, out string errorText) => throw new NotImplementedException();
+        public Task<ICallResult> UnsubscribeFromInterestsByIdAsync(object parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICommandResult> UnsubscribeFromInterestsByIdAwaitCommandResult(object parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICallResult> UpdateInterestsByIdAsync(object parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICommandResult> UpdateInterestsByIdAwaitCommandResultAsync(object parameters)
+        {
+            throw new NotImplementedException();
         }
     }
 }

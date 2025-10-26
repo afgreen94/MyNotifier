@@ -15,10 +15,14 @@ namespace MyNotifier.Updaters
     public abstract class Updater : IUpdater
     {
 
+        protected readonly ICallContext<Updater> callContext;
+
         protected bool isInitialized = false;
         protected Parameter[] parameters; //should be dictionary? easier? 
 
         public abstract IUpdaterDefinition Definition { get; }
+
+        public Updater(ICallContext<Updater> callContext) { this.callContext = callContext; }
 
         public virtual async ValueTask<ICallResult> InitializeAsync(bool forceReinitialize = false)
         {

@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace MyNotifier.Contracts.CommandAndControl
 {
-    public interface ICommandApi
+    public interface ICommandIssue
     {
         Task<ICallResult> IssueCommandAsync(ICommand command);
-        Task<ICallResult> IssueCommandAwaitResultAsync(ICommand command);
+        Task<ICallResult<ICommandResult<TCommand>>> IssueCommandAwaitResultAsync<TCommand>(TCommand command) where TCommand : ICommand;
     }
 
-    public interface ICommandApi0
+    public interface ICommandApi
     {
         Task<ICallResult> ChangeApplicationConfigurationAsync(object parameters);
         Task<ICommandResult> ChangeApplicationConfigurationAwaitCommandResultAsync(object parameters);
@@ -34,7 +34,7 @@ namespace MyNotifier.Contracts.CommandAndControl
         //ShutdownSystemAsync()
     }
 
-    public interface ICommandResult { }
+    public interface ICommandResult { } //Guid CommandId
 
     public interface ICommandResult<TCommand> where TCommand : ICommand { }
 

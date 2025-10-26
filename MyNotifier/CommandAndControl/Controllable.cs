@@ -23,5 +23,10 @@ namespace MyNotifier.CommandAndControl
         }
 
         protected abstract ValueTask OnCommandCoreAsync(TCommand command);
+
+        ValueTask<ICommandResult> IControllable.OnCommandAsync(ICommand command)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MyNotifier.Contracts.Base;
+using MyNotifier.Contracts.Notifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,6 @@ namespace MyNotifier.Contracts.Publishers
     public interface INotifierPublisher
     {
         ValueTask<ICallResult> InitializeAsync(bool forceReInitialize = false);
-        ValueTask<ICallResult> PublishAsync(PublishArgs args);
+        ValueTask<ICallResult> PublishAsync(Notification notification);
     }
 }

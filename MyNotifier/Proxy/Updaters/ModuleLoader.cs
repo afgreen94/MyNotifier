@@ -31,9 +31,9 @@ namespace MyNotifier.Proxy.Updaters
 
                 await dllReadStream.CopyToAsync(ms).ConfigureAwait(false);
 
-                var moduleBytes = ms.ToArray();     //moduleBytes = await this.LoadDllBytesFromPathAsync(modulePath).ConfigureAwait(false);
+                //moduleBytes = await this.LoadDllBytesFromPathAsync(modulePath).ConfigureAwait(false);
 
-                return new CallResult<byte[]>(moduleBytes);
+                return new CallResult<byte[]>(ms.ToArray());
             }
             catch (Exception ex) { return CallResult<byte[]>.FromException(ex); }
         }

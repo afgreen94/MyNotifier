@@ -1,4 +1,5 @@
-﻿using MyNotifier.Contracts.Base;
+﻿using MyNotifier.Base;
+using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.Notifications;
 using MyNotifier.Contracts.Publishers;
 using MyNotifier.Publishers;
@@ -22,10 +23,16 @@ namespace MyNotifier.Proxy.Publishers
 
         public NotifierPublisher(IIOManager ioManager, ICallContext<NotifierPublisher> callContext) { this.ioManager = ioManager; this.callContext = callContext; }
 
-        protected override async ValueTask<ICallResult> PublishCoreAsync(PublishArgs publishArgs) //handle try/catch? init, etc... ? 
+        protected override async ValueTask<ICallResult> PublishCoreAsync(Notification notification) //handle try/catch? init, etc... ? 
         {
-            var notification = this.BuildNotification(publishArgs);
-            return await this.ioManager.WriteNotificationFilesAsync(notification).ConfigureAwait(false);
+            try
+            {
+                var writeFilesResult = await this.ioManager.WriteNotificationFilesAsync(notification).ConfigureAwait(false);
+                if (!writeFilesResult.Success) return CallResult.BuildFailedCallResult(writeFilesResult, "Failed to publish: {0}");
+
+                return new CallResult();
+            }
+            catch(Exception ex) { return CallResult.FromException(ex); }
         }
     }
 }

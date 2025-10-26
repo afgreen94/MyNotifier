@@ -6,6 +6,7 @@ using MyNotifier.Contracts.Publishers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,32 +38,25 @@ namespace MyNotifier.Publishers
             catch (Exception ex) { return CallResult.FromException(ex); }
         }
 
-        public virtual async ValueTask<ICallResult> PublishAsync(PublishArgs publishArgs)
+        public virtual async ValueTask<ICallResult> PublishAsync(Notification notification)
         {
             try
             {
                 if (!this.isInitialized) return new CallResult(false, NotInitializedMessage);
-                return await this.PublishCoreAsync(publishArgs).ConfigureAwait(false);
+
+                var nowTime = DateTime.UtcNow;
+
+                notification.Metadata.Description.Header.Ticks = nowTime.Ticks;
+                notification.Metadata.Description.PublishedAt = nowTime;
+
+                return await this.PublishCoreAsync(notification).ConfigureAwait(false);
             }
             catch (Exception ex) { return CallResult.FromException(ex); }
+            throw new NotImplementedException();
         }
 
-
-        protected virtual Notification BuildNotification(PublishArgs args) => throw new NotImplementedException(); //new()
-        //{
-        //    Metadata = new NotificationMetadata()
-        //    {
-        //        Definition = new NotificationDefinition() { InterestId = args.InterestId, UpdaterId = args.UpdaterId },
-        //        TypeArgs = args.TypeArgs,
-        //        UpdatedAt = args.UpdateTime,
-        //        SizeBytes = args.Data.Length,
-        //        //encrypted?
-        //    },
-        //    Data = args.Data
-        //};
-
         protected virtual ValueTask<ICallResult> InitializeCoreAsync() { return new ValueTask<ICallResult>(new CallResult()); }
-        protected abstract ValueTask<ICallResult> PublishCoreAsync(PublishArgs publishArgs);
+        protected abstract ValueTask<ICallResult> PublishCoreAsync(Notification notification);
 
 
         public interface IConfiguration : IConfigurationWrapper { }

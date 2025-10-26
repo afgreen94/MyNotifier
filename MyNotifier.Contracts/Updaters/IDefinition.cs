@@ -12,7 +12,7 @@ namespace MyNotifier.Contracts.Updaters
     {
         IParameterDefinition[] ParameterDefinitions { get; }
         IModuleDescription ModuleDescription { get; } // for now, definition includes module description, could decouple later 
-        HashSet<ServiceDescriptor> Dependencies { get; }
+        HashSet<ServiceDescriptor> Dependencies { get; } //IModuleDescription, ServiceDescriptor pair ?
     }
 
     public class CustomDefinition : Definition, IDefinition
