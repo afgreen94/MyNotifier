@@ -15,8 +15,14 @@ namespace MyNotifier.CommandAndControl
     public interface ICommandAndController  //yes the name is stupid //use entirely separate (standalone) notifier ?
     {
         ValueTask<ICallResult> InitializeAsync(bool forceReinitialize);
-        void Register(IControllable controllable);
-        void Unregister(IControllable controllable);
+
+        Task<ICommandResult> AffectCommandAsync(ICommand command);
+
+        public interface IRegistrar
+        {
+            void Register(params IControllable[] controllables);
+            void Unregister(params IControllable[] controllables);
+        }
     }
 
     public class CommandAndController : ICommandAndController
@@ -72,6 +78,11 @@ namespace MyNotifier.CommandAndControl
             catch (Exception ex) { return CallResult.FromException(ex); }
         }
 
+        public Task<ICommandResult> AffectCommandAsync(ICommand command)
+        {
+            throw new NotImplementedException();
+        }
+
         protected ICommand ParseCommand(Notification notification) => throw new NotImplementedException();
         protected async ValueTask OnCommandAsync(ICommand command)
         {
@@ -90,14 +101,17 @@ namespace MyNotifier.CommandAndControl
             }
         }
 
-        public void Register(IControllable controllable)
+        public class Registrar : ICommandAndController.IRegistrar
         {
-            throw new NotImplementedException();
-        }
+            public void Register(params IControllable[] controllable)
+            {
+                throw new NotImplementedException();
+            }
 
-        public void Unregister(IControllable controllable)
-        {
-            throw new NotImplementedException();
+            public void Unregister(params IControllable[] controllable)
+            {
+                throw new NotImplementedException();
+            }
         }
 
 
