@@ -8,7 +8,6 @@ namespace MyNotifier.Base
 {
     public class BooleanFlag
     {
-        public bool Value { get; set; }
-
+        public bool Value { get; set; } = false;
     }
 }
