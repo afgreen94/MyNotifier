@@ -34,7 +34,7 @@ namespace MyNotifier.Contracts.CommandAndControl
         //ShutdownSystemAsync()
     }
 
-    public interface ICommandResult { } //Guid CommandId
+    public interface ICommandResult : ICallResult { } //Guid CommandId
 
     public interface ICommandResult<TCommand> where TCommand : ICommand { }
 
