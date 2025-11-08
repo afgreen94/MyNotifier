@@ -16,7 +16,7 @@ namespace MyNotifier
     {
         public class Subscribers
         {
-            public abstract class Subscriber
+            public abstract class Subscriber 
             {
                 protected readonly MessageQueue messageQueue;
 
@@ -46,6 +46,17 @@ namespace MyNotifier
                 }
             }
 
+            //may not need subscribers for application-generic events like taskcomplete & onfailure. could be more appropriate to ref MessageQueue directly in Backgrounding Manager. ultimately, doesn't make much practical difference, for now
+            public class TaskCompleteSubscriber : Subscriber, ITaskCompleteSubscriber
+            {
+                private readonly Guid id = new("");
+                public Guid Id => this.id;
+
+                public TaskCompleteSubscriber(MessageQueue messageQueue) : base(messageQueue) { }
+
+                public void OnTaskComplete(TaskCompleteArgs args) { }
+            }
+
             public class FailureSubscriber : Subscriber, IFailureSubscriber
             {
                 private readonly Guid id = new("");
@@ -53,7 +64,7 @@ namespace MyNotifier
 
                 public FailureSubscriber(MessageQueue messageQueue) : base(messageQueue) { }
 
-                public void OnFailure(FailureArgs args) { }
+                public void OnFailure(FailureArgs args) { } //require handleFailure return value to background caller ? //have background caller lock failure message? give backgrounder direct ref to message queue ? //all failure logic in foreground?
             }
         }
 

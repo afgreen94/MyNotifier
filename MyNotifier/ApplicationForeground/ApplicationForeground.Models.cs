@@ -26,33 +26,49 @@ namespace MyNotifier
         {
             public ICommand Command { get; set; }
         }
+        public class TaskCompleteArgs
+        {
+            public BackgroundTaskData TaskData { get; set; }
+            public ICallResult Result { get; set; }
+
+            //include return value ?
+        }
+
         public class FailureArgs
         {
-            public ICallResult FailedResult { get; set; }
+            public ICallResult FailedResult { get; set; } 
+            //Exception ?
         }
         public class HandleFailureArgs { }
 
 
-        public interface IUpdateSubscriber
+        public interface ISubscriber
         {
             Guid Id { get; }
+        }
+
+        public interface IUpdateSubscriber : ISubscriber
+        {
             void OnUpdateAvailable(UpdateAvailableArgs args);
         }
 
-        public interface ICommandNotifierSubscriber
+        public interface ICommandNotifierSubscriber : ISubscriber
         {
             ValueTask<ICommandResult> OnCommandAvailableAsync(ICommand command);
         }
 
-        public interface IFailureSubscriber
+        public interface ITaskCompleteSubscriber : ISubscriber
         {
-            Guid Id { get; }
+            void OnTaskComplete(TaskCompleteArgs args);
+        }
+
+        public interface IFailureSubscriber : ISubscriber
+        {
             void OnFailure(FailureArgs args);
         }
 
-        public interface ICommandSubscriber
+        public interface ICommandSubscriber : ISubscriber
         {
-            Guid Id { get; }
             void OnCommand(CommandArgs args);
         }
 

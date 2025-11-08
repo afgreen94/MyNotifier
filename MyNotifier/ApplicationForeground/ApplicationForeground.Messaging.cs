@@ -1,4 +1,5 @@
-﻿using MyNotifier.Contracts.CommandAndControl;
+﻿using MyNotifier.Contracts.Base;
+using MyNotifier.Contracts.CommandAndControl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,7 @@ namespace MyNotifier
         
             protected Message(TArgs args) { this.args = args; }
 
+            //careful not to get deadlocked 
             protected virtual async Task WaitCoreAsync()
             {
                 if (this.locked) return;
@@ -97,6 +99,13 @@ namespace MyNotifier
             public CommandIssuedMessage(ICommand args, bool expectingResult = false) : base(args, expectingResult) { }
         }
 
+        public class TaskCompleteMessage : Message<ICallResult>
+        {
+            public override MessageType Type => MessageType.TaskComplete;
+
+            public TaskCompleteMessage(ICallResult result) : base(result) { }
+        }
+
         public class FailureMessage : Message<FailureArgs, HandleFailureArgs>
         {
             public override MessageType Type => MessageType.Failure;
@@ -104,7 +113,8 @@ namespace MyNotifier
             public FailureMessage(FailureArgs args, bool expectingResult = false) : base(args, expectingResult) { }
         }
 
-        public enum MessageStatus
+        //rename 
+        public enum MessageStatus  //status 
         {
             Unprocessed,
             Processing,
@@ -112,13 +122,24 @@ namespace MyNotifier
             Processed,
             Faulted
         }
-        public enum MessageType
+        public enum MessageType  //type 
         {
             Update,
             Command,
+            TaskComplete,
             Failure
         }
 
+        public enum Priority
+        {
+            Highest=0,
+            High,
+            Medium,
+            Low,
+            Lowest
+        }
+
+        //make priority queue, sort by message priority, then message time, then element priority, then element time 
         public class MessageQueue  //there are many more efficient ways of doing r/w without locking every time, will handle later !!! 
         {
             private readonly Queue<Message> innerQueue = new();

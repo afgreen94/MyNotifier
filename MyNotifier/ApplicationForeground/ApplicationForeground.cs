@@ -25,17 +25,19 @@ namespace MyNotifier
         private readonly IInterestManager interestManager;
         private readonly ICommandAndController controller;
         private readonly INotifierPublisher publisher;
+        private readonly IBackgroundTaskManager backgrounder;
         private readonly IApplicationConfiguration configuration;
         private readonly ICallContext<ApplicationForeground> callContext;
 
         private readonly NotificationBuilder notificationBuilder = new();
 
         private readonly MessageQueue messageQueue = new();
-         
+
         private readonly Handler handler;
 
         private readonly UpdateAvailableSubscriber updateAvailableHandler;
         private readonly CommandSubscriber commandSubscriberHandler;
+        private readonly TaskCompleteSubscriber taskCompleteSubscriber;
         private readonly FailureSubscriber failureSubscriberHandler;
 
 
@@ -44,19 +46,22 @@ namespace MyNotifier
         public ApplicationForeground(IInterestManager interestManager,
                                      ICommandAndController controller,
                                      INotifierPublisher publisher,
-                                     IApplicationConfiguration configuration, 
+                                     IBackgroundTaskManager backgrounder,
+                                     IApplicationConfiguration configuration,
                                      ICallContext<ApplicationForeground> callContext)
         {
             this.interestManager = interestManager;
             this.controller = controller;
             this.publisher = publisher;
+            this.backgrounder = backgrounder;
             this.configuration = configuration;
             this.callContext = callContext;
-            
+
             this.handler = new(this.messageQueue);
 
             this.updateAvailableHandler = new(this.messageQueue);
             this.commandSubscriberHandler = new(this.messageQueue);
+            this.taskCompleteSubscriber = new(this.messageQueue);
             this.failureSubscriberHandler = new(this.messageQueue);
         }
 
@@ -79,6 +84,7 @@ namespace MyNotifier
                     {
                         MessageType.Update => await this.ProcessUpdateMessageAsync(message).ConfigureAwait(false),
                         MessageType.Command => await this.ProcessCommandIssuedMessageAsync(message).ConfigureAwait(false),
+                        MessageType.TaskComplete => await this.ProcessTaskCompleteMessageAsync(message).ConfigureAwait(false),
                         MessageType.Failure => await this.ProcessFailureMessageAsync(message).ConfigureAwait(false),
                         _ => throw new NotImplementedException() //never reached 
                     };
