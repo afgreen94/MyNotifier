@@ -10,11 +10,11 @@ using System.Linq;
 using System.Management;
 using System.Text;
 using System.Threading.Tasks;
-using static MyNotifier.Notifiers.FileNotifier;
+//using static MyNotifier.Notifiers.FileNotifier;
 
 namespace MyNotifier.Notifiers
 {
-    public abstract class Notifier : INotifier
+    public abstract class Notifier : INotifier  //polling notifier 
     {
 
         protected readonly IConfiguration configuration;
@@ -27,6 +27,7 @@ namespace MyNotifier.Notifiers
 
         protected readonly NotificationType targetNotificationTypeMask;
 
+        protected BooleanFlag killFlag;
         protected PollTaskWrapper pollTaskWrapper;
 
         public virtual bool Connected => this.connected;
@@ -50,7 +51,6 @@ namespace MyNotifier.Notifiers
             try
             {
                 //check if already connected ?? //force reconnect ??
-
                 var connectCoreResult = await this.ConnectCoreAsync(connectArg).ConfigureAwait(false);
                 if (!connectCoreResult.Success) return CallResult.BuildFailedCallResult(connectCoreResult, "Failed to connect: {0}");
 
@@ -63,23 +63,31 @@ namespace MyNotifier.Notifiers
             catch (Exception ex) { return CallResult.FromException(ex); }
         }
 
+
+        private readonly TimeSpan pollTaskDisconnectTimeout = new(); //from config 
+
         public virtual async ValueTask<ICallResult> DisconnectAsync()
         {
             try
             {
-                var disconnectAttempts = 0;
 
-                this.pollTaskWrapper.TriggerCancelFlag();
+                await this.pollTaskWrapper.KillWaitAsync(this.pollTaskDisconnectTimeout).ConfigureAwait(false);
 
-                await Task.Delay(this.configuration.TryDisconnectLoopDelayMs).ConfigureAwait(false);
+                if (this.pollTaskWrapper.Status == TaskStatus.Running) return new CallResult(false, "Failed to disconnect.");
 
-                while (this.pollTaskWrapper.PollTaskStillRunning)
-                {
-                    if (disconnectAttempts++ == this.configuration.DisconnectionAttemptsCount) return new CallResult(false, "Failed to disconnect.");
-                    await Task.Delay(this.configuration.TryDisconnectLoopDelayMs).ConfigureAwait(false);
-                }
+                //var disconnectAttempts = 0;
 
-                if (this.pollTaskWrapper.PollTaskStatus == TaskStatus.Faulted) return this.pollTaskWrapper.BuildPollTaskFailedCallResult(); //call result may succeed but caller should verify error text  
+                //this.pollTaskWrapper.TriggerCancelFlag();
+
+                //await Task.Delay(this.configuration.TryDisconnectLoopDelayMs).ConfigureAwait(false);
+
+                //while (this.pollTaskWrapper.PollTaskStillRunning)
+                //{
+                //    if (disconnectAttempts++ == this.configuration.DisconnectionAttemptsCount) return new CallResult(false, "Failed to disconnect.");
+                //    await Task.Delay(this.configuration.TryDisconnectLoopDelayMs).ConfigureAwait(false);
+                //}
+
+                //if (this.pollTaskWrapper.PollTaskStatus == TaskStatus.Faulted) return this.pollTaskWrapper.BuildPollTaskFailedCallResult(); //call result may succeed but caller should verify error text  
 
                 this.connected = false;
 
@@ -95,38 +103,45 @@ namespace MyNotifier.Notifiers
 
             this.BeforeStartCore();
 
-            this.pollTaskWrapper = new();
-            this.pollTaskWrapper.SetPollTask(this.PollForNotificationsAsync());
+            this.pollTaskWrapper = this.GetPollTaskWrapper(nameof(Start));
 
-            Thread.Sleep(this.EarlyExceptionDelayMs); //to check for early exceptions, may not be necessary 
+            //register with background manaager 
+          
+            this.pollTaskWrapper.Start();
 
-            //if exception throw before wrapping task, problem!!! check for this 
-            if (this.pollTaskWrapper.PollTaskStatus == TaskStatus.Faulted) throw new Exception($"Poll task early exception: {this.pollTaskWrapper.BuildPollTaskFailedCallResult().ErrorText}");
+            //this.pollTaskWrapper = new();
+            //this.pollTaskWrapper.SetPollTask(this.PollForNotificationsAsync());
+
+            //Thread.Sleep(this.EarlyExceptionDelayMs); //to check for early exceptions, may not be necessary 
+
+            ////if exception throw before wrapping task, problem!!! check for this 
+            //if (this.pollTaskWrapper.PollTaskStatus == TaskStatus.Faulted) throw new Exception($"Poll task early exception: {this.pollTaskWrapper.BuildPollTaskFailedCallResult().ErrorText}");
         }
 
         protected static Exception GetPollTaskException(ICallResult getNewNotificationsResult) => new($"Failed to retrieve new notifications: {getNewNotificationsResult.ErrorText}");
-        protected virtual async Task PollForNotificationsAsync()  //should cancelFlag & helper be given as parameters? probably would be better 
-        {
-            try
-            {
-                while (!this.pollTaskWrapper.CancelFlagValue)
-                {
-                    var getNewNotificationsResult = await this.RetrieveNewNotificationsAsync().ConfigureAwait(false);
-                    if (!getNewNotificationsResult.Success)
-                    {
-                        //will propagate
-                        this.pollTaskWrapper.TriggerCancelFlag(); //maybe not even necessary, i guess just for consistency's sake 
-                        this.pollTaskWrapper.SetPollTaskException(GetPollTaskException(getNewNotificationsResult)); //how to handle? for now just break
-                        break;
-                    }
+        //protected virtual async Task PollForNotificationsAsync()  //should cancelFlag & helper be given as parameters? probably would be better 
+        //{
+        //    try
+        //    {
+        //        while (!this.pollTaskWrapper.CancelFlagValue)
+        //        {
+        //            var getNewNotificationsResult = await this.RetrieveNewNotificationsAsync().ConfigureAwait(false);
+        //            if (!getNewNotificationsResult.Success)
+        //            {
+        //                //will propagate
+        //                this.pollTaskWrapper.TriggerCancelFlag(); //maybe not even necessary, i guess just for consistency's sake 
+        //                this.pollTaskWrapper.SetPollTaskException(GetPollTaskException(getNewNotificationsResult)); //how to handle? for now just break
+        //                break;
+        //            }
 
-                    foreach (var notification in getNewNotificationsResult.Result) await this.OnNotificationAsync(notification).ConfigureAwait(false);
+        //            foreach (var notification in getNewNotificationsResult.Result) await this.OnNotificationAsync(notification).ConfigureAwait(false);
 
-                    await Task.Delay(this.configuration.NotificationPollingDelayMs).ConfigureAwait(false); //delay 
-                }
-            }
-            catch (Exception ex) { this.pollTaskWrapper.SetPollTaskException(ex); } //will kill task automatically 
-        }
+        //            await Task.Delay(this.configuration.NotificationPollingDelayMs).ConfigureAwait(false); //delay 
+        //        }
+        //    }
+        //    catch (Exception ex) { this.pollTaskWrapper.SetPollTaskException(ex); } //will kill task automatically 
+        //}
+
 
         public virtual void Subscribe(INotifier.ISubscriber subscriber) => this.subscriptions += subscriber.OnNotificationAsync;
         public virtual void Unsubscribe(INotifier.ISubscriber subscriber) => this.subscriptions -= subscriber.OnNotificationAsync;
@@ -136,81 +151,123 @@ namespace MyNotifier.Notifiers
         protected virtual bool IsExcludedNotificationType(NotificationHeader notificationHeader) => (this.targetNotificationTypeMask & notificationHeader.Type) == 0;
         protected virtual bool IsAlreadyProcessedNotification(NotificationHeader notificationHeader) => this.processedNotificationNamesCache.Contains(notificationHeader.Id);
 
-        protected abstract ValueTask<ICallResult> ConnectCoreAsync(object connectArg);
         protected virtual void BeforeStartCore() { }
+
+        protected abstract ValueTask<ICallResult> ConnectCoreAsync(object connectArg);
         protected abstract Task<ICallResult<Notification[]>> RetrieveNewNotificationsAsync();
+
+        #region PollingTask
+        protected virtual Guid pollTaskId => new("");
+        protected virtual string pollTaskName => "NotifierPollTask";
+        protected virtual string pollTaskDescription => "Polls for notifications";
+
+        protected virtual PollTaskWrapper GetPollTaskWrapper(string callingFunctionName) => new(this, new BackgroundTaskData(this.pollTaskId,
+                                                                                                                             this.pollTaskName,
+                                                                                                                             this.pollTaskDescription,
+                                                                                                                             this.GetType().Name,
+                                                                                                                             callingFunctionName));
+
+        protected class PollTaskWrapper : BackgroundTaskWrapper
+        {
+            //private readonly BackgroundTaskData _data = new(new(""), "Polling notifier poll task", "Polls for notifications",
+            
+            private readonly Notifier notifier;
+
+            public PollTaskWrapper(Notifier notifier, BackgroundTaskData data) : base(data) { this.notifier = notifier; }
+
+            protected override async ValueTask ActionAsync()
+            {
+                try
+                {
+                    while (!this.killFlag.Value)
+                    {
+                        var getNewNotificationsResult = await this.notifier.RetrieveNewNotificationsAsync().ConfigureAwait(false);
+                        if (!getNewNotificationsResult.Success)
+                        {
+
+                            //try handle notification internally
+
+                            //otherwise, notify foreground 
+                            this.OnExceptionRaised(new(getNewNotificationsResult.ErrorText)); //? appropriate to use OnException raised here?
+                            break;
+                        }
+
+                        foreach (var notification in getNewNotificationsResult.Result) await this.notifier.OnNotificationAsync(notification).ConfigureAwait(false);
+
+                        await Task.Delay(this.notifier.configuration.NotificationPollingDelayMs).ConfigureAwait(false); //delay 
+                    }
+                }
+                catch (Exception ex) { this.OnExceptionRaised(ex); } //will kill task automatically
+            }
+        }
+
+        #endregion PollingTask
 
         public interface IConfiguration : IConfigurationWrapper 
         {
             AllowedNotificationTypeArgs AllowedNotificationTypeArgs { get; }
-            int DisconnectionAttemptsCount { get; }
+            int DisconnectionAttemptsCount { get; }  //Timespan 
             int TryDisconnectLoopDelayMs { get; }
             int NotificationPollingDelayMs { get; }
             TimeSpan ClearCacheInterval { get; }
         }
         public class Configuration : ConfigurationWrapper, IConfiguration
         {
-            public Configuration(Microsoft.Extensions.Configuration.IConfiguration innerConfiguration) : base(innerConfiguration)
-            {
-            }
-
             public AllowedNotificationTypeArgs AllowedNotificationTypeArgs => throw new NotImplementedException();
-
             public int DisconnectionAttemptsCount => throw new NotImplementedException();
-
             public int TryDisconnectLoopDelayMs => throw new NotImplementedException();
-
             public int NotificationPollingDelayMs => throw new NotImplementedException();
-
             public TimeSpan ClearCacheInterval => throw new NotImplementedException();
+
+            public Configuration(Microsoft.Extensions.Configuration.IConfiguration innerConfiguration) : base(innerConfiguration) { }
         }
 
 
-        protected class PollTaskWrapper
-        {
+        //protected class PollTaskWrapper
+        //{
 
-            private BooleanFlag cancelFlag = new() { Value = false };
-            private Task pollTask;
-            private Exception pollTaskException;
+        //    private BooleanFlag cancelFlag = new() { Value = false };
+        //    private Task pollTask;
+        //    private Exception pollTaskException;
 
-            private readonly SemaphoreSlim semaphore = new(1, 1);
+        //    private readonly SemaphoreSlim semaphore = new(1, 1);
 
-            public bool CancelFlagValue => this.cancelFlag.Value;
-            public TaskStatus PollTaskStatus => this.pollTask.Status;
-            public bool PollTaskStillRunning => this.pollTask.Status != TaskStatus.RanToCompletion && this.pollTask.Status != TaskStatus.Faulted && this.pollTask.Status != TaskStatus.Canceled;
+        //    public bool CancelFlagValue => this.cancelFlag.Value;
+        //    public TaskStatus PollTaskStatus => this.pollTask.Status;
+        //    public bool PollTaskStillRunning => this.pollTask.Status != TaskStatus.RanToCompletion && this.pollTask.Status != TaskStatus.Faulted && this.pollTask.Status != TaskStatus.Canceled;
 
-            public ICallResult BuildPollTaskFailedCallResult() => new CallResult(true, $"Poll task faulted: {this.pollTaskException.Message}");
+        //    public ICallResult BuildPollTaskFailedCallResult() => new CallResult(true, $"Poll task faulted: {this.pollTaskException.Message}");
 
-            public void SetPollTask(Task pollTask)
-            {
-                try
-                {
-                    this.semaphore.Wait();
-                    this.pollTask = pollTask;
-                }
-                finally { this.semaphore.Release(); }
-            }
+        //    public void SetPollTask(Task pollTask)
+        //    {
+        //        try
+        //        {
+        //            this.semaphore.Wait();
+        //            this.pollTask = pollTask;
+        //        }
+        //        finally { this.semaphore.Release(); }
+        //    }
 
-            public void TriggerCancelFlag()
-            {
-                try
-                {
-                    this.semaphore.Wait();
-                    this.cancelFlag.Value = true;
-                }
-                finally { this.semaphore.Release(); }
-            }
+        //    public void TriggerCancelFlag()
+        //    {
+        //        try
+        //        {
+        //            this.semaphore.Wait();
+        //            this.cancelFlag.Value = true;
+        //        }
+        //        finally { this.semaphore.Release(); }
+        //    }
 
-            public void SetPollTaskException(Exception ex)
-            {
-                try
-                {
-                    this.semaphore.Wait();
-                    this.pollTaskException = ex;
-                }
-                finally { this.semaphore.Release(); }
-            }
-        }
+        //    public void SetPollTaskException(Exception ex)
+        //    {
+        //        try
+        //        {
+        //            this.semaphore.Wait();
+        //            this.pollTaskException = ex;
+        //        }
+        //        finally { this.semaphore.Release(); }
+        //    }
+        //}
     }
 
     public class AllowedNotificationTypeArgs
