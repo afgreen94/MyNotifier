@@ -17,8 +17,4 @@
     <ProjectReference Include="..\MyNotifier.Contracts\MyNotifier.Contracts.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Base\Backgrounding\" />
-  </ItemGroup>
-
 </Project>
