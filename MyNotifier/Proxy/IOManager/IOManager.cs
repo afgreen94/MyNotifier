@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static MyNotifier.Notifiers.FileNotifier;
+//using static MyNotifier.Notifiers.FileNotifier;
 using EventModuleDefinitionModel = MyNotifier.Contracts.EventModules.DefinitionModel;
 using IEventModuleDefinition = MyNotifier.Contracts.EventModules.IDefinition;
 using IUpdaterDefinition = MyNotifier.Contracts.Updaters.IDefinition;
@@ -166,7 +166,7 @@ namespace MyNotifier.Proxy //namespacing??
             int NotificationPollingDelayMs { get; }
             bool DeleteNotificationOnDelivered { get; }
             int[] RetrySequenceDelaysMs { get; set; } //not to worry about bottlenecking performance, since running full sequence should really only occur during actual exceptions. will handle oversized file cases later
-            WriteCompleteSignalArgs WriteCompleteSignalArgs { get; }
+            //WriteCompleteSignalArgs WriteCompleteSignalArgs { get; }
             TimeSpan ClearCacheInterval { get; }
             //End Notifiers 
         }
@@ -198,7 +198,7 @@ namespace MyNotifier.Proxy //namespacing??
 
             public int[] RetrySequenceDelaysMs { get; set; } = [5000, 10000, 30000, 60000]; //not to worry about bottlenecking performance, since running full sequence should really only occur during actual exceptions. will handle oversized file cases later
 
-            public WriteCompleteSignalArgs WriteCompleteSignalArgs => throw new NotImplementedException();
+            //public WriteCompleteSignalArgs WriteCompleteSignalArgs => throw new NotImplementedException();
 
             public TimeSpan ClearCacheInterval => throw new NotImplementedException();
 

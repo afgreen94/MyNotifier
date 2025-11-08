@@ -217,10 +217,11 @@ namespace MyNotifier.Proxy
 
             private void RegisterServerNotifierServices(IServiceCollection services)
             {
-                services.AddSingleton(this.BuildNotifierConfiguration());
+                //!!! AG !!! 
+                //services.AddSingleton(this.BuildNotifierConfiguration());
 
-                services.AddScoped<ICallContext<FileNotifier>, CallContext<FileNotifier>>();
-                services.AddScoped<IFileNotifier, FileNotifier>();
+                //services.AddScoped<ICallContext<FileNotifier>, CallContext<FileNotifier>>();
+                //services.AddScoped<IFileNotifier, FileNotifier>();
             }
 
             //private FileNotifierPublisher.IConfiguration BuildNotifierPublisherConfiguration()  //still have to figure out config wire-up + update on command 
@@ -235,10 +236,10 @@ namespace MyNotifier.Proxy
             //    return config;
             //}
 
-            private FileNotifier.IConfiguration BuildNotifierConfiguration()
-            {
-                throw new NotImplementedException();
-            }
+            //private FileNotifier.IConfiguration BuildNotifierConfiguration()
+            //{
+            //    throw new NotImplementedException();
+            //}
 
             //encapsulate! 
             private static string BuildAssemblyQualifiedTypeNames(UpdaterDefinitionModel updaterDefinition) => string.Format("{0}.{1}", updaterDefinition.ModuleDescription.AssemblyName, updaterDefinition.ModuleDescription.TypeFullName);
