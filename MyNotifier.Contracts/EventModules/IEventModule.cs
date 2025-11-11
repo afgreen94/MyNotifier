@@ -7,7 +7,7 @@ using MyNotifier.Contracts.Updaters;
 
 namespace MyNotifier.Contracts.EventModules
 {
-    public interface IEventModule
+    public interface IEventModule : Contracts.Base.IDefinition
     {
         IDefinition Definition { get; }
         IDictionary<Guid, UpdaterParametersWrapper> UpdaterParameterWrappers { get; }
@@ -31,13 +31,13 @@ namespace MyNotifier.Contracts.EventModules
         public IDictionary<Guid, Parameter[]> Parameters { get; set; }
     }
 
-    public abstract class EventModuleBase : IEventModule
+    public abstract class EventModuleBase : Contracts.Base.Definition, IEventModule
     {
         public abstract IDefinition Definition { get; }
         public abstract IDictionary<Guid, UpdaterParametersWrapper> UpdaterParameterWrappers { get; }
     }
 
-    public class CustomEventModule : IEventModule
+    public class CustomEventModule : Contracts.Base.Definition, IEventModule
     {
         public IDefinition Definition { get; set; }
         public IDictionary<Guid, UpdaterParametersWrapper> UpdaterParameterWrappers { get; set; } = new Dictionary<Guid, UpdaterParametersWrapper>();
