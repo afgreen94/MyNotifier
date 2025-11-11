@@ -57,6 +57,12 @@ namespace MyNotifier
             ValueTask<ICommandResult> OnCommandAvailableAsync(ICommand command);
         }
 
+        public interface ICommandSubscriber : ISubscriber
+        {
+            void OnCommand(CommandArgs args);
+        }
+
+        //put in backgrounding ? 
         public interface ITaskCompleteSubscriber : ISubscriber
         {
             void OnTaskComplete(TaskCompleteArgs args);
@@ -66,12 +72,6 @@ namespace MyNotifier
         {
             void OnFailure(FailureArgs args);
         }
-
-        public interface ICommandSubscriber : ISubscriber
-        {
-            void OnCommand(CommandArgs args);
-        }
-
 
         public interface IBackgroundable
         {
