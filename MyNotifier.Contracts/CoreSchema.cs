@@ -90,7 +90,7 @@ namespace MyNotifier.Contracts
     public class InterestDefinitionModel { }
 
 
-    public interface IInterest
+    public interface IInterest 
     {
         IDefinition Definition { get; }
         IEventModule[] EventModules { get; }
