@@ -274,6 +274,7 @@ namespace MyNotifier.Notifiers
     {
         public bool Updates { get; set; }
         public bool Commands { get; set; }
+        public bool CommandResults { get; set; }
         public bool Exceptions { get; set; }
 
         public NotificationType ToNotificationTypeMask()
@@ -281,7 +282,8 @@ namespace MyNotifier.Notifiers
             var ret = new NotificationType();
 
             if (this.Updates) ret += (byte)NotificationType.Update;
-            if (this.Commands) ret += ((byte)NotificationType.Command + (byte)NotificationType.CommandResult); //take this.Commands=true to also permit commandResult types 
+            if (this.Commands) ret += (byte)NotificationType.Command;
+            if (this.CommandResults) ret += (byte)NotificationType.CommandResult;
             if (this.Exceptions) ret += (byte)NotificationType.Exception;
 
             return ret;
