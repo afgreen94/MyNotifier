@@ -49,4 +49,10 @@ namespace MyNotifier.Contracts.Updaters
         public IUpdater Updater { get; set; }
         public Parameter[] Parameters { get; set; }
     }
+
+    public interface ITaskSettings
+    {
+        int DelayMilliseconds { get; }
+        string ReturnProtocol { get; }
+    }
 }
