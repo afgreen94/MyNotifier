@@ -322,11 +322,11 @@ namespace MyNotifier
 
         private TimeSpan defaultTimeout = new();
 
-        public virtual void KillWait(TimeSpan waitTimeout = default)
+        public virtual bool KillWait(TimeSpan waitTimeout = default)
         {
             this.KillCore();
 
-            this.task.Wait((waitTimeout == default) ? this.defaultTimeout : waitTimeout);
+            return this.task.Wait((waitTimeout == default) ? this.defaultTimeout : waitTimeout);
         }
 
         public virtual void KillWait(BooleanFlag waitCancelFlag)
