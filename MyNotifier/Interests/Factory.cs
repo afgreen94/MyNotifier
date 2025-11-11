@@ -12,7 +12,7 @@ using IEventModuleParameterValues = MyNotifier.Contracts.EventModules.IParameter
 
 namespace MyNotifier.Interests
 {
-    public class Factory : MyNotifier.Contracts.Interests.IFactory
+    public class Factory : MyNotifier.Contracts.Interests.IFactory  //factory cache ???
     {
 
         private readonly IEventModuleFactory eventModuleFactory;
