@@ -15,6 +15,7 @@ using MyNotifier.Contracts.FileIOManager;
 using System.Reflection;
 using MyNotifier.Notifiers;
 using MyNotifier.CommandAndControl.Commands;
+using MyNotifier.CommandAndControl;
 
 namespace MyNotifier
 {
@@ -64,8 +65,25 @@ namespace MyNotifier
         //}
 
 
+        //public async Task DriveAsync(IServiceProvider serviceProvider, InterestModel[] sessionInterests)
+        //{
+        //    using var scope = serviceProvider.CreateScope();
 
-        
+        //    var applicationConfiguration = scope.ServiceProvider.GetRequiredService<IApplicationConfiguration>();
+        //    var interestManager = scope.ServiceProvider.GetRequiredService<Contracts.Interests.IManager>();
+        //    var commandAndController = scope.ServiceProvider.GetRequiredService<ICommandAndController>();
+        //    var publisher = scope.ServiceProvider.GetRequiredService<INotifierPublisher>();
+        //    var backgroundTaskManager = scope.ServiceProvider.GetRequiredService<IBackgroundTaskManager>();
+
+        //    var foreground = new ApplicationForeground(interestManager, 
+        //                                               commandAndController, 
+        //                                               publisher, 
+        //                                               backgroundTaskManager,
+        //                                               applicationConfiguration, null);
+
+        //    await foreground.RunAsync().ConfigureAwait(false);
+        //}
+
 
         public class ModuleLoader { } //easier to register all updater definitions at initialize step. Better to register lazily 
 
