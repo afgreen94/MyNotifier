@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace MyNotifier.Contracts.Publishers
 {
-    public interface INotifierPublisher
+    public interface INotifierPublisher : IInitializeable
     {
-        ValueTask<ICallResult> InitializeAsync(bool forceReInitialize = false);
         ValueTask<ICallResult> PublishAsync(Notification notification);
     }
 }

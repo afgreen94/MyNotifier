@@ -20,17 +20,21 @@ namespace MyNotifier.Publishers
 
         //protected NotifierPublisher(IConfiguration configuration) { this.configuration = configuration; }
 
-        protected bool isInitialized = false;
+        protected bool initialized = false;
+        protected int initializerOrder = 0;
+
+        public virtual bool Initialized => this.initialized;
+        public virtual int InitializerOrder => this.initializerOrder;
 
         public virtual async ValueTask<ICallResult> InitializeAsync(bool forceReinitialize = false)
         {
             try
             {
-                if (!this.isInitialized || forceReinitialize)
+                if (!this.initialized || forceReinitialize)
                 {
                     await this.InitializeCoreAsync().ConfigureAwait(false);
 
-                    this.isInitialized = true;
+                    this.initialized = true;
                 }
 
                 return new CallResult();
@@ -42,7 +46,7 @@ namespace MyNotifier.Publishers
         {
             try
             {
-                if (!this.isInitialized) return new CallResult(false, NotInitializedMessage);
+                if (!this.initialized) return new CallResult(false, NotInitializedMessage);
 
                 var nowTime = DateTime.UtcNow;
 
