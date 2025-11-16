@@ -22,7 +22,7 @@ namespace MyNotifier
         public static IInterestDefinition ToInterestDefinition(InterestDefinitionModel model) => ToInterestDefinitionCore(model);
         public static InterestDefinitionModel ToModel(IInterestDefinition definition) => ToModel(definition);
 
-        //public static IInterest ToInterest(InterestModel interestModel) => ToInterestCore(interestModel);
+        public static IInterest ToInterest(InterestModel interestModel) => ToInterestCore(interestModel);
         public static InterestModel ToModel(IInterest interest) => ToModelCore(interest);
 
         public static IEventModuleDefinition ToEventModuleDefinition(EventModuleDefinitionModel model) => ToEventModuleDefinitionCore(model);
@@ -38,7 +38,7 @@ namespace MyNotifier
         private static InterestDefinitionModel ToModelCore(IInterestDefinition definition) => throw new NotImplementedException();
 
 
-        //private static IInterest ToInterestCore(InterestModel interestModel) { }
+        private static IInterest ToInterestCore(InterestModel interestModel) => throw new NotImplementedException();
 
         private static InterestModel ToModelCore(IInterest interest)
         {

@@ -52,7 +52,7 @@ namespace MyNotifier
         public Notification Build(IUpdaterResult result) => throw new NotImplementedException();
         public Notification Build(ICommand command)
         {
-            var data = this.defaultEncoding.GetBytes(JsonSerializer.Serialize(command));
+            var data = this.defaultEncoding.GetBytes(JsonSerializer.Serialize(command));  //wrong !! 
 
             return new Notification()
             {
