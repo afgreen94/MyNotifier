@@ -1,6 +1,10 @@
 ﻿using MyNotifier.Base;
+using MyNotifier.CommandAndControl;
+using MyNotifier.CommandAndControl.Commands;
 using MyNotifier.Contracts;
 using MyNotifier.Contracts.Base;
+using MyNotifier.Contracts.CommandAndControl;
+using MyNotifier.Contracts.CommandAndControl.Commands;
 using MyNotifier.Contracts.EventModules;
 using MyNotifier.Contracts.Interests;
 using MyNotifier.Contracts.Notifications;
@@ -14,6 +18,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using static MyNotifier.ApplicationForeground;
 using IFactory = MyNotifier.Contracts.Interests.IFactory;
+using IUpdateSubscriber = MyNotifier.Contracts.Updaters.ISubscriber;
 
 namespace MyNotifier.Interests
 {
@@ -22,30 +27,21 @@ namespace MyNotifier.Interests
         private readonly IFactory factory;
         private readonly ICallContext<Manager> callContext;
 
+        private readonly IControllable controllable;
+
         private readonly Contracts.Interests.ICache _cache;
         private readonly Cache cache = new();
 
-        //protected delegate void OnUpdateEventHandler(UpdaterHarness sender, Notification notification);
-        //protected event OnUpdateEventHandler subscriptions;
+        protected delegate void OnUpdateEventHandler(UpdateAvailableArgs args);
+        protected event OnUpdateEventHandler onUpdateHandler;
 
-        public Manager(IFactory factory, Contracts.Interests.ICache cache, ICallContext<Manager> callContext) { this.factory = factory; this._cache = cache; this.callContext = callContext; }
+        public IControllable Controllable => this.controllable;
 
+        public Manager(IFactory factory, Contracts.Interests.ICache cache, ICallContext<Manager> callContext) { this.factory = factory; this._cache = cache; this.callContext = callContext; this.controllable = new Controller(this); }
 
-        public ICallResult<InterestDescription> AddStartInterest(IInterest interest) => this.AddStartInterestCore(interest);
+        public ICallResult AddStartInterest(IInterest interest) => this.AddStartInterestCore(interest);
 
-        public async Task<ICallResult<InterestDescription>> GetAddStartInterestAsync(InterestModel interest)
-        {
-            try
-            {
-                var createInterestResult = await this.factory.GetAsync(interest).ConfigureAwait(false);
-                if (!AssertCreateResultSuccess(createInterestResult, out var failedResult)) return failedResult;
-
-                return this.AddStartInterestCore(createInterestResult.Result);
-            }
-            catch (Exception ex) { return CallResult<InterestDescription>.FromException(ex); }
-        }
-
-        public async Task<ICallResult<InterestDescription>> GetAddStartInterestAsync(Guid interestId)
+        public async Task<ICallResult> GetAddStartInterestAsync(Guid interestId)
         {
             try
             {
@@ -54,28 +50,37 @@ namespace MyNotifier.Interests
 
                 return this.AddStartInterestCore(createInterestResult.Result);
             }
-            catch(Exception ex) { return CallResult<InterestDescription>.FromException(ex); }
+            catch (Exception ex) { return CallResult.FromException(ex); }
         }
 
-        public ICallResult StopRemoveInterestAsync(IInterest interest) => this.StopRemoveInterestCore(interest.Definition.Id);
-        public ICallResult StopRemoveInterestAsync(Guid interestId) =>this.StopRemoveInterestCore(interestId);
-        public ICallResult StopRemoveInterestAsync(InterestDescription interest) => this.StopRemoveInterestCore(interest.Definition.Id);
-        
-        private ICallResult<InterestDescription> AddStartInterestCore(IInterest interest)
+        public async Task<ICallResult> GetAddStartInterestAsync(InterestModel interest)
         {
             try
             {
+                var createInterestResult = await this.factory.GetAsync(interest).ConfigureAwait(false);
+                if (!AssertCreateResultSuccess(createInterestResult, out var failedResult)) return failedResult;
 
+                return this.AddStartInterestCore(createInterestResult.Result);
+            }
+            catch (Exception ex) { return CallResult.FromException(ex); }
+        }
+
+        public ICallResult StopRemoveInterest(Guid interestId, TimeSpan taskKillWaitTimeoutOverride = default) => this.StopRemoveInterestCore(interestId, taskKillWaitTimeoutOverride);
+
+        public void RegisterUpdateSubscriber(IUpdateSubscriber subscriber) => this.onUpdateHandler += subscriber.OnUpdateAvailable;
+
+
+        private ICallResult AddStartInterestCore(IInterest interest)
+        {
+            try
+            {
                 if (this.cache.Interests.ContainsKey(interest.Definition.Id)) return new CallResult<InterestDescription>(false, "Interest already registered.");
 
                 var interestDescription = new InterestDescription()
                 {
-                    Definition = new Contracts.Base.Definition()
-                    {
-                        Id = interest.Definition.Id,
-                        Name = interest.Definition.Name,
-                        Description = interest.Definition.Description
-                    },
+                    Id = interest.Definition.Id,
+                    Name = interest.Definition.Name,
+                    Description = interest.Definition.Description,
                     EventModuleDescriptions = new EventModuleDescription[interest.EventModules.Length]
                 };
 
@@ -100,10 +105,8 @@ namespace MyNotifier.Interests
                         var backgroundTask = new UpdaterBackgroundTaskWrapper(interest, eventModule, null, null, this.OnUpdateAvailable);
 
                         lock (this.cache.UpdaterTasks)
-                        {
                             if (!this.cache.UpdaterTasks.TryGetValue(eventModule.Id, out var updaterTasks)) this.cache.UpdaterTasks[eventModule.Id] = [backgroundTask];
-                            updaterTasks.Add(backgroundTask);
-                        }
+                            else updaterTasks.Add(backgroundTask);
 
                         //register with background task manager
 
@@ -124,11 +127,11 @@ namespace MyNotifier.Interests
 
                 lock (this.cache)
                 {
-                    foreach(var eventModule in this.cache.Interests[interestId].EventModules)
+                    foreach (var eventModule in this.cache.Interests[interestId].EventModules)
                     {
                         var updaterTasks = this.cache.UpdaterTasks[eventModule.Id];
 
-                        foreach(var task in updaterTasks)
+                        foreach (var task in updaterTasks)
                         {
                             //use background task manager ?
                             //make async ?
@@ -155,16 +158,9 @@ namespace MyNotifier.Interests
             return true;
         }
 
-
-        private IUpdateSubscriber[] subscribers;
-        public void RegisterSubscriber(IUpdateSubscriber subscriber)
-        {
-
-        }
         private void OnUpdateAvailable(UpdaterBackgroundTaskWrapper task, IUpdaterResult result)
         {
-
-            foreach (var subscriber in this.subscribers) subscriber.OnUpdateAvailable(new UpdateAvailableArgs()
+            this.onUpdateHandler(new UpdateAvailableArgs()
             {
                 Interest = task.Interest,
                 EventModule = task.EventModule,
@@ -182,26 +178,12 @@ namespace MyNotifier.Interests
         public class EventModuleDescription : Contracts.Base.Definition
         {
             public Contracts.EventModules.IDefinition EventModuleDefinition { get; set; }
-
             public UpdaterDescription[] UpdaterDescriptions { get; set; }
         }
 
-        public class InterestDescription 
+        public class InterestDescription : Contracts.Base.Definition
         {
-            public Contracts.Base.IDefinition Definition { get; set; }
-
             public EventModuleDescription[] EventModuleDescriptions { get; set; }
-        }
-
-        protected class Set
-        {
-            public IInterest Interest { get; set; }
-            public IEventModule EventModule { get; set; }
-            public IUpdater Updater { get; set; }
-
-            public UpdaterBackgroundTaskWrapper Task { get; set; }
-
-            public string Hash => $"{this.Interest.Definition.Id}_{this.EventModule.Definition.Id}_{this.Updater.Definition.Id}"; //need parameters hash //temporary, this is not an appropriate hash
         }
 
         private class Cache
@@ -210,6 +192,8 @@ namespace MyNotifier.Interests
             public IDictionary<Guid, HashSet<UpdaterBackgroundTaskWrapper>> UpdaterTasks = new Dictionary<Guid, HashSet<UpdaterBackgroundTaskWrapper>>();
         }
 
+
+        #region Updater Task
         protected class UpdaterBackgroundTaskWrapper : BackgroundTaskWrapper
         {
             private readonly IInterest interest;
@@ -227,7 +211,11 @@ namespace MyNotifier.Interests
 
             public delegate void OnUpdateEventHandler(UpdaterBackgroundTaskWrapper sender, IUpdaterResult updaterResult);
 
-            public UpdaterBackgroundTaskWrapper(IInterest interest, IEventModule eventModule, StaticUpdater updater, ITaskSettings taskSettings, OnUpdateEventHandler onUpdateDelegate)
+            public UpdaterBackgroundTaskWrapper(IInterest interest, 
+                                                IEventModule eventModule, 
+                                                StaticUpdater updater, 
+                                                ITaskSettings taskSettings,
+                                                OnUpdateEventHandler onUpdateDelegate)
             {
                 this.interest = interest;
                 this.eventModule = eventModule;
@@ -269,165 +257,85 @@ namespace MyNotifier.Interests
             private async ValueTask<HandleFailureArgs> OnFailureAsync(ICallResult failureResult) => throw new NotImplementedException();
         }
 
+        #endregion #Updater Task
 
-        //private class HarnessCancelFlagWrapper
-        //{
-        //    public UpdaterHarness Harness { get; set; }
-        //    public BooleanFlag CancelFlag { get; set; }
 
-        //    public void Start() => this.Harness.Start(this.CancelFlag);
-        //    public void Stop() => this.CancelFlag.Value = false; //await harness task stoppage !!! //done non-thematically !!! //fix this 
-        //}
+        #region Controllable
 
-        //private static string GetHash(IInterest interest, IEventModule eventModule, IUpdater updater, Parameter[] parameters) => $"{interest.Definition.Id}_{eventModule.Definition.Id}_{updater.Definition.Id}"; //need parameters hash 
+
+        public class Controller : IControllable
+        {
+            private readonly IManager manager;
+
+            private readonly Contracts.Base.Definition definition = new() { };
+            public Contracts.Base.IDefinition Definition => this.definition;
+
+            public Controller(IManager manager) { this.manager = manager; }
+
+            public async ValueTask<ICommandResult> OnCommandAsync(ICommand command)
+            {
+                if (command.Definition.CommandType == typeof(RegisterAndSubscribeToNewInterests))
+                {
+
+                    if (!RegisterAndSubscribeToNewInterestsWrapperBuilder.TryGetFrom(command, out var wrapper, out var failedResult)) return failedResult;
+
+                    foreach(var interest in wrapper.Parameters.InterestModels)
+                    {
+                        var getAddStartInterestResult = await this.manager.GetAddStartInterestAsync(interest).ConfigureAwait(false);
+                        if(!getAddStartInterestResult.Success) 
+                        {
+
+                            //how to handle individual failure ?
+                            //make list and build composite result?
+                            //fail on any individual failure?
+                            //TBD !!! 
+
+                            return CallResult.BuildFailedCallResult(getAddStartInterestResult, "Failed to add new interest by model [DETAIL]: {0}") as CommandResult;
+                        }
+                    }
+
+                    return new CommandResult();
+                }
+                //else if (command.Definition.CommandType == typeof(SubscribeToInterestsById))
+                //{
+                //    if (!SubscribeToInterestsByIdsWrapperBuilder.TryGetFrom(command, out var wrapper, out var failedResult)) return failedResult;
+
+                //    foreach(var interestId in wrapper.InterestIds)
+                //    {
+                //        var getAddStartInterestResult = await this.manager.GetAddStartInterestAsync(interestId).ConfigureAwait(false);
+                //        if (!getAddStartInterestResult.Success) { /* same as above !!! for now just crash all*/ return CallResult.BuildFailedCallResult(getAddStartInterestResult, "Failed to add new interest by Id [DETAIL]: {0}") as CommandResult; }
+
+                //    }
+                //}
+                else if (command.Definition.CommandType == typeof(UnsubscribeFromInterestsById))
+                {
+                    if (!UnsubscribeFromInterestsByIdWrapperBuilder.TryGetFrom(command, out var wrapper, out var failedResult)) return failedResult;
+
+                    foreach(var interestId in wrapper.Parameters.InterestIds)
+                    {
+                        var stopRemoveInterestResult = this.manager.StopRemoveInterest(interestId); //include timespan ? use default ?
+                        
+                        if(!stopRemoveInterestResult.Success) 
+                        {
+                            //same as above
+                            return CallResult.BuildFailedCallResult(stopRemoveInterestResult, "Failed to remove interest by Id [DETAIL]: {0}") as CommandResult; 
+                        }
+                    }
+                }
+                else if (command.Definition.CommandType == typeof(UpdateInterestsById))
+                {
+
+                }
+                else return new CommandResult(false, $"Unsupported command type: {command.Definition.CommandType}");
+
+
+                return new CommandResult();
+            }
+        }
+
+
+
+
+        #endregion Controllable
     }
-
-    //public class UpdaterHarness(IInterest interest,
-    //                            IEventModule eventModule,
-    //                            IUpdater updater,
-    //                            Parameter[] parameters,
-    //                            Handler oldhandler) //IBackgrounder 
-    //{
-    //    private readonly IInterest interest = interest;
-    //    private readonly IEventModule eventModule = eventModule;
-    //    private readonly IUpdater updater = updater;
-    //    private readonly Parameter[] parameters = parameters;
-    //    private readonly Handler oldhandler = oldhandler;
-    //    private readonly int delayParameterMs = 0; //from updater parameters 
-
-    //    private Task task;
-    //    private BooleanFlag currentCancelFlag;
-    //    private bool running = false;
-
-    //    private IDictionary<Guid, IUpdateSubscriber> subscribers = new Dictionary<Guid, IUpdateSubscriber>();
-    //    private delegate void OnUpdateAvailableHandler(UpdateAvailableArgs update);
-    //    private event OnUpdateAvailableHandler onUpdateAvailableHandler;
-
-
-    //    private string hash;
-    //    public string Hash
-    //    {
-    //        get
-    //        {
-    //            if (string.IsNullOrEmpty(this.hash)) { this.hash = $"{this.interest.Definition.Id}_{this.eventModule.Definition.Id}_{this.updater.Definition.Id}"; }
-    //            return this.hash;
-    //        }
-    //    }
-
-    //    //AddHandler()
-
-    //    public ICallResult Start(BooleanFlag cancelFlag)
-    //    {
-    //        try
-    //        {
-    //            if (this.running) return new CallResult(false, "Already running.");
-
-    //            this.SetDelay();
-
-    //            this.currentCancelFlag = cancelFlag;
-
-    //            this.task = Task.Run(async () =>
-    //            {
-    //                this.running = true;
-
-    //                while (!this.currentCancelFlag.Value)
-    //                {
-    //                    try
-    //                    {
-    //                        var result = await this.updater.TryGetUpdateAsync(this.parameters).ConfigureAwait(false); //want parameterized updater, abstract away stripping parameters / loop delay parameter 
-
-    //                        if (!result.Success)
-    //                        {
-    //                            var failedResult = CallResult.BuildFailedCallResult(result, "TryGetUpdateAsync failure: {0}");
-
-    //                            var handleFailureArgs = await this.OnFailureAsync(failedResult).ConfigureAwait(false);
-
-    //                            //?
-    //                        }
-
-    //                        if (result.UpdateAvailable) this.OnUpdateAvailable(result);
-
-    //                        await Task.Delay(this.delayParameterMs).ConfigureAwait(false);
-    //                    }
-    //                    catch (Exception ex) { await this.OnFailureAsync(CallResult.FromException(ex)).ConfigureAwait(false); } //OnExceptionAsync() ?
-    //                }
-    //            });
-
-    //            return new CallResult();
-    //        }
-    //        catch (Exception ex) { return CallResult.FromException(ex); }
-    //    }
-
-    //    private readonly TimeSpan defaultTimeout = new(0, 1, 0);
-    //    public async Task<ICallResult> StopWaitForCompleteAsync(TimeSpan timeoutOverride = default)
-    //    {
-    //        try
-    //        {
-    //            if (!this.running) return new CallResult(false, "Not running.");
-
-    //            this.currentCancelFlag.Value = false;
-
-    //            await this.task.WaitAsync((timeoutOverride != default ? timeoutOverride : this.defaultTimeout)).ConfigureAwait(false);
-
-    //            if (!this.task.IsCompleted) return new CallResult(false, "Failed to kill harness task.");
-    //            if (!this.task.IsFaulted) return new CallResult(false, $"Harness task faulted: {((this.task.Exception != null && !string.IsNullOrEmpty(this.task.Exception.Message)) ? this.task.Exception.Message : string.Empty)}");
-
-    //            this.Reset();
-
-    //            return new CallResult();
-    //        }
-    //        catch (Exception ex) { return CallResult.FromException(ex); }
-    //    }
-
-
-    //    public ICallResult Subscribe(IUpdateSubscriber subscriber)
-    //    {
-    //        try
-    //        {
-    //            if (this.subscribers.ContainsKey(subscriber.Id)) return new CallResult(false, "Subsciber already subscribed.");
-
-    //            this.onUpdateAvailableHandler += subscriber.OnUpdateAvailable;
-    //            this.subscribers.Add(subscriber.Id, subscriber);
-
-    //            return new CallResult();
-    //        }
-    //        catch (Exception ex) { return CallResult.FromException(ex); }
-    //    }
-
-    //    public ICallResult Unsubscribe(Guid id)
-    //    {
-    //        try
-    //        {
-    //            if (!this.subscribers.TryGetValue(id, out IUpdateSubscriber? subscriber)) return new CallResult(false, "Subscriber not subscribed.");
-
-    //            this.onUpdateAvailableHandler -= subscriber.OnUpdateAvailable;
-    //            this.subscribers.Remove(id);
-
-    //            return new CallResult();
-    //        }
-    //        catch(Exception ex) { return CallResult.FromException(ex); }
-    //    }
-
-
-    //    private void SetDelay() { }
-
-    //    private void Reset() //idk about this //unregister background task from IBackgrounder 
-    //    {
-    //        this.task.Dispose(); this.task = null; //?
-    //        this.currentCancelFlag = null;
-
-    //        this.running = false;
-    //    }
-
-    //    private void OnUpdateAvailable(IUpdaterResult result) => this.onUpdateAvailableHandler(new() //need new one every time ? //use struct ? 
-    //    {
-    //        Interest = this.interest,
-    //        EventModule = this.eventModule,
-    //        Updater = this.updater,
-    //        Result = result
-    //    });
-
-    //    private async ValueTask<HandleFailureArgs> OnFailureAsync(ICallResult failureResult) => await this.oldhandler.OnFailureAsync(failureResult).ConfigureAwait(false);
-
-    //}
 }
