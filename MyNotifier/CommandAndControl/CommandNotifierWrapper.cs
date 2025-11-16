@@ -1,28 +1,40 @@
 ﻿using MyNotifier.Base;
 using MyNotifier.CommandAndControl.Commands;
-using MyNotifier.Contracts.CommandAndControl;
 using MyNotifier.Contracts;
 using MyNotifier.Contracts.Base;
-using MyNotifier.Contracts.Notifiers;
+using MyNotifier.Contracts.CommandAndControl;
 using MyNotifier.Contracts.Notifications;
+using MyNotifier.Contracts.Notifiers;
+using MyNotifier.Contracts.Publishers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MyNotifier.Contracts.Publishers;
+using static MyNotifier.ApplicationForeground;
 
 namespace MyNotifier.CommandAndControl
 {
 
     
+    public class CommandNotifierWrapper0
+    {
+        private readonly INotifier innerNotifier;
 
-    public class CommandNotifierWrapper : INotifier
+        public bool Connected => this.innerNotifier.Connected;
+
+        public ValueTask<ICallResult> ConnectAsync(object connectArg) => this.innerNotifier.ConnectAsync(connectArg);
+        public ValueTask<ICallResult> DisconnectAsync() => this.innerNotifier.DisconnectAsync();
+
+    }
+
+
+    public class CommandNotifierWrapper : INotifier  //enforce only COMMAND notification type 
     {
 
         private readonly INotifier innerNotifier;
 
-        private readonly HashSet<ExpectedCommandResultToken> expectedCommandResults = [];
+        //private readonly HashSet<ExpectedCommandResultToken> expectedCommandResults = [];
 
         public bool Connected => this.innerNotifier.Connected;
 
@@ -34,8 +46,8 @@ namespace MyNotifier.CommandAndControl
         public void Unsubscribe(INotifier.ISubscriber subscriper) => this.innerNotifier.Unsubscribe(subscriper);
 
 
-        public void RegisterExpectedCommandResult(ExpectedCommandResultToken ecrToken) => this.expectedCommandResults.Add(ecrToken);
-        private void CheckExpiries() { }
+        //public void RegisterExpectedCommandResult(ExpectedCommandResultToken ecrToken) => this.expectedCommandResults.Add(ecrToken);
+        //private void CheckExpiries() { }
     }
 
 
@@ -46,21 +58,8 @@ namespace MyNotifier.CommandAndControl
         ValueTask<ICallResult> ConnectAsync(object connectArg);
         ValueTask<ICallResult> DisconnectAsync();
 
-        void Register(ISubscriber subscriber);
-        void Unregister(Guid subscriberId);
-
-        public interface ISubscriber
-        {
-            Guid Id { get; }
-            ValueTask<ICommandResult> OnCommandAsync(ICommand command);
-        }
-    }
-
-    public interface ICommandNotifierSubscriber
-    {
-        Guid Id { get; }
-
-        ValueTask<ICommandResult> OnCommandAsync(ICommand command);
+        void RegisterCommandSubscriber(ICommandSubscriber subscriber);
+        //void Unregister(Guid subscriberId);
     }
 
 

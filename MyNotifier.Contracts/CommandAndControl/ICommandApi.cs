@@ -1,4 +1,5 @@
 ﻿using MyNotifier.Contracts.Base;
+using MyNotifier.Contracts.CommandAndControl.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,14 +19,15 @@ namespace MyNotifier.Contracts.CommandAndControl
         Task<ICallResult> ChangeApplicationConfigurationAsync(object parameters);
         Task<ICommandResult> ChangeApplicationConfigurationAwaitCommandResultAsync(object parameters);
 
-        Task<ICallResult> RegisterAndSubscribeToNewInterestsAsync(object parameters);
-        Task<ICommandResult> RegisterAndSubscribeToNewInterestsAwaitCommandResultAsync(object parameters);
+        Task<ICallResult> RegisterAndSubscribeToNewInterestsAsync(InterestModel[] interestModels, bool saveNew = true);
+        Task<ICallResult<IRegisterAndSubscribeToNewInterestsCommandResult>> RegisterAndSubscribeToNewInterestsAwaitCommandResultAsync(InterestModel[] interestModels, bool saveNew = true);
 
+        //these will probably get wrapped into above command later
         Task<ICallResult> SubscribeToInterestsByIdAsync(object parameters);
         Task<ICommandResult> SubscribeToInterestsByIdAwaitCommandResultAsync(object parameters);
 
-        Task<ICallResult> UnsubscribeFromInterestsByIdAsync(object parameters);
-        Task<ICommandResult> UnsubscribeFromInterestsByIdAwaitCommandResult(object parameters);
+        Task<ICallResult> UnsubscribeFromInterestsByIdAsync(Guid[] interestIds);
+        Task<ICallResult<IUnsubscribeFromInterestsByIdCommandResult>> UnsubscribeFromInterestsByIdAwaitCommandResult(Guid[] interestIds);
 
         Task<ICallResult> UpdateInterestsByIdAsync(object parameters);
         Task<ICommandResult> UpdateInterestsByIdAwaitCommandResultAsync(object parameters);

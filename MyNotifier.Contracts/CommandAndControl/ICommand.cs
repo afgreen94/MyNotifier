@@ -13,6 +13,14 @@ namespace MyNotifier.Contracts.CommandAndControl
         Parameter[] Parameters { get; }
     }
 
+    public interface ICommandParameters { }
+
+    public interface ICommandParameterValidator<TCommandParameters>
+        where TCommandParameters : ICommandParameters
+    {
+        ICallResult Validate(TCommandParameters parameters);
+    }
+
     //public interface IInterestModelCommand : ICommand { InterestModel[] InterestModels { get; } }
     ////public interface IInterestDefinitionIdsCommand : ICommand { Guid[] InterestDefinitionIds { get; } }
     //public interface IApplicationConfigurationCommand : ICommand { IApplicationConfiguration ApplicationConfiguration { get; } }

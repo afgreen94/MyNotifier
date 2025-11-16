@@ -1,4 +1,5 @@
 ﻿using MyNotifier.Contracts;
+using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.CommandAndControl;
 using MyNotifier.Contracts.CommandAndControl.Commands;
 using System;
@@ -27,10 +28,44 @@ namespace MyNotifier.CommandAndControl.Commands
         public Parameter[] Parameters => throw new NotImplementedException();
     }
 
-    public class UnsubscribeFromInterestsByIdWrapper : IUnsubscribeFromInterestsByIdWrapper
+    public class UnsubscribeFromInterestsByIdCommandParameters : CommandParameters, IUnsubscribeFromInterestsByIdCommandParameters
     {
-        public Guid[] InterestIds => throw new NotImplementedException();
+        private readonly Guid[] interestIds;
 
-        public IUnsubscribeFromInterestsById InnerCommand => throw new NotImplementedException();
+        public Guid[] InterestIds => this.interestIds;
+
+        public UnsubscribeFromInterestsByIdCommandParameters(Guid[] interestIds) { this.interestIds = interestIds; }
+    }
+
+    public class UnsubscribeFromInterestsByIdParameterValidator : CommandParameterValidator<IUnsubscribeFromInterestsByIdCommandParameters>, IUnsubscribeFromInterestsByIdParameterValidator
+    {
+        public override ICallResult Validate(IUnsubscribeFromInterestsByIdCommandParameters parameters)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class UnsubscribeFromInterestsByIdWrapper : CommandWrapper<IUnsubscribeFromInterestsById, IUnsubscribeFromInterestsByIdCommandParameters>, IUnsubscribeFromInterestsByIdWrapper
+    {
+        public UnsubscribeFromInterestsByIdWrapper(IUnsubscribeFromInterestsById command, IUnsubscribeFromInterestsByIdCommandParameters parameters) : base(command, parameters) { }
+    }
+
+    public class UnsubscribeFromInterestsByIdCommandBuilder : CommandBuilder<IUnsubscribeFromInterestsById, IUnsubscribeFromInterestsByIdCommandParameters>, IUnsubscribeFromInterestsByIdCommandBuilder
+    {
+        public override ICallResult<IUnsubscribeFromInterestsById> BuildFrom(IUnsubscribeFromInterestsByIdCommandParameters parameters, bool suppressValidation = false)
+        {
+            throw new NotImplementedException();
+        }
+        public static bool TryGetFrom(IUnsubscribeFromInterestsByIdCommandParameters parameters, out IUnsubscribeFromInterestsById command, out ICommandResult failedResult) => TryGetFrom<UnsubscribeFromInterestsByIdCommandBuilder>(parameters, out command, out failedResult);
+    }
+
+    public class UnsubscribeFromInterestsByIdWrapperBuilder : CommandWrapperBuilder<IUnsubscribeFromInterestsById, IUnsubscribeFromInterestsByIdCommandParameters, IUnsubscribeFromInterestsByIdWrapper>, IUnsubscribeFromInterestsByIdWrapperBuilder
+    {
+        public override ICallResult<IUnsubscribeFromInterestsByIdWrapper> BuildFrom(ICommand command, bool suppressValidation = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool TryGetFrom(ICommand command, out IUnsubscribeFromInterestsByIdWrapper wrapper, out ICommandResult failedResult) => TryGetFrom<UnsubscribeFromInterestsByIdWrapperBuilder>(command, out wrapper, out failedResult);   
     }
 }

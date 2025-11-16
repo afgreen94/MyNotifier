@@ -3,16 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MyNotifier.Contracts.Base;
 
 namespace MyNotifier.Contracts.CommandAndControl
 {
-    public interface ICommandWrapper<T> where T : ICommand
+    public interface ICommandWrapper<TCommand, TCommandParameters> 
+        where TCommand : ICommand
+        where TCommandParameters : ICommandParameters
     {
-        T InnerCommand { get; }
+        TCommand InnerCommand { get; }
+        TCommandParameters Parameters { get; }
     }
 
-    public interface ICommandWrapperBuilder
+    public interface ICommandBuilder<TCommand, TCommandParameters>
+        where TCommand : ICommand
+        where TCommandParameters : ICommandParameters
     {
-        ICommandWrapper<T> BuildFrom<T>(T command) where T : ICommand;
+        ICallResult<TCommand> BuildFrom(TCommandParameters parameters, bool suppressValidation = false); 
     }
+
+    public interface ICommandWrapperBuilder<TCommand, TCommandParameters, TCommandWrapper>
+        where TCommand : ICommand
+        where TCommandParameters : ICommandParameters
+        where TCommandWrapper : ICommandWrapper<TCommand, TCommandParameters>
+    {
+        ICallResult<TCommandWrapper> BuildFrom(ICommand command, bool suppressValidation = false);
+    }
+
 }

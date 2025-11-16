@@ -13,4 +13,6 @@ namespace MyNotifier.Contracts.CommandAndControl.Commands
     {
         public Guid[] InterestIds { get; }
     }
+
+    public interface ISubscribeToInterestsByIdWrapperBuilder : ICommandWrapperBuilder<ISubscribeToInterestsById, ISubscribeToInterestsByIdWrapper> { }
 }

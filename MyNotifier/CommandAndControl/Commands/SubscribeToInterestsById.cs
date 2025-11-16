@@ -1,4 +1,5 @@
 ﻿using MyNotifier.Contracts;
+using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.CommandAndControl;
 using MyNotifier.Contracts.CommandAndControl.Commands;
 using System;
@@ -27,21 +28,22 @@ namespace MyNotifier.CommandAndControl.Commands
         public Parameter[] Parameters => throw new NotImplementedException();
     }
 
-    public class SubscribeToInterestsByIdWrapper :  ISubscribeToInterestsByIdWrapper
+    public class SubscribeToInterestsByIdWrapper :  CommandWrapper<ISubscribeToInterestsById>, ISubscribeToInterestsByIdWrapper
     {
-        public ISubscribeToInterestsById InnerCommand => throw new NotImplementedException();
+        private readonly Guid[] interestIds;
+        public Guid[] InterestIds => this.interestIds;
 
-        public Guid[] InterestIds { get; set; }
+        public SubscribeToInterestsByIdWrapper(ICommand innerCommand, Guid[] interestIds) : base((ISubscribeToInterestsById)innerCommand) { this.interestIds = interestIds; }
 
     }
 
-    public class SubscribeToInterestsByIdsWrapperBuilder
+    public class SubscribeToInterestsByIdsWrapperBuilder : CommandWrapperBuilder<ISubscribeToInterestsById, ISubscribeToInterestsByIdWrapper>, ISubscribeToInterestsByIdWrapperBuilder
     {
-        public IRegisterAndSubscribeToNewInterestsWrapper Build(IRegisterAndSubscribeToNewInterests command, bool suppressValidation = false)
+        public override ICallResult<ISubscribeToInterestsByIdWrapper> BuildFrom(ICommand command, bool suppressValidation = false)
         {
-
             throw new NotImplementedException();
-
         }
+
+        public static bool TryGetFrom(ICommand command, out ISubscribeToInterestsByIdWrapper wrapper, out ICommandResult failedResult) => TryGetFrom<SubscribeToInterestsByIdsWrapperBuilder>(command, out wrapper, out failedResult);
     }
 }
