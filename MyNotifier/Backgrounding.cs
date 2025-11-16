@@ -14,7 +14,10 @@ namespace MyNotifier
     public interface IBackgroundTaskManager
     {
         //ValueTask<ICallResult> InitializeAsync(ApplicationForeground.MessageQueue foregroundMessageQueue, bool forceReinitialize = false); //foreground messagequeue or foreground or foregound handlers ? //see note in implementation!
-        ValueTask<ICallResult> InitializeAsync(ApplicationForeground.ITaskCompleteSubscriber taskCompleteSubscriber, ApplicationForeground.IFailureSubscriber failureSubscriber, bool forceReinitialize);
+       
+        //how to make visible to only foreground ??
+        //have constructor receiving either handlers or message queue ?
+        ValueTask<ICallResult> InitializeAsync(ApplicationForeground.ITaskCompleteSubscriber taskCompleteSubscriber, ApplicationForeground.IFailureSubscriber failureSubscriber, bool forceReinitialize = false);
 
         //bool TryGetTask(Guid taskId, out BackgroundTaskWrapper task);
 
@@ -32,6 +35,7 @@ namespace MyNotifier
         Task KillTaskWaitAsync(Guid taskId, TimeSpan timeout);
     }
 
+    //may use backgroundTaskManager as static class for now, eventually have instance class in call context, want initialization to only be visible in ApplicationForeground layer
     public class BackgroundTaskManager : IBackgroundTaskManager
     {
 
@@ -263,7 +267,7 @@ namespace MyNotifier
         protected abstract ValueTask<TResult> ActionAsync();
     }
 
-    public abstract class BackgroundTaskWrapper 
+    public abstract class BackgroundTaskWrapper  //KillWaits should return callresults 
     {
         protected virtual BackgroundTaskData data { get; } = new();
         protected virtual BackgroundTaskSettings settings { get; } = new(); //data should not be exposed, but maybe settings for realtime changes? 
@@ -302,7 +306,7 @@ namespace MyNotifier
             this.task = Task.Run(async () =>
             {
                 try { await ActionAsync().ConfigureAwait(false); this.OnTaskComplete(); }
-                catch (Exception ex) { this.OnExceptionRaised(ex); }
+                catch (Exception ex) { this.OnExceptionRaised(ex); }  //OnFailureAsync()
             });
         }
 
@@ -314,7 +318,7 @@ namespace MyNotifier
             this.Wait();
         }
 
-        public virtual async Task KillWaitAsync()
+        public virtual async Task KillWaitAsync()  //KillWaitAsync should return ICallResult ?
         {
             this.KillCore();
             await this.WaitAsync().ConfigureAwait(false);
@@ -353,7 +357,7 @@ namespace MyNotifier
         public virtual async Task WaitAsync() => await this.task.ConfigureAwait(false); //not technically a "wait". technically an "await"...lol 
 
         protected void OnTaskComplete() => this.OnTaskCompleteHandler(this, EventArgs.Empty);
-        protected void OnExceptionRaised(Exception ex, bool suppressKillTask = false)
+        protected void OnExceptionRaised(Exception ex, bool suppressKillTask = false)  //ValueTask<HandleFailureArgs> OnFailureAsync() !!! OnException is vestige of former application using BTM/BW. Make consistent with existing scheme !!!
         {
             this.exception = ex;
 
@@ -364,7 +368,7 @@ namespace MyNotifier
 
         //protected void OnFailedCallResult() { }
 
-        protected void KillCore() => this.killFlag.Value = true;
+        protected void KillCore() => this.killFlag.Value = true; //need thread safety here ???
     }
 
     public class CustomBackgroundTaskWrapper : BackgroundTaskWrapper
