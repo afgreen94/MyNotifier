@@ -120,6 +120,6 @@ namespace MyNotifier
 
         //        return result;
         //    }
-        }
+        //}
     }
 }

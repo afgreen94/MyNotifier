@@ -63,11 +63,11 @@ namespace MyNotifier.Proxy.Notifiers
                     var nowTime = DateTime.UtcNow;
                     if (this.nextClearCache > nowTime)
                     {
-                        this.processedNotificationNamesCache.Clear();
+                        this.processedNotificationIdsCache.Clear();
                         this.nextClearCache = nowTime + this.configuration.ClearCacheInterval;
                     }
 
-                    this.processedNotificationNamesCache.Add(notificationHeader.Id);
+                    this.processedNotificationIdsCache.Add(notificationHeader.Id);
                 }
 
                 this.lastNotificationTicks = latestTicks;

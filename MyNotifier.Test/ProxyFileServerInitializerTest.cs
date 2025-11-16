@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MyNotifier.Base;
 using MyNotifier.Contracts;
 using MyNotifier.Contracts.Base;
+using MyNotifier.Contracts.CommandAndControl;
 using MyNotifier.Contracts.FileIOManager;
 using MyNotifier.Contracts.Proxy;
 using MyNotifier.FileIOManager;
@@ -148,6 +149,8 @@ namespace MyNotifier.Test
             public SystemSettings SystemSettings => this.systemSettings;
             public DriverLoopSettings DriverLoopSettings => null;
             public IConfiguration InnerConfiguration => null;
+
+            public IControllable Controllable => throw new NotImplementedException();
 
             public ApplicationConfiguration(SystemSettings systemSettings) => this.systemSettings = systemSettings;
         }

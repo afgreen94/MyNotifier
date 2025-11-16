@@ -28,16 +28,21 @@ namespace MyNotifier.CommandAndControl.Commands
         public Parameter[] Parameters => throw new NotImplementedException();
     }
 
-    public class SubscribeToInterestsByIdWrapper :  CommandWrapper<ISubscribeToInterestsById>, ISubscribeToInterestsByIdWrapper
+    public class SubscribeToInterestsByIdCommandParameters : CommandParameters, ISubscribeToInterestsByIdCommandParameters
+    {
+        public Parameter[] Parameters => throw new NotImplementedException();
+    }
+
+    public class SubscribeToInterestsByIdWrapper :  CommandWrapper<ISubscribeToInterestsById, ISubscribeToInterestsByIdCommandParameters>, ISubscribeToInterestsByIdWrapper
     {
         private readonly Guid[] interestIds;
         public Guid[] InterestIds => this.interestIds;
 
-        public SubscribeToInterestsByIdWrapper(ICommand innerCommand, Guid[] interestIds) : base((ISubscribeToInterestsById)innerCommand) { this.interestIds = interestIds; }
+        public SubscribeToInterestsByIdWrapper(ISubscribeToInterestsById innerCommand, ISubscribeToInterestsByIdCommandParameters parameters) : base(innerCommand, parameters) { }
 
     }
 
-    public class SubscribeToInterestsByIdsWrapperBuilder : CommandWrapperBuilder<ISubscribeToInterestsById, ISubscribeToInterestsByIdWrapper>, ISubscribeToInterestsByIdWrapperBuilder
+    public class SubscribeToInterestsByIdsWrapperBuilder : CommandWrapperBuilder<ISubscribeToInterestsById, ISubscribeToInterestsByIdCommandParameters, ISubscribeToInterestsByIdWrapper>, ISubscribeToInterestsByIdWrapperBuilder
     {
         public override ICallResult<ISubscribeToInterestsByIdWrapper> BuildFrom(ICommand command, bool suppressValidation = false)
         {
