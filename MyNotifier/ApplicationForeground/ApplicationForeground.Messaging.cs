@@ -1,5 +1,6 @@
 ﻿using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.CommandAndControl;
+using MyNotifier.Contracts.Updaters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,8 +29,7 @@ namespace MyNotifier
             {
                 cast = message as TMessage;
 
-                if (cast == null) return false;
-                else return true;
+                return cast == null;
             }
 
         }
@@ -47,7 +47,7 @@ namespace MyNotifier
             //careful not to get deadlocked 
             protected virtual async Task WaitCoreAsync()
             {
-                if (this.locked) return;
+                if (this.locked) return;  //?
 
                 this.locked = true;
 

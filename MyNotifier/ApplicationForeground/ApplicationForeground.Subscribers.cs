@@ -3,12 +3,14 @@ using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.CommandAndControl;
 using MyNotifier.Contracts.Notifications;
 using MyNotifier.Contracts.Notifiers;
+using MyNotifier.Contracts.Updaters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static MyNotifier.ApplicationForeground;
+using IUpdateSubscriber = MyNotifier.Contracts.Updaters.ISubscriber;
 
 namespace MyNotifier
 {
@@ -68,56 +70,56 @@ namespace MyNotifier
             }
         }
 
-        public class Handler(MessageQueue messageQueue) : INotifier.ISubscriber //CommandNotifierSubscriber 
-        {
-            private readonly MessageQueue messageQueue = messageQueue;
+        //public class Handler(MessageQueue messageQueue) : INotifier.ISubscriber //CommandNotifierSubscriber 
+        //{
+        //    private readonly MessageQueue messageQueue = messageQueue;
 
-            public Definition Definition => throw new NotImplementedException();
+        //    public Definition Definition => throw new NotImplementedException();
 
-            public async ValueTask<HandleFailureArgs> OnFailureAsync(ICallResult failedResult, bool expectingResult = false)
-            {
-                var handleFailureArgs = new HandleFailureArgs();
+        //    public async ValueTask<HandleFailureArgs> OnFailureAsync(ICallResult failedResult, bool expectingResult = false)
+        //    {
+        //        var handleFailureArgs = new HandleFailureArgs();
 
-                var failureMessage = new FailureMessage(new FailureArgs() { FailedResult = failedResult }, expectingResult);
-                this.messageQueue.Enqueue(failureMessage);
+        //        var failureMessage = new FailureMessage(new FailureArgs() { FailedResult = failedResult }, expectingResult);
+        //        this.messageQueue.Enqueue(failureMessage);
 
-                if (!expectingResult) //this should be handled by caller 
-                {
-                    //get handle failure result 
-                }
+        //        if (!expectingResult) //this should be handled by caller 
+        //        {
+        //            //get handle failure result 
+        //        }
 
-                return handleFailureArgs;
-            }
+        //        return handleFailureArgs;
+        //    }
 
-            public async ValueTask OnNotificationAsync(object sender, Notification notification)
-            {
-                ICommand command = default; //build from notification
+        //    public async ValueTask OnNotificationAsync(object sender, Notification notification)
+        //    {
+        //        ICommand command = default; //build from notification
 
-                var result = await this.OnCommandAsync(command).ConfigureAwait(false);
-            }
+        //        var result = await this.OnCommandAsync(command).ConfigureAwait(false);
+        //    }
 
-            private async ValueTask<ICommandResult> OnCommandAsync(ICommand command, bool continueWithoutResult = false) //drop in message queue, separate service for OnCommandAvailable?
-            {
-                var message = new CommandIssuedMessage(command);
-                this.messageQueue.Enqueue(message);
+        //    private async ValueTask<ICommandResult> OnCommandAsync(ICommand command, bool continueWithoutResult = false) //drop in message queue, separate service for OnCommandAvailable?
+        //    {
+        //        var message = new CommandIssuedMessage(command);
+        //        this.messageQueue.Enqueue(message);
 
-                ICommandResult result = new CommandResult();
-                bool expectingCommandResult = true;
+        //        ICommandResult result = new CommandResult();
+        //        bool expectingCommandResult = true;
 
-                if (expectingCommandResult) //should release event thread, relocate command result some other way 
-                {
-                    //awaiting here is probably redundant 
-                    await Task.Run(() => { while (message.Status != MessageStatus.Processed && message.Status != MessageStatus.Faulted) { } }).ConfigureAwait(false); //need cancel flag ?
+        //        if (expectingCommandResult) //should release event thread, relocate command result some other way 
+        //        {
+        //            //awaiting here is probably redundant 
+        //            await Task.Run(() => { while (message.Status != MessageStatus.Processed && message.Status != MessageStatus.Faulted) { } }).ConfigureAwait(false); //need cancel flag ?
 
-                    if (message.Status == MessageStatus.Faulted) { /* handle */}
+        //            if (message.Status == MessageStatus.Faulted) { /* handle */}
 
-                    //could lock message. probably doesn't matter 
-                    result = message.Result;
-                    message.Status = MessageStatus.Processed;
-                }
+        //            //could lock message. probably doesn't matter 
+        //            result = message.Result;
+        //            message.Status = MessageStatus.Processed;
+        //        }
 
-                return result;
-            }
+        //        return result;
+        //    }
         }
     }
 }
