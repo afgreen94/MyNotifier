@@ -102,7 +102,7 @@ namespace MyNotifier.Proxy
                 //if (!deserializeResult.Success) return CallResult<Notification>.BuildFailedCallResult(deserializeResult, $"Failed to deserialize metadata for notification with Id: {notificationHeader.Id}: {{0}}");
                 //var metadata = deserializeResult.Result;
 
-                var metadataFileFoundResult = await this.AssertFileExistsWithRetryAsync(dataFilepath, "Metadata").ConfigureAwait(false);
+                var metadataFileFoundResult = await this.AssertFileExistsWithRetryAsync(metadataFilepath, "Metadata").ConfigureAwait(false);
                 if (!metadataFileFoundResult.Success) return CallResult<Notification>.BuildFailedCallResult(metadataFileFoundResult, $"Failed to locate metadata file for notification with Id: {notificationHeader.Id}: {{0}}");
 
                 var createMetadataReadStreamResult = this.fileIOManager.CreateReadFileStream(metadataFilepath);
