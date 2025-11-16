@@ -1,4 +1,5 @@
 ﻿using MyNotifier.Contracts.Base;
+using MyNotifier.Contracts.CommandAndControl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,9 @@ namespace MyNotifier.Contracts
     {
         SystemSettings SystemSettings { get; }
         DriverLoopSettings DriverLoopSettings { get; }
+
+
+        IControllable Controllable { get; }
     }
 
 

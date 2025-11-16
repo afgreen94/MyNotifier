@@ -3,6 +3,7 @@ using MyNotifier.Base;
 using MyNotifier.CommandAndControl.Commands;
 using MyNotifier.Contracts;
 using MyNotifier.Contracts.Base;
+using MyNotifier.Contracts.CommandAndControl;
 using MyNotifier.Contracts.Proxy;
 using MyNotifier.Notifiers;
 using System;
@@ -19,6 +20,8 @@ namespace MyNotifier
         //private const string SystemSettingsKey = "SystemSettings";
         //private const string DriveLoopSettingsKey = "DriveLoopSettings";
 
+        private readonly IControllable controllable;
+
         private SystemSettings systemSettings;
         private DriverLoopSettings driverLoopSettings;
 
@@ -32,6 +35,8 @@ namespace MyNotifier
             get { return this.driverLoopSettings; }
             set { this.driverLoopSettings = value; }
         }
+
+        public IControllable Controllable => this.controllable;
 
         public ApplicationConfiguration(IConfiguration innerConfiguration) : base(innerConfiguration) => this.BuildAndValidate(); //logic in constructor 
 
@@ -74,5 +79,16 @@ namespace MyNotifier
 
         //    }
         //}
+
+
+        public class Controller : IControllable
+        {
+            public IDefinition Definition => throw new NotImplementedException();
+
+            public ValueTask<ICommandResult> OnCommandAsync(ICommand command)
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

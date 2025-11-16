@@ -10,7 +10,7 @@ namespace MyNotifier.Contracts.CommandAndControl
     public interface IControllable
     {
         IDefinition Definition { get; }
-        ValueTask<ICommandResult> OnCommandAsync(ICommand command);
+        ValueTask<ICommandResult> OnCommandAsync(ICommand command);  //return IApplyCommandResult 
     }
 
     //public interface IControllable
