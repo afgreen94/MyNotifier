@@ -22,8 +22,8 @@ namespace MyNotifier.Notifiers
 
         protected bool connected = false;
         
-        protected delegate ValueTask NotificationEventHandler(object sender, Notification notification);
-        protected event NotificationEventHandler subscriptions;
+        protected delegate ValueTask NotificationEventHandler(object sender, Notification notification); //should be void, no need to ref sender ! 
+        protected event NotificationEventHandler onNotificationHandler;
 
         protected readonly NotificationType targetNotificationTypeMask;
 
@@ -38,7 +38,7 @@ namespace MyNotifier.Notifiers
         protected HashSet<Guid> processedNotificationIdsCache = []; //names should be unique, could override FolderObj GetHashCode() and cache full objs. using names may be lighter, but making the assumption names are unique(should be true)
         protected long lastNotificationTicks = 0L; //can use lastNotificationTicks to exclude redundant notifications and substitute for cache. however, there is possibilty of notification publication delay causing skips. maybe can only safely use cache //for now, using only cache //should work actually! 
 
-        public Notifier(IConfiguration configuration, ICallContext<Notifier> callContext)
+        protected Notifier(IConfiguration configuration, ICallContext<Notifier> callContext)
         {
             this.configuration = configuration;
             this.callContext = callContext;
@@ -73,7 +73,7 @@ namespace MyNotifier.Notifiers
 
                 await this.pollTaskWrapper.KillWaitAsync(this.pollTaskDisconnectTimeout).ConfigureAwait(false);
 
-                if (this.pollTaskWrapper.Status == TaskStatus.Running) return new CallResult(false, "Failed to disconnect.");
+                if (this.pollTaskWrapper.Status == TaskStatus.Running) return new CallResult(false, "Failed to disconnect."); //encapsulate [ bool Wrapper.Wait(timespan) ]
 
                 //var disconnectAttempts = 0;
 
@@ -112,9 +112,9 @@ namespace MyNotifier.Notifiers
 
         protected static Exception GetPollTaskException(ICallResult getNewNotificationsResult) => new($"Failed to retrieve new notifications: {getNewNotificationsResult.ErrorText}");
 
-        public virtual void Subscribe(INotifier.ISubscriber subscriber) => this.subscriptions += subscriber.OnNotificationAsync;
-        public virtual void Unsubscribe(INotifier.ISubscriber subscriber) => this.subscriptions -= subscriber.OnNotificationAsync;
-        public virtual async ValueTask OnNotificationAsync(Notification notification) => await this.subscriptions(this, notification).ConfigureAwait(false); //make async !!! 
+        public virtual void Subscribe(INotifier.ISubscriber subscriber) => this.onNotificationHandler += subscriber.OnNotificationAsync;
+        public virtual void Unsubscribe(INotifier.ISubscriber subscriber) => this.onNotificationHandler -= subscriber.OnNotificationAsync;
+        public virtual async ValueTask OnNotificationAsync(Notification notification) => await this.onNotificationHandler(this, notification).ConfigureAwait(false); //make async !!! 
 
         protected virtual bool TryExclude(NotificationHeader notificationHeader) => this.IsExcludedNotificationType(notificationHeader) || this.IsAlreadyProcessedNotification(notificationHeader);
         protected virtual bool IsExcludedNotificationType(NotificationHeader notificationHeader) => (this.targetNotificationTypeMask & notificationHeader.Type) == 0;

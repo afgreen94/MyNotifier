@@ -47,7 +47,7 @@ namespace MyNotifier.CommandAndControl
             catch (Exception ex) { return CallResult.FromException(ex, BuildFailedToIssueMessageTemplate(nameof(RegisterAndSubscribeToNewInterests))); }
         }
 
-        public async Task<ICallResult<IRegisterAndSubscribeToNewInterestsCommandResult>> RegisterAndSubscribeToNewInterestsAwaitCommandResultAsync(InterestModel[] interestModels, bool saveNew = true)
+        public async Task<ICallResult<IRegisterAndSubscribeToNewInterestsCommandResult>> RegisterAndSubscribeToNewInterestsAwaitCommandResultAsync(InterestModel[] interestModels, bool saveNew = true) //save new by individual interest model ?
         {
             try
             {

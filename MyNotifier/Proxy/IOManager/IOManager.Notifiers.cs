@@ -32,7 +32,7 @@ namespace MyNotifier.Proxy
             catch (Exception ex) { return CallResult<bool>.FromException(ex); }
         }
 
-        public virtual async Task<ICallResult<NotificationHeader[]>> RetrieveNotificationHeadersAsync()
+        public virtual async Task<ICallResult<NotificationHeader[]>> RetrieveNotificationHeadersAsync()  //Retrieve NEW notification headers only ?!?!
         {
             try
             {

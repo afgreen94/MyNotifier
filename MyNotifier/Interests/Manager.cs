@@ -57,6 +57,8 @@ namespace MyNotifier.Interests
         {
             try
             {
+                //add new event module models to library thru data access layer !!!
+
                 var createInterestResult = await this.factory.GetAsync(interest).ConfigureAwait(false);
                 if (!AssertCreateResultSuccess(createInterestResult, out var failedResult)) return failedResult;
 
