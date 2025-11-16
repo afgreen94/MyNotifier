@@ -25,7 +25,7 @@ namespace MyNotifier.Interests
         public Factory(IEventModuleFactory eventModuleFactory, ICallContext<Factory> callContext) { this.eventModuleFactory = eventModuleFactory; this.callContext = callContext; }
 
 
-        public async ValueTask<ICallResult<IInterest>> GetAsync(Guid[] eventModuleDefinitionIds, IDictionary<Guid, IEventModuleParameterValues[]> parameterValues)
+        public async ValueTask<ICallResult<IInterest>> GetAsync(Guid[] eventModuleDefinitionIds, IDictionary<Guid, IEventModuleParameterValues[]> parameterValues) //include optional interest defn (id, name, description) ?
         {
             try
             {
@@ -49,9 +49,32 @@ namespace MyNotifier.Interests
             catch(Exception ex) { return CallResult<IInterest>.FromException(ex); }
         }
 
-        public ValueTask<ICallResult<IInterest>> GetAsync(InterestModel model)
+        public async ValueTask<ICallResult<IInterest>> GetAsync(InterestModel model)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var eventModules = new IEventModule[model.EventModuleModels.Length];
+
+                for(int eventModuleIdx = 0; eventModuleIdx < model.EventModuleModels.Length; eventModuleIdx++)
+                {
+                    var getEventModuleResult = await this.eventModuleFactory.GetAsync(model.EventModuleModels[eventModuleIdx]);
+                    if (!getEventModuleResult.Success) return CallResult<IInterest>.BuildFailedCallResult(getEventModuleResult, "Failed to build interest");
+
+                    eventModules[eventModuleIdx] = getEventModuleResult.Result;
+                }
+
+                return new CallResult<IInterest>(new Interest()
+                {
+                    Definition = new Definition()
+                    {
+                        Id = model.Definition.Id == Guid.Empty ? Guid.NewGuid() : model.Definition.Id,
+                        Name = model.Definition.Name,
+                        Description = model.Definition.Description
+                    },
+                    EventModules = eventModules
+                });
+            }
+            catch(Exception ex) { return CallResult<IInterest>.FromException(ex); }
         }
 
         public ValueTask<ICallResult<IInterest>> GetAsync(Contracts.EventModules.IDefinition[] eventModuleDefinitions, IDictionary<Guid, IEventModuleParameterValues[]> parameterValues)

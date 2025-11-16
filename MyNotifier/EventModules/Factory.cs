@@ -90,7 +90,7 @@ namespace MyNotifier.EventModules
                 {
                     Definition = new CustomEventModuleDefinition()
                     {
-                        Id = model.Definition.Id,
+                        Id = model.Definition.Id == Guid.Empty ? Guid.NewGuid() : model.Definition.Id,
                         Name = model.Definition.Name,
                         Description = model.Definition.Description,
                         UpdaterDefinitions = updaterDefinitions
