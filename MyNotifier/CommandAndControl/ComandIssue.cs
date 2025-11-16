@@ -61,7 +61,7 @@ namespace MyNotifier.CommandAndControl
                     this.publisher = this.publisherFactory.GetNotifierPublisher();
 
                     var initializePublisherResult = await this.publisher.InitializeAsync().ConfigureAwait(false);
-                    if (!initializePublisherResult.Success) return CallResult.BuildFailedCallResult(initializePublisherResult, "Failed to initialize command publisher: {0}");
+                    if (!initializePublisherResult.Success) return CallResult.BuildFailedCallResult(initializePublisherResult, "Failed to initialize command publisher");
 
                     //subscribe to notifier 
 
@@ -85,7 +85,7 @@ namespace MyNotifier.CommandAndControl
                 var notification = this.notificationBuilder.Build(command);
 
                 var publishResult = await this.publisher.PublishAsync(notification).ConfigureAwait(false);
-                if (!publishResult.Success) return CallResult.BuildFailedCallResult(publishResult, "Publish command failed: {0}");
+                if (!publishResult.Success) return CallResult.BuildFailedCallResult(publishResult, "Publish command failed");
 
                 return new CallResult();
             }

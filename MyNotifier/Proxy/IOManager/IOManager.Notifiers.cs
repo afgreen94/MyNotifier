@@ -24,7 +24,7 @@ namespace MyNotifier.Proxy
                 if (!this.isInitialized) return BuildNotInitializedCallResult<bool>();
 
                 var directoryExistsResult = await this.fileIOManager.DirectoryExistsAsync(this.configuration.NotificationsDirectoryName).ConfigureAwait(false); //could configure fileIOManager with notifications directory name 
-                if (!directoryExistsResult.Success) return CallResult<bool>.BuildFailedCallResult(directoryExistsResult, "Failed to connect: {0}");
+                if (!directoryExistsResult.Success) return CallResult<bool>.BuildFailedCallResult(directoryExistsResult, "Failed to connect");
 
                 return new CallResult<bool>(directoryExistsResult.Result);
 
@@ -39,7 +39,7 @@ namespace MyNotifier.Proxy
                 if (!this.isInitialized) return BuildNotInitializedCallResult<NotificationHeader[]>();
 
                 var getNotificationsResult = await this.fileIOManager.GetDirectoriesAsync(this.configuration.NotificationsDirectoryName).ConfigureAwait(false);
-                if (!getNotificationsResult.Success) { return CallResult<NotificationHeader[]>.BuildFailedCallResult(getNotificationsResult, "Failed to retrieve notifications: {0}"); }
+                if (!getNotificationsResult.Success) { return CallResult<NotificationHeader[]>.BuildFailedCallResult(getNotificationsResult, "Failed to retrieve notifications"); }
                 var notificationDirectories = getNotificationsResult.Result;
 
                 //fileIOManager will return fullpath, relative to root directory. could configure to root in Notifications/ folder, assuming this is not the case, parse directory names
@@ -103,10 +103,10 @@ namespace MyNotifier.Proxy
                 //var metadata = deserializeResult.Result;
 
                 var metadataFileFoundResult = await this.AssertFileExistsWithRetryAsync(metadataFilepath, "Metadata").ConfigureAwait(false);
-                if (!metadataFileFoundResult.Success) return CallResult<Notification>.BuildFailedCallResult(metadataFileFoundResult, $"Failed to locate metadata file for notification with Id: {notificationHeader.Id}: {{0}}");
+                if (!metadataFileFoundResult.Success) return CallResult<Notification>.BuildFailedCallResult(metadataFileFoundResult, $"Failed to locate metadata file for notification with Id: {notificationHeader.Id}");
 
                 var createMetadataReadStreamResult = this.fileIOManager.CreateReadFileStream(metadataFilepath);
-                if (!createMetadataReadStreamResult.Success) { return CallResult<Notification>.BuildFailedCallResult(createMetadataReadStreamResult, $"Failed to create read stream for metadata for notification with Id: {notificationHeader.Id}: {{0}}"); }
+                if (!createMetadataReadStreamResult.Success) { return CallResult<Notification>.BuildFailedCallResult(createMetadataReadStreamResult, $"Failed to create read stream for metadata for notification with Id: {notificationHeader.Id}"); }
 
                 //must decode from UTF8? //metadata is probably written as UTF8 bytes //DIFFERENT TYPES OF METADATA !!! 
                 string metadataJson;
@@ -115,14 +115,14 @@ namespace MyNotifier.Proxy
                 if (string.IsNullOrEmpty(metadataJson)) return new CallResult<Notification>(false, $"Failed to read metadata for notification with Id: {notificationHeader.Id}: json null or empty.");
 
                 var deserializeResult = this.DeserializedNotificationMetadata(metadataJson, notificationHeader);
-                if (!deserializeResult.Success) return CallResult<Notification>.BuildFailedCallResult(deserializeResult, $"Failed to deserialize metadata for notification with Id: {notificationHeader.Id}: {{0}}");
+                if (!deserializeResult.Success) return CallResult<Notification>.BuildFailedCallResult(deserializeResult, $"Failed to deserialize metadata for notification with Id: {notificationHeader.Id}");
                 var metadata = deserializeResult.Result;
 
 
                 //APPLY DOWNLOAD CRITERIA FROM METADATA !!! 
 
                 var createDataReadStreamResult = this.fileIOManager.CreateReadFileStream(dataFilepath);
-                if (!createDataReadStreamResult.Success) { return CallResult<Notification>.BuildFailedCallResult(createDataReadStreamResult, $"Failed to create read stream for data for notification with Id: {notificationHeader.Id}: {{0}}"); }
+                if (!createDataReadStreamResult.Success) { return CallResult<Notification>.BuildFailedCallResult(createDataReadStreamResult, $"Failed to create read stream for data for notification with Id: {notificationHeader.Id}"); }
 
                 byte[] data;
                 using (var dataReadStream = createDataReadStreamResult.Result)
@@ -135,7 +135,7 @@ namespace MyNotifier.Proxy
                 if (this.configuration.DeleteNotificationOnDelivered)
                 {
                     var deleteResult = await this.fileIOManager.DeleteDirectoryAsync(notificationFolderPath).ConfigureAwait(false);
-                    if (!deleteResult.Success) return CallResult<Notification>.BuildFailedCallResult(deleteResult, $"Failed to delete notification with Id: {notificationHeader.Id}: {{0}}");
+                    if (!deleteResult.Success) return CallResult<Notification>.BuildFailedCallResult(deleteResult, $"Failed to delete notification with Id: {notificationHeader.Id}");
                 }
                 //else if (this.configuration.WriteCompleteSignalArgs != null && this.configuration.WriteCompleteSignalArgs.DeleteWriteCompleteFileOnDelivered)
                 //{
@@ -194,7 +194,7 @@ namespace MyNotifier.Proxy
                 while (retryDelaysEnumerator.MoveNext())
                 {
                     fileExistsResult = await this.fileIOManager.FileExistsAsync(filePath).ConfigureAwait(false);
-                    if (!fileExistsResult.Success) return CallResult.BuildFailedCallResult(fileExistsResult, $"File exists calls for {semanticName} file failed: {0}");
+                    if (!fileExistsResult.Success) return CallResult.BuildFailedCallResult(fileExistsResult, $"File exists calls for {semanticName} file failed");
                     if (fileExistsResult.Result) break;
 
                     await Task.Delay((int)retryDelaysEnumerator.Current).ConfigureAwait(false);

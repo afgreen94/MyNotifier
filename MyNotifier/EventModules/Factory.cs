@@ -53,7 +53,7 @@ namespace MyNotifier.EventModules
                 if (this.cache.TryGetValue(eventModuleDefinitionId, out IEventModuleDefinition definition)) return new CallResult<IEventModuleDefinition>(definition);
 
                 var getDefinitionResult = await this.provider.GetDefinitionAsync(eventModuleDefinitionId).ConfigureAwait(false);  //may not exist! 
-                if (!getDefinitionResult.Success) return CallResult<IEventModuleDefinition>.BuildFailedCallResult(getDefinitionResult, $"Failed to produce event module definition with Id: {eventModuleDefinitionId}: {{0}}");
+                if (!getDefinitionResult.Success) return CallResult<IEventModuleDefinition>.BuildFailedCallResult(getDefinitionResult, $"Failed to produce event module definition with Id: {eventModuleDefinitionId}");
 
                 this.cache.Add(definition.Id, definition);
 
@@ -70,7 +70,7 @@ namespace MyNotifier.EventModules
                 if (this.cache.TryGetValue(eventModuleId, out IEventModule eventModule)) return new CallResult<IEventModule>(eventModule);
 
                 var getEventModuleResult = await this.provider.GetAsync(eventModuleId).ConfigureAwait(false);
-                if (!getEventModuleResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getEventModuleResult, $"Failed to produce event module with Id: {eventModuleId}: {{0}}");
+                if (!getEventModuleResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getEventModuleResult, $"Failed to produce event module with Id: {eventModuleId}");
 
                 this.cache.Add(eventModuleId, eventModule);
 
@@ -105,7 +105,7 @@ namespace MyNotifier.EventModules
                     if (!validParameters) return new CallResult<IEventModule>(false, $"Invalid parameters for event module with Id: {eventModule.Definition.Id} and updater definition Id: {updaterDefinition.Id}: {errorText}");
 
                     var populateResult = await this.PopulateUpdaterAndParametersAsync(eventModule, updaterDefinition.Id, model.Parameters[updaterDefinition.Id], eventModule.Definition.Id).ConfigureAwait(false);
-                    if (!populateResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(populateResult, $"Failed to produce event module with definition Id: {eventModule.Definition.Id}: {{0}}");
+                    if (!populateResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(populateResult, $"Failed to produce event module with definition Id: {eventModule.Definition.Id}");
                 }
 
 
@@ -131,7 +131,7 @@ namespace MyNotifier.EventModules
                 if (!this.cache.TryGetValue(eventModuleDefinitionId, out IEventModuleDefinition eventModuleDefinition))
                 {
                     var getEventModuleDefinitionResult = await this.provider.GetDefinitionAsync(eventModuleDefinitionId);
-                    if (!getEventModuleDefinitionResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getEventModuleDefinitionResult, $"Failed to produce event module definition with Id: {eventModuleDefinitionId}: {{0}}");
+                    if (!getEventModuleDefinitionResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getEventModuleDefinitionResult, $"Failed to produce event module definition with Id: {eventModuleDefinitionId}");
 
                     eventModuleDefinition = getEventModuleDefinitionResult.Result;
 
@@ -147,7 +147,7 @@ namespace MyNotifier.EventModules
                     if (!validParameters) return new CallResult<IEventModule>(false, $"Invalid parameters for event module with Id: {eventModuleDefinitionId} and updater definition Id: {updaterDefinition.Id}: {errorText}");
 
                     var populateResult = await this.PopulateUpdaterAndParametersAsync(eventModule, updaterDefinition.Id, parameters, eventModule.Definition.Id).ConfigureAwait(false);
-                    if (!populateResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(populateResult, $"Failed to produce event module with definition Id: {eventModule.Definition.Id}: {{0}}");
+                    if (!populateResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(populateResult, $"Failed to produce event module with definition Id: {eventModule.Definition.Id}");
                 }
 
                 //could cache eventModules by hash or something 
@@ -196,7 +196,7 @@ namespace MyNotifier.EventModules
             try
             {
                 var getUpdaterResult = await this.updaterFactory.GetAsync(updaterDefinitionId).ConfigureAwait(false);
-                if (!getUpdaterResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getUpdaterResult, $"Failed to populate event module with definition Id: {eventModuleDefinitionId} with updater with definition Id: {updaterDefinitionId} for event module: {{0}}");
+                if (!getUpdaterResult.Success) return CallResult<IEventModule>.BuildFailedCallResult(getUpdaterResult, $"Failed to populate event module with definition Id: {eventModuleDefinitionId} with updater with definition Id: {updaterDefinitionId} for event module");
 
                 eventModule.UpdaterParameterWrappers.Add(updaterDefinitionId, new UpdaterParametersWrapper()
                 {

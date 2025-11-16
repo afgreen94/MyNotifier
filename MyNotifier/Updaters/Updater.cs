@@ -125,10 +125,10 @@ namespace MyNotifier.Updaters
                 if (this.isInitialized && !forceReinitialize) return new CallResult();
 
                 var parameterizeResult = this.Parameterize(parameters);
-                if (!parameterizeResult.Success) return CallResult.BuildFailedCallResult(parameterizeResult, "Failed to parameterize updater: {0}");
+                if (!parameterizeResult.Success) return CallResult.BuildFailedCallResult(parameterizeResult, "Failed to parameterize updater");
 
                 var initializeCoreResult = await this.InitializeCoreAsync().ConfigureAwait(false);
-                if (!initializeCoreResult.Success) return CallResult.BuildFailedCallResult(initializeCoreResult, "Initialize core call failed: {0}");
+                if (!initializeCoreResult.Success) return CallResult.BuildFailedCallResult(initializeCoreResult, "Initialize core call failed");
 
                 this.isInitialized = true;
 
@@ -146,11 +146,11 @@ namespace MyNotifier.Updaters
 
 
                 var retrieveUpdaterResult = await this.RetrieveUpdateAsync().ConfigureAwait(false);  //need to update state ! 
-                if (!retrieveUpdaterResult.Success) return (Result)CallResult.BuildFailedCallResult(retrieveUpdaterResult, "Failed to retrieve update: {0}"); //casting will fail!
+                if (!retrieveUpdaterResult.Success) return (Result)CallResult.BuildFailedCallResult(retrieveUpdaterResult, "Failed to retrieve update"); //casting will fail!
 
                 var writeStateArg = new object();
                 var writeStateResult = await this.WriteStateAsync(writeStateArg).ConfigureAwait(false);
-                if (!writeStateResult.Success) return (Result)CallResult.BuildFailedCallResult(writeStateResult, "Failed to write updater state: {0}"); //casting will fail!
+                if (!writeStateResult.Success) return (Result)CallResult.BuildFailedCallResult(writeStateResult, "Failed to write updater state"); //casting will fail!
 
                 return retrieveUpdaterResult;
             }
@@ -213,7 +213,7 @@ namespace MyNotifier.Updaters
             {
 
                 var reInitializeResult = await this.updater.InitializeAsync(parameters, true).ConfigureAwait(false);
-                if (!reInitializeResult.Success) return (IUpdaterResult)CallResult.BuildFailedCallResult(reInitializeResult, "Failed to reinitialize updater with new parameters: {0}");
+                if (!reInitializeResult.Success) return (IUpdaterResult)CallResult.BuildFailedCallResult(reInitializeResult, "Failed to reinitialize updater with new parameters");
 
                 return await this.updater.TryGetUpdateAsync().ConfigureAwait(false);
             }

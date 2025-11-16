@@ -16,7 +16,7 @@ namespace MyNotifier.Proxy
 {
     public abstract partial class IOManager : IIOManager
     {
-        protected const string ValidateFailedMessageFormat = "Validate proxy failed: {0}";
+        protected const string ValidateFailedMessageFormat = "Validate proxy failed";
         protected const string ProxySettingsAbsentOrInvalidMessageFormat = "Proxy Settings Invalid {0}";
 
         protected Encoding defaultEncoding = Encoding.UTF8; //make configurable 
@@ -64,7 +64,7 @@ namespace MyNotifier.Proxy
                 if (!this.isInitialized) return new CallResult<ICatalog>(false, NotInitializedMessage);
 
                 var loadCatalogResult = await this.LoadAsync<Catalog>(this.paths.CatalogFile.Path, this.paths.CatalogFile.SemanticName).ConfigureAwait(false); //Catalog -> default ICatalog ... for now 
-                if (!loadCatalogResult.Success) return CallResult<ICatalog>.BuildFailedCallResult(loadCatalogResult, "Failed to load catalog: {0}");
+                if (!loadCatalogResult.Success) return CallResult<ICatalog>.BuildFailedCallResult(loadCatalogResult, "Failed to load catalog");
 
                 return (ICallResult<ICatalog>)loadCatalogResult;
             }
@@ -78,7 +78,7 @@ namespace MyNotifier.Proxy
                 if (!this.isInitialized) return new CallResult<InterestModel[]>(false, NotInitializedMessage);
 
                 var loadCatalogResult = await this.LoadAsync<InterestModel[]>(this.paths.CatalogFile.Path, this.paths.CatalogFile.SemanticName).ConfigureAwait(false);
-                if (!loadCatalogResult.Success) return CallResult<InterestModel[]>.BuildFailedCallResult(loadCatalogResult, "Failed to load catalog: {0}");
+                if (!loadCatalogResult.Success) return CallResult<InterestModel[]>.BuildFailedCallResult(loadCatalogResult, "Failed to load catalog");
 
                 return loadCatalogResult;
             }
@@ -98,7 +98,7 @@ namespace MyNotifier.Proxy
                 await foreach (var loadModuleResult in this.LoadModulesAsync(interestModels, catalog).ConfigureAwait(false))
                 {
                     //on load module failed? 
-                    if (!loadModuleResult.Success) { return CallResult<HashSet<UpdaterDefinitionModel>>.BuildFailedCallResult((ICallResult<HashSet<UpdaterDefinitionModel>>)loadModuleResult, "Failed to load and validate module: {0}"); }
+                    if (!loadModuleResult.Success) { return CallResult<HashSet<UpdaterDefinitionModel>>.BuildFailedCallResult((ICallResult<HashSet<UpdaterDefinitionModel>>)loadModuleResult, "Failed to load and validate module"); }
                     ret.Add(loadModuleResult.Result);
                 }
 

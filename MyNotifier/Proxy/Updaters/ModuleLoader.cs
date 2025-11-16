@@ -24,7 +24,7 @@ namespace MyNotifier.Proxy.Updaters
             try
             {
                 var createModuleStreamResult = this.ioManager.CreateUpdaterModuleReadStream(updaterDefinition.ModuleDescription);
-                if (!createModuleStreamResult.Success) return CallResult<byte[]>.BuildFailedCallResult(createModuleStreamResult, $"Failed to create module read stream for updater: {updaterDefinition.Id}-{updaterDefinition.Name}: {0}");
+                if (!createModuleStreamResult.Success) return CallResult<byte[]>.BuildFailedCallResult(createModuleStreamResult, $"Failed to create module read stream for updater: {updaterDefinition.Id}-{updaterDefinition.Name}");
 
                 using var dllReadStream = createModuleStreamResult.Result;
                 using var ms = new MemoryStream();

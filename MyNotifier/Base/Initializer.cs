@@ -21,7 +21,7 @@ namespace MyNotifier.Base
                     {
                         var result = await initializeable.InitializeAsync(forceReinitialize).ConfigureAwait(false);
 
-                        if (!result.Success) { return CallResult.BuildFailedCallResult(result, $"Failed to initialize {initializeable.GetType().FullName}: {{0}}"); }
+                        if (!result.Success) { return CallResult.BuildFailedCallResult(result, $"Failed to initialize {initializeable.GetType().FullName}"); }
                     }
                 }
 

@@ -23,15 +23,19 @@ namespace MyNotifier.Base
             this.ErrorText = errorText;
         }
 
-        //replace message format with innerMessageFormat, factor out "{0}" !!! 
-        public static CallResult BuildFailedCallResult(ICallResult innerCallResult, string messageFormat) => new(false, string.Format(messageFormat, innerCallResult.ErrorText));
+        public static CallResult BuildFailedCallResult(ICallResult innerCallResult, string prefixMessage = "") => BuildFailedCallResultCore(innerCallResult.ErrorText, prefixMessage);
+        public static CallResult FromException(Exception ex, string prefixMessage = "") => BuildFailedCallResultCore(ex.Message, prefixMessage);
 
-        // => new(false, string.Format(new StringBuilder(messageFormat).Append(" {0}").ToString(), innerCallResult.ErrorText);
-
-        public static CallResult FromException(Exception ex, string format = "")
+        private static CallResult BuildFailedCallResultCore(string errorText, string prefixMessage = "")
         {
-            var message = string.IsNullOrEmpty(format) ? ex.Message : string.Format(format, ex.Message);
-            return new CallResult(false, message);
+            if (string.IsNullOrEmpty(prefixMessage)) return new CallResult(false, errorText);
+
+            var sb = new StringBuilder(prefixMessage);
+            if (!string.IsNullOrEmpty(prefixMessage) && !prefixMessage.EndsWith(": {0}"))
+            {
+                sb.Append(": {0}");
+            }
+            return new CallResult(false, string.Format(sb.ToString(), errorText));
         }
     }
 
@@ -43,11 +47,19 @@ namespace MyNotifier.Base
         public CallResult(bool success, string errorText) : base(success, errorText) { }
         public CallResult(TResult result) : base() { this.Result = result; }
 
-        public static CallResult<TResult> BuildFailedCallResult(ICallResult innerCallResult, string messageFormat) => new(false, string.Format(messageFormat, innerCallResult.ErrorText));
-        public static CallResult<TResult> FromException(Exception ex, string format = "")
+        public static CallResult<TResult> BuildFailedCallResult(ICallResult innerCallResult, string prefixMessage = "") => BuildFailedCallResultCore(innerCallResult.ErrorText, prefixMessage);
+        public static CallResult<TResult> FromException(Exception ex, string prefixMessage = "") => BuildFailedCallResultCore(ex.Message, prefixMessage);
+
+        private static CallResult<TResult> BuildFailedCallResultCore(string errorText, string prefixMessage = "")
         {
-            var message = string.IsNullOrEmpty(format) ? ex.Message : string.Format(format, ex.Message);
-            return new CallResult<TResult>(false, message);
+            if (string.IsNullOrEmpty(prefixMessage)) return new CallResult<TResult>(false, errorText);
+
+            var sb = new StringBuilder(prefixMessage);
+            if (!string.IsNullOrEmpty(prefixMessage) && !prefixMessage.EndsWith(": {0}"))
+            {
+                sb.Append(": {0}");
+            }
+            return new CallResult<TResult>(false, string.Format(sb.ToString(), errorText));
         }
     }
 }

@@ -27,7 +27,7 @@ namespace MyNotifier.Proxy.Updaters
             try
             {
                 var retrieveUpdaterDefinitionResult = await this.ioManager.RetrieveUpdaterDefinitionAsync(updaterDefinitionId);
-                if(retrieveUpdaterDefinitionResult.Success) return CallResult<IUpdaterDefinition>.BuildFailedCallResult(retrieveUpdaterDefinitionResult, $"Failed to retrieve updater definition with Id: {updaterDefinitionId}: {{0}}");
+                if(retrieveUpdaterDefinitionResult.Success) return CallResult<IUpdaterDefinition>.BuildFailedCallResult(retrieveUpdaterDefinitionResult, $"Failed to retrieve updater definition with Id: {updaterDefinitionId}");
 
                 return new CallResult<IUpdaterDefinition>(retrieveUpdaterDefinitionResult.Result);
             }

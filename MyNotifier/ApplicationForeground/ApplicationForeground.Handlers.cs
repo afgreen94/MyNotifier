@@ -37,7 +37,7 @@ namespace MyNotifier
 
                 //implement command 
                 var commandResult = await this.controller.AffectCommandAsync(commandIssuedMessage.Value).ConfigureAwait(false);
-                if (!commandResult.Success) return CallResult.BuildFailedCallResult(commandResult, "Failed to affect command [COMMAND DESCRIPTION]: {0}");
+                if (!commandResult.Success) return CallResult.BuildFailedCallResult(commandResult, "Failed to affect command [COMMAND DESCRIPTION]");
 
                 //return command result if requested 
                 if (commandIssuedMessage.ExpectingResult)
@@ -45,7 +45,7 @@ namespace MyNotifier
                     var commandResultNotification = this.notificationBuilder.Build(commandResult);
 
                     var publishResult = await this.publisher.PublishAsync(commandResultNotification).ConfigureAwait(false);
-                    if (!publishResult.Success) return CallResult.BuildFailedCallResult(publishResult, "Failed to publish command result [DETAILS]: {0}");
+                    if (!publishResult.Success) return CallResult.BuildFailedCallResult(publishResult, "Failed to publish command result [DETAILS]");
                 }
 
                 return new CallResult();

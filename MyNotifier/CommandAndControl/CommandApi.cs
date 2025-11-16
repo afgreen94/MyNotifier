@@ -134,7 +134,7 @@ namespace MyNotifier.CommandAndControl
             return buildResult.Success;
         }
 
-        private static string BuildFailedToIssueMessageTemplate(string commandName) => $"Failed to issue command {commandName}: {{0}}";
+        private static string BuildFailedToIssueMessageTemplate(string commandName) => $"Failed to issue command {commandName}";
 
         //private async Task<ICallResult> IssueCommandCoreAsync<TCommand, TCommandParameters, TCommandParametersValidator, TCommandBuilder>(TCommandParameters parameters, TCommandParametersValidator parametersValidator, TCommandBuilder builder, bool suppressValidation = false)
         //    where TCommand : ICommand

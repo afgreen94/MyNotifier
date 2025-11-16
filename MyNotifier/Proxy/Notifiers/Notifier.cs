@@ -27,7 +27,7 @@ namespace MyNotifier.Proxy.Notifiers
             {
                 var notificationDirectoryExists = await this.ioManager.NotificationDirectoryExistsAsync().ConfigureAwait(false); //Assert? //Ensure? //Make configureable which one ? 
 
-                if (!notificationDirectoryExists.Success) return CallResult.BuildFailedCallResult(notificationDirectoryExists, "Failed to validate notifications directory exists: {0}");
+                if (!notificationDirectoryExists.Success) return CallResult.BuildFailedCallResult(notificationDirectoryExists, "Failed to validate notifications directory exists");
                 if (!notificationDirectoryExists.Result) return new CallResult(false, "Notifications Directory does not exist.");
 
                 return new CallResult();
@@ -39,7 +39,7 @@ namespace MyNotifier.Proxy.Notifiers
             try
             {
                 var retrieveNotificationHeadersResult = await this.ioManager.RetrieveNotificationHeadersAsync().ConfigureAwait(false);
-                if (!retrieveNotificationHeadersResult.Success) return CallResult<Notification[]>.BuildFailedCallResult(retrieveNotificationHeadersResult, "Failed to retrieve notifications: {0}"); //cast to be safe ? 
+                if (!retrieveNotificationHeadersResult.Success) return CallResult<Notification[]>.BuildFailedCallResult(retrieveNotificationHeadersResult, "Failed to retrieve notifications"); //cast to be safe ? 
 
                 var notificationHeaders = retrieveNotificationHeadersResult.Result;
                 var latestTicks = this.lastNotificationTicks;
@@ -54,7 +54,7 @@ namespace MyNotifier.Proxy.Notifiers
 
                     var ReadInNotificationResult = await this.ioManager.ReadInNotificationAsync(notificationHeader).ConfigureAwait(false);
                     //how to handle? for now fail all. !!!
-                    if (!ReadInNotificationResult.Success) return CallResult<Notification[]>.BuildFailedCallResult(ReadInNotificationResult, $"Failed to read in notification with Id:{notificationHeader.Id}: {{0}}");
+                    if (!ReadInNotificationResult.Success) return CallResult<Notification[]>.BuildFailedCallResult(ReadInNotificationResult, $"Failed to read in notification with Id:{notificationHeader.Id}");
 
                     notifications[i] = ReadInNotificationResult.Result;
 

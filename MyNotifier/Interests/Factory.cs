@@ -36,7 +36,7 @@ namespace MyNotifier.Interests
                     foreach(var eventModuleParameterValues in parameterValues[eventModuleDefinitionId])
                     {
                         var getEventModuleResult = await this.eventModuleFactory.GetAsync(eventModuleDefinitionId, eventModuleParameterValues).ConfigureAwait(false);
-                        if (!getEventModuleResult.Success) return CallResult<IInterest>.BuildFailedCallResult(getEventModuleResult, "Failed to create interest: {0}");
+                        if (!getEventModuleResult.Success) return CallResult<IInterest>.BuildFailedCallResult(getEventModuleResult, "Failed to create interest");
 
                         eventModules.Add(getEventModuleResult.Result);
                     }

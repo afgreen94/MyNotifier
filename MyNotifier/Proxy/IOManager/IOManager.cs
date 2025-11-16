@@ -55,7 +55,7 @@ namespace MyNotifier.Proxy //namespacing??
                     var validateProxySettingsResult = this.ValidateProxySettings(); if (!validateProxySettingsResult.Success) return validateProxySettingsResult;
 
                     var fileIOManagerInitResult = await this.fileIOManager.InitializeAsync().ConfigureAwait(false);
-                    if (!fileIOManagerInitResult.Success) return CallResult.BuildFailedCallResult(fileIOManagerInitResult, "Failed to initialize fileIOManager: {0}");
+                    if (!fileIOManagerInitResult.Success) return CallResult.BuildFailedCallResult(fileIOManagerInitResult, "Failed to initialize fileIOManager");
 
                     this.paths = proxySettings.FileStructure.BuildPaths(new FileIOManager.FileIOManager.Wrapper(this.fileIOManager));
                     //this.moduleLoader = new ModuleLoader(this.fileIOManager, this.paths);
@@ -75,7 +75,7 @@ namespace MyNotifier.Proxy //namespacing??
                 var filePath = this.fileIOManagerWrapper.BuildAppendedPath(path, id.ToString());
 
                 var createStreamResult = this.fileIOManager.CreateReadFileStream(filePath);
-                if (!createStreamResult.Success) return CallResult<TModel>.BuildFailedCallResult(createStreamResult, $"Failed to create read stream for model file of {semanticNamePrefix}Definition with Id: {id}: {{0}}");
+                if (!createStreamResult.Success) return CallResult<TModel>.BuildFailedCallResult(createStreamResult, $"Failed to create read stream for model file of {semanticNamePrefix}Definition with Id: {id}");
 
                 string definitionJson;
 

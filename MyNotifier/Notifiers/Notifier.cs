@@ -52,7 +52,7 @@ namespace MyNotifier.Notifiers
             {
                 //check if already connected ?? //force reconnect ??
                 var connectCoreResult = await this.ConnectCoreAsync(connectArg).ConfigureAwait(false);
-                if (!connectCoreResult.Success) return CallResult.BuildFailedCallResult(connectCoreResult, "Failed to connect: {0}");
+                if (!connectCoreResult.Success) return CallResult.BuildFailedCallResult(connectCoreResult, "Failed to connect");
 
                 this.Start();
 

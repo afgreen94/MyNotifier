@@ -81,7 +81,7 @@ namespace MyNotifier.CommandAndControl
             return true;
         }
 
-        public static ICommandResult BuildFailedWrapperBuildResult(ICallResult failedWrapperBuildResult) => CallResult.BuildFailedCallResult(failedWrapperBuildResult, "Failed to build command wrapper [COMMAND DETAIL]: {0}") as CommandResult; //dont want to do it this way but...
+        public static ICommandResult BuildFailedWrapperBuildResult(ICallResult failedWrapperBuildResult) => CallResult.BuildFailedCallResult(failedWrapperBuildResult, "Failed to build command wrapper [COMMAND DETAIL]") as CommandResult; //dont want to do it this way but...
     }
 
     public abstract class CommandBuilder<TCommand, TCommandParameters> : CommandBuilder, ICommandBuilder<TCommand, TCommandParameters>
@@ -116,7 +116,7 @@ namespace MyNotifier.CommandAndControl
             return true;
         }
 
-        public static ICommandResult BuildFailedWrapperBuildResult(ICallResult failedWrapperBuildResult) => CallResult.BuildFailedCallResult(failedWrapperBuildResult, "Failed to build command wrapper [COMMAND DETAIL]: {0}") as CommandResult; //dont want to do it this way but...
+        public static ICommandResult BuildFailedWrapperBuildResult(ICallResult failedWrapperBuildResult) => CallResult.BuildFailedCallResult(failedWrapperBuildResult, "Failed to build command wrapper [COMMAND DETAIL]") as CommandResult; //dont want to do it this way but...
     }
 
     public abstract class CommandWrapperBuilder<TCommand, TCommandParameters, TWrapper> : CommandWrapperBuilder, ICommandWrapperBuilder<TCommand, TCommandParameters, TWrapper>

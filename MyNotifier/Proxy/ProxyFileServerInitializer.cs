@@ -289,7 +289,7 @@ namespace MyNotifier.Proxy
                         var validateProxySettingsResult = this.ValidateProxySettings(); if (!validateProxySettingsResult.Success) return validateProxySettingsResult;
 
                         var fileIOManagerInitResult = await this.fileIOManager.InitializeAsync().ConfigureAwait(false);
-                        if (!fileIOManagerInitResult.Success) return CallResult.BuildFailedCallResult(fileIOManagerInitResult, "Failed to initialize fileIOManager: {0}");
+                        if (!fileIOManagerInitResult.Success) return CallResult.BuildFailedCallResult(fileIOManagerInitResult, "Failed to initialize fileIOManager");
 
                         this.paths = proxySettings.FileStructure.BuildPaths(new FileIOManager.FileIOManager.Wrapper(this.fileIOManager));
                         this.moduleLoader = new ModuleLoader(this.fileIOManager, this.paths);
@@ -347,7 +347,7 @@ namespace MyNotifier.Proxy
                     if (!this.isInitialized) return new CallResult<Catalog>(false, NotInitializedMessage);
 
                     var loadCatalogResult = await this.LoadAsync<Catalog>(this.paths.CatalogFile.Path, this.paths.CatalogFile.SemanticName).ConfigureAwait(false);
-                    if (!loadCatalogResult.Success) return CallResult<Catalog>.BuildFailedCallResult(loadCatalogResult, "Failed to load catalog: {0}");
+                    if (!loadCatalogResult.Success) return CallResult<Catalog>.BuildFailedCallResult(loadCatalogResult, "Failed to load catalog");
 
                     return loadCatalogResult;
                 }
@@ -361,7 +361,7 @@ namespace MyNotifier.Proxy
                     if (!this.isInitialized) return new CallResult<InterestModel[]>(false, NotInitializedMessage);
 
                     var loadCatalogResult = await this.LoadAsync<InterestModel[]>(this.paths.CatalogFile.Path, this.paths.CatalogFile.SemanticName).ConfigureAwait(false);
-                    if (!loadCatalogResult.Success) return CallResult<InterestModel[]>.BuildFailedCallResult(loadCatalogResult, "Failed to load catalog: {0}");
+                    if (!loadCatalogResult.Success) return CallResult<InterestModel[]>.BuildFailedCallResult(loadCatalogResult, "Failed to load catalog");
 
                     return loadCatalogResult;
                 }
@@ -381,7 +381,7 @@ namespace MyNotifier.Proxy
                     await foreach(var loadModuleResult in this.moduleLoader.LoadModulesAsync(interestModels, catalog).ConfigureAwait(false))
                     {
                         //on load module failed? 
-                        if (!loadModuleResult.Success) { return CallResult<HashSet<UpdaterDefinitionModel>>.BuildFailedCallResult((ICallResult<HashSet<UpdaterDefinitionModel>>)loadModuleResult, "Failed to load and validate module: {0}"); }
+                        if (!loadModuleResult.Success) { return CallResult<HashSet<UpdaterDefinitionModel>>.BuildFailedCallResult((ICallResult<HashSet<UpdaterDefinitionModel>>)loadModuleResult, "Failed to load and validate module"); }
                         ret.Add(loadModuleResult.Result);
                     }
 

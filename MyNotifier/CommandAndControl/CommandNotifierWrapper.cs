@@ -98,7 +98,7 @@ namespace MyNotifier.CommandAndControl
                     if (!this.commandNotifier.Connected)
                     {
                         var connectResult = await this.commandNotifier.ConnectAsync(null).ConfigureAwait(false);
-                        if (!connectResult.Success) return CallResult.BuildFailedCallResult(connectResult, "Failed to connect to command notifier: {0}");
+                        if (!connectResult.Success) return CallResult.BuildFailedCallResult(connectResult, "Failed to connect to command notifier");
                     }
 
                     this.isInitialized = true;

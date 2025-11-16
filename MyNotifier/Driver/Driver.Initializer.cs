@@ -43,7 +43,7 @@ namespace MyNotifier
                                                         .ServiceProvider
                                                         .GetRequiredService<INotifierSystemInitializer>();
 
-                    var initializeResult = await notifierSystemInitializer.InitializeSystemAsync().ConfigureAwait(false); if (!initializeResult.Success) CallResult.BuildFailedCallResult(initializeResult, "Failed to initialize notifier system: {0}");
+                    var initializeResult = await notifierSystemInitializer.InitializeSystemAsync().ConfigureAwait(false); if (!initializeResult.Success) CallResult.BuildFailedCallResult(initializeResult, "Failed to initialize notifier system");
 
                     //use asyncEnumerator to provide dlls
                     //load assemblies here ??

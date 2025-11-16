@@ -18,7 +18,7 @@ namespace MyNotifier.Proxy
     {
 
         private const string UnknownWriteTaskErrorMessage = "Write notification task failed, error unknown.";
-        private const string FailedToCreateNotificationDirectoryMessage = "Failed to create notification directory: {0}";
+        private const string FailedToCreateNotificationDirectoryMessage = "Failed to create notification directory";
 
         protected readonly INotificationFileSystemObjectTranslator notificationFileSystemObjectTranslator;
 

@@ -32,7 +32,7 @@ namespace MyNotifier.Proxy.EventModules
             try
             {
                 var createEventModuleDefinitionStreamResult = this.ioManager.CreateEventModuleStream(eventModuleDefinitionId);
-                if (!createEventModuleDefinitionStreamResult.Success) return CallResult<IEventModuleDefinition>.BuildFailedCallResult(createEventModuleDefinitionStreamResult, $"Failed to create read stream for event module definition with id: {eventModuleDefinitionId}: {{0}}");
+                if (!createEventModuleDefinitionStreamResult.Success) return CallResult<IEventModuleDefinition>.BuildFailedCallResult(createEventModuleDefinitionStreamResult, $"Failed to create read stream for event module definition with id: {eventModuleDefinitionId}");
 
                 string json;
                 using (var sr = new StreamReader(createEventModuleDefinitionStreamResult.Result)) json = await sr.ReadToEndAsync().ConfigureAwait(false);

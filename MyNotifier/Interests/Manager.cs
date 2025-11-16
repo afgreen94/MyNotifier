@@ -154,7 +154,7 @@ namespace MyNotifier.Interests
         private static bool AssertCreateResultSuccess(ICallResult createResult, out ICallResult<InterestDescription> failedResult)
         {
             failedResult = default;
-            if (!createResult.Success) { failedResult = CallResult<InterestDescription>.BuildFailedCallResult(createResult, "Failed to Add Interest: {0}"); return false; }
+            if (!createResult.Success) { failedResult = CallResult<InterestDescription>.BuildFailedCallResult(createResult, "Failed to Add Interest"); return false; }
             return true;
         }
 
@@ -235,7 +235,7 @@ namespace MyNotifier.Interests
                         var result = await this.updater.TryGetUpdateAsync().ConfigureAwait(false); //want parameterized updater, abstract away stripping parameters / loop delay parameter 
                         if (!result.Success)
                         {
-                            var failedResult = CallResult.BuildFailedCallResult(result, "TryGetUpdateAsync failure: {0}");
+                            var failedResult = CallResult.BuildFailedCallResult(result, "TryGetUpdateAsync failure");
                             var handleFailureArgs = await this.OnFailureAsync(failedResult).ConfigureAwait(false);
 
                             //?
@@ -290,7 +290,7 @@ namespace MyNotifier.Interests
                             //fail on any individual failure?
                             //TBD !!! 
 
-                            return CallResult.BuildFailedCallResult(getAddStartInterestResult, "Failed to add new interest by model [DETAIL]: {0}") as CommandResult;
+                            return CallResult.BuildFailedCallResult(getAddStartInterestResult, "Failed to add new interest by model [DETAIL]") as CommandResult;
                         }
                     }
 
@@ -318,7 +318,7 @@ namespace MyNotifier.Interests
                         if(!stopRemoveInterestResult.Success) 
                         {
                             //same as above
-                            return CallResult.BuildFailedCallResult(stopRemoveInterestResult, "Failed to remove interest by Id [DETAIL]: {0}") as CommandResult; 
+                            return CallResult.BuildFailedCallResult(stopRemoveInterestResult, "Failed to remove interest by Id [DETAIL]") as CommandResult; 
                         }
                     }
                 }

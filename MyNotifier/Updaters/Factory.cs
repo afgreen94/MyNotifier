@@ -43,10 +43,10 @@ namespace MyNotifier.Updaters
                 if (this.cache.TryGetValue(updaterDefinitionId, out IUpdater cachedUpdater)) return new CallResult<IUpdater>(cachedUpdater);
 
                 var getUpdaterDefinitionResult = await this.GetDefinitionCoreAsync(updaterDefinitionId).ConfigureAwait(false);
-                if (!getUpdaterDefinitionResult.Success) return CallResult<IUpdater>.BuildFailedCallResult(getUpdaterDefinitionResult, "{0}");
+                if (!getUpdaterDefinitionResult.Success) return CallResult<IUpdater>.BuildFailedCallResult(getUpdaterDefinitionResult);
 
                 var loadModuleResult = await this.moduleLoader.LoadModuleAsync(getUpdaterDefinitionResult.Result).ConfigureAwait(false);
-                if (!loadModuleResult.Success) return CallResult<IUpdater>.BuildFailedCallResult(loadModuleResult, $"Failed to load updater module for updater with definition id: {updaterDefinitionId}: {{0}}");
+                if (!loadModuleResult.Success) return CallResult<IUpdater>.BuildFailedCallResult(loadModuleResult, $"Failed to load updater module for updater with definition id: {updaterDefinitionId}");
 
                 var updaterType = Type.GetType(getUpdaterDefinitionResult.Result.ModuleDescription.TypeFullName);
                 if (updaterType == null) return new CallResult<IUpdater>(false, $"Could not recognize updater type: {getUpdaterDefinitionResult.Result.ModuleDescription.TypeFullName}");

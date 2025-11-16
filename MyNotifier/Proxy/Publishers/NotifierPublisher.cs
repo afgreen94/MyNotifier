@@ -28,7 +28,7 @@ namespace MyNotifier.Proxy.Publishers
             try
             {
                 var writeFilesResult = await this.ioManager.WriteNotificationFilesAsync(notification).ConfigureAwait(false);
-                if (!writeFilesResult.Success) return CallResult.BuildFailedCallResult(writeFilesResult, "Failed to publish: {0}");
+                if (!writeFilesResult.Success) return CallResult.BuildFailedCallResult(writeFilesResult, "Failed to publish");
 
                 return new CallResult();
             }
