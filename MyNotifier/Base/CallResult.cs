@@ -23,11 +23,16 @@ namespace MyNotifier.Base
             this.ErrorText = errorText;
         }
 
+        //replace message format with innerMessageFormat, factor out "{0}" !!! 
         public static CallResult BuildFailedCallResult(ICallResult innerCallResult, string messageFormat) => new(false, string.Format(messageFormat, innerCallResult.ErrorText));
 
         // => new(false, string.Format(new StringBuilder(messageFormat).Append(" {0}").ToString(), innerCallResult.ErrorText);
 
-        public static CallResult FromException(Exception ex) => new(false, ex.Message);
+        public static CallResult FromException(Exception ex, string format = "")
+        {
+            var message = string.IsNullOrEmpty(format) ? ex.Message : string.Format(format, ex.Message);
+            return new CallResult(false, message);
+        }
     }
 
     public class CallResult<TResult> : CallResult, ICallResult<TResult>
@@ -39,6 +44,10 @@ namespace MyNotifier.Base
         public CallResult(TResult result) : base() { this.Result = result; }
 
         public static CallResult<TResult> BuildFailedCallResult(ICallResult innerCallResult, string messageFormat) => new(false, string.Format(messageFormat, innerCallResult.ErrorText));
-        public static CallResult<TResult> FromException(Exception ex) => new(false, ex.Message);
+        public static CallResult<TResult> FromException(Exception ex, string format = "")
+        {
+            var message = string.IsNullOrEmpty(format) ? ex.Message : string.Format(format, ex.Message);
+            return new CallResult<TResult>(false, message);
+        }
     }
 }
