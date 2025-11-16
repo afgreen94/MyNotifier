@@ -27,7 +27,7 @@ namespace MyNotifier.Notifiers
 
         protected readonly NotificationType targetNotificationTypeMask;
 
-        protected BooleanFlag killFlag;
+
         protected PollTaskWrapper pollTaskWrapper;
 
         public virtual bool Connected => this.connected;
@@ -157,7 +157,7 @@ namespace MyNotifier.Notifiers
                             //try handle notification internally
 
                             //otherwise, notify foreground 
-                            this.OnExceptionRaised(new(getNewNotificationsResult.ErrorText)); //? appropriate to use OnException raised here?
+                            this.OnExceptionRaised(new(getNewNotificationsResult.ErrorText)); //? appropriate to use OnException raised here? //kill task ?
                             break;
                         }
 
