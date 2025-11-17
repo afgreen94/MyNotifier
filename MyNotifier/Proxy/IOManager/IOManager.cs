@@ -160,7 +160,7 @@ namespace MyNotifier.Proxy //namespacing??
             string NotificationsDirectoryName { get; } //path?
             string MetadataFileName { get; }
             string DataFileName { get; }
-            MyNotifier.Notifiers.AllowedNotificationTypeArgs AllowedNotificationTypeArgs { get; }
+            Contracts.Notifiers.AllowedNotificationTypeArgs AllowedNotificationTypeArgs { get; }
             int DisconnectionAttemptsCount { get; }
             int TryDisconnectLoopDelayMs { get; }
             int NotificationPollingDelayMs { get; }
@@ -186,7 +186,7 @@ namespace MyNotifier.Proxy //namespacing??
 
             public string DataFileName => throw new NotImplementedException();
 
-            public MyNotifier.Notifiers.AllowedNotificationTypeArgs AllowedNotificationTypeArgs => throw new NotImplementedException();
+            public Contracts.Notifiers.AllowedNotificationTypeArgs AllowedNotificationTypeArgs => throw new NotImplementedException();
 
             public int DisconnectionAttemptsCount => throw new NotImplementedException();
 

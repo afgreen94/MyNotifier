@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MyNotifier.Contracts.Notifiers
 {
-    public interface INotifierFactory
-    {
-        INotifier GetNotifier(object factoryArg);
-    }
+    //public interface INotifierFactory
+    //{
+    //    INotifier GetNotifier(object factoryArg);
+    //}
 }

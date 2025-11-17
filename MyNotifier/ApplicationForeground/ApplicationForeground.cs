@@ -122,7 +122,7 @@ namespace MyNotifier
             this.interestManager.RegisterUpdateSubscriber(this.updateAvailableSubscriber);
 
             //connect notifier 
-            var connectResult = await this.commandNotifier.ConnectAsync(null).ConfigureAwait(false);
+            var connectResult = await this.commandNotifier.ConnectAsync().ConfigureAwait(false);
             if(!connectResult.Success) throw new Exception($"Failed to connect command notifier: {connectResult.ErrorText}"); //fatal error  //log !!!
 
 

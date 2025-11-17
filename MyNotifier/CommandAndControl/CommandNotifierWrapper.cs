@@ -23,13 +23,13 @@ namespace MyNotifier.CommandAndControl
 
         public bool Connected => this.innerNotifier.Connected;
 
-        public ValueTask<ICallResult> ConnectAsync(object connectArg) => this.innerNotifier.ConnectAsync(connectArg);
+        public ValueTask<ICallResult> ConnectAsync() => this.innerNotifier.ConnectAsync();
         public ValueTask<ICallResult> DisconnectAsync() => this.innerNotifier.DisconnectAsync();
 
     }
 
 
-    public class CommandNotifierWrapper : INotifier  //enforce only COMMAND notification type 
+    public class CommandNotifierWrapper : ICommandNotifierWrapper  //enforce only COMMAND notification type 
     {
 
         private readonly INotifier innerNotifier;
@@ -40,10 +40,13 @@ namespace MyNotifier.CommandAndControl
 
         public CommandNotifierWrapper(INotifier innerNotifier) { this.innerNotifier = innerNotifier; }
 
-        public ValueTask<ICallResult> ConnectAsync(object connectArg) => this.innerNotifier.ConnectAsync(connectArg);
+        public ValueTask<ICallResult> ConnectAsync() => this.innerNotifier.ConnectAsync();
         public ValueTask<ICallResult> DisconnectAsync() => this.innerNotifier.DisconnectAsync();
-        public void Subscribe(INotifier.ISubscriber subscriber) => this.innerNotifier.Subscribe(subscriber);
-        public void Unsubscribe(INotifier.ISubscriber subscriper) => this.innerNotifier.Unsubscribe(subscriper);
+
+        public void RegisterCommandSubscriber(ICommandSubscriber subscriber)
+        {
+            throw new NotImplementedException();
+        }
 
 
         //public void RegisterExpectedCommandResult(ExpectedCommandResultToken ecrToken) => this.expectedCommandResults.Add(ecrToken);
@@ -53,9 +56,9 @@ namespace MyNotifier.CommandAndControl
 
     public interface ICommandNotifierWrapper
     {
-        bool Connected { get; set; }
+        bool Connected { get; }
 
-        ValueTask<ICallResult> ConnectAsync(object connectArg);
+        ValueTask<ICallResult> ConnectAsync();
         ValueTask<ICallResult> DisconnectAsync();
 
         void RegisterCommandSubscriber(ICommandSubscriber subscriber);
@@ -92,12 +95,12 @@ namespace MyNotifier.CommandAndControl
                 {
 
                     //subscribe to notifier with COMMANDS target-type mask 
-                    this.commandNotifier.Subscribe(new CommandNotifierSubscriber(this));
+                    this.commandNotifier.RegisterCommandSubscriber(null); //!!!
 
                     //connect notifier if not connected 
                     if (!this.commandNotifier.Connected)
                     {
-                        var connectResult = await this.commandNotifier.ConnectAsync(null).ConfigureAwait(false);
+                        var connectResult = await this.commandNotifier.ConnectAsync().ConfigureAwait(false);
                         if (!connectResult.Success) return CallResult.BuildFailedCallResult(connectResult, "Failed to connect to command notifier");
                     }
 
@@ -152,7 +155,7 @@ namespace MyNotifier.CommandAndControl
         }   
 
 
-        protected class CommandNotifierSubscriber : INotifier.ISubscriber
+        protected class CommandNotifierSubscriber : Contracts.Notifiers.ISubscriber
         {
             private readonly Definition definition = new()
             {
@@ -166,6 +169,11 @@ namespace MyNotifier.CommandAndControl
             public CommandNotifierSubscriber(CommandObject commandObject) { this.commandObject = commandObject; }
 
             public Definition Definition => this.definition;
+
+            public void OnNotification(Notification notification)
+            {
+                throw new NotImplementedException();
+            }
 
             public async ValueTask OnNotificationAsync(object sender, Notification notification) => await this.commandObject.OnCommandAsync((INotifier)sender, notification).ConfigureAwait(false);
         }

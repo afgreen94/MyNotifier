@@ -10,11 +10,12 @@ using System.Linq;
 using System.Management;
 using System.Text;
 using System.Threading.Tasks;
+using ISubscriber = MyNotifier.Contracts.Notifiers.ISubscriber;
 //using static MyNotifier.Notifiers.FileNotifier;
 
 namespace MyNotifier.Notifiers
 {
-    public abstract class Notifier : INotifier  //polling notifier 
+    public abstract class Notifier : INotifier<Notifier.IPollingNotifierConnectArgs>  //polling notifier 
     {
 
         protected readonly IConfiguration configuration;
@@ -22,13 +23,13 @@ namespace MyNotifier.Notifiers
 
         protected bool connected = false;
         
-        protected delegate ValueTask NotificationEventHandler(object sender, Notification notification); //should be void, no need to ref sender ! 
+        protected delegate void NotificationEventHandler(Notification notification); //should be void, no need to ref sender ! 
         protected event NotificationEventHandler onNotificationHandler;
 
-        protected readonly NotificationType targetNotificationTypeMask;
+        protected IPollingNotifierConnectArgs currentConnectArgs;
+        protected NotificationType currentTargetNotificationTypeMask;
 
-
-        protected PollTaskWrapper pollTaskWrapper;
+        protected PollTaskWrapper currentPollTaskWrapper;
 
         public virtual bool Connected => this.connected;
 
@@ -42,16 +43,17 @@ namespace MyNotifier.Notifiers
         {
             this.configuration = configuration;
             this.callContext = callContext;
-
-            this.targetNotificationTypeMask = this.configuration.AllowedNotificationTypeArgs.ToNotificationTypeMask();
         }
 
-        public virtual async ValueTask<ICallResult> ConnectAsync(object connectArg)
+        public virtual async ValueTask<ICallResult> ConnectAsync(IPollingNotifierConnectArgs connectArgs = null)
         {
             try
             {
+                this.currentConnectArgs = connectArgs ?? this.configuration.DefaultConnectArgs;
+                this.currentTargetNotificationTypeMask = connectArgs.AllowedNotificationTypeArgs.ToNotificationTypeMask();
+
                 //check if already connected ?? //force reconnect ??
-                var connectCoreResult = await this.ConnectCoreAsync(connectArg).ConfigureAwait(false);
+                var connectCoreResult = await this.ConnectCoreAsync().ConfigureAwait(false);
                 if (!connectCoreResult.Success) return CallResult.BuildFailedCallResult(connectCoreResult, "Failed to connect");
 
                 this.Start();
@@ -63,17 +65,14 @@ namespace MyNotifier.Notifiers
             catch (Exception ex) { return CallResult.FromException(ex); }
         }
 
-
-        private readonly TimeSpan pollTaskDisconnectTimeout = new(); //from config 
-
         public virtual async ValueTask<ICallResult> DisconnectAsync()
         {
             try
             {
 
-                await this.pollTaskWrapper.KillWaitAsync(this.pollTaskDisconnectTimeout).ConfigureAwait(false);
+                await this.currentPollTaskWrapper.KillWaitAsync(this.configuration.DisconnectTimeout).ConfigureAwait(false);
 
-                if (this.pollTaskWrapper.Status == TaskStatus.Running) return new CallResult(false, "Failed to disconnect."); //encapsulate [ bool Wrapper.Wait(timespan) ]
+                if (this.currentPollTaskWrapper.Status == TaskStatus.Running) return new CallResult(false, "Failed to disconnect."); //encapsulate [ bool Wrapper.Wait(timespan) ]
 
                 //var disconnectAttempts = 0;
 
@@ -103,39 +102,39 @@ namespace MyNotifier.Notifiers
 
             this.BeforeStartCore();
 
-            this.pollTaskWrapper = this.GetPollTaskWrapper(nameof(Start));
+            this.currentPollTaskWrapper = this.GetPollTaskWrapper(nameof(Start));
 
             //register with background manager 
           
-            this.pollTaskWrapper.Start();
+            this.currentPollTaskWrapper.Start();
         }
 
         protected static Exception GetPollTaskException(ICallResult getNewNotificationsResult) => new($"Failed to retrieve new notifications: {getNewNotificationsResult.ErrorText}");
 
-        public virtual void Subscribe(INotifier.ISubscriber subscriber) => this.onNotificationHandler += subscriber.OnNotificationAsync;
-        public virtual void Unsubscribe(INotifier.ISubscriber subscriber) => this.onNotificationHandler -= subscriber.OnNotificationAsync;
-        public virtual async ValueTask OnNotificationAsync(Notification notification) => await this.onNotificationHandler(this, notification).ConfigureAwait(false); //make async !!! 
+        public virtual void Subscribe(ISubscriber subscriber) => this.onNotificationHandler += subscriber.OnNotification;
+        public virtual void Unsubscribe(ISubscriber subscriber) => this.onNotificationHandler -= subscriber.OnNotification;
+        public virtual async ValueTask OnNotificationAsync(Notification notification) => this.onNotificationHandler(notification); //make async !?! 
 
         protected virtual bool TryExclude(NotificationHeader notificationHeader) => this.IsExcludedNotificationType(notificationHeader) || this.IsAlreadyProcessedNotification(notificationHeader);
-        protected virtual bool IsExcludedNotificationType(NotificationHeader notificationHeader) => (this.targetNotificationTypeMask & notificationHeader.Type) == 0;
+        protected virtual bool IsExcludedNotificationType(NotificationHeader notificationHeader) => (this.currentTargetNotificationTypeMask & notificationHeader.Type) == 0;
         protected virtual bool IsAlreadyProcessedNotification(NotificationHeader notificationHeader) => this.processedNotificationIdsCache.Contains(notificationHeader.Id);
 
         protected virtual void BeforeStartCore() { }
 
-        protected abstract ValueTask<ICallResult> ConnectCoreAsync(object connectArg);
+        protected abstract ValueTask<ICallResult> ConnectCoreAsync();
         protected abstract Task<ICallResult<Notification[]>> RetrieveNewNotificationsAsync();
 
         #region PollingTask
+
         protected virtual Guid pollTaskId => new("");
         protected virtual string pollTaskName => "NotifierPollTask";
         protected virtual string pollTaskDescription => "Polls for notifications";
 
-        protected virtual PollTaskWrapper GetPollTaskWrapper(string callingFunctionName) => new(this, new BackgroundTaskData(this.pollTaskId,
-                                                                                                                             this.pollTaskName,
-                                                                                                                             this.pollTaskDescription,
-                                                                                                                             this.GetType().Name,
-                                                                                                                             callingFunctionName));
-
+        protected virtual PollTaskWrapper GetPollTaskWrapper(string callingFunctionName) => new(this,  new BackgroundTaskData(this.pollTaskId,
+                                                                                                                              this.pollTaskName,
+                                                                                                                              this.pollTaskDescription,
+                                                                                                                              this.GetType().Name,
+                                                                                                                              callingFunctionName));
         protected class PollTaskWrapper : BackgroundTaskWrapper
         {
             //private readonly BackgroundTaskData _data = new(new(""), "Polling notifier poll task", "Polls for notifications",
@@ -163,7 +162,7 @@ namespace MyNotifier.Notifiers
 
                         foreach (var notification in getNewNotificationsResult.Result) await this.notifier.OnNotificationAsync(notification).ConfigureAwait(false);
 
-                        await Task.Delay(this.notifier.configuration.NotificationPollingDelayMs).ConfigureAwait(false); //delay 
+                        await Task.Delay(this.notifier.currentConnectArgs.NotificationPollingDelayMs).ConfigureAwait(false); //delay 
                     }
                 }
                 catch (Exception ex) { this.OnExceptionRaised(ex); } //will kill task automatically
@@ -172,45 +171,36 @@ namespace MyNotifier.Notifiers
 
         #endregion PollingTask
 
-        #region Configuration
-        public interface IConfiguration : IApplicationConfigurationWrapper 
+
+
+        public interface IPollingNotifierConnectArgs : IConnectArgs
         {
-            AllowedNotificationTypeArgs AllowedNotificationTypeArgs { get; }
-            int DisconnectionAttemptsCount { get; }  //Timespan 
-            int TryDisconnectLoopDelayMs { get; }
             int NotificationPollingDelayMs { get; }
-            TimeSpan ClearCacheInterval { get; }
         }
+
+        public class PollingNotifierConnectArgs : ConnectArgs, IPollingNotifierConnectArgs
+        {
+            public int NotificationPollingDelayMs { get; set; }
+        }
+
+
+        #region Configuration
+
+        public interface IConfiguration : IConfiguration<IPollingNotifierConnectArgs> 
+        {
+            int NotificationPollingDelayMs { get; }
+        }
+
         public class Configuration : ApplicationConfigurationWrapper, IConfiguration
         {
-            public AllowedNotificationTypeArgs AllowedNotificationTypeArgs => throw new NotImplementedException();
-            public int DisconnectionAttemptsCount => throw new NotImplementedException();
-            public int TryDisconnectLoopDelayMs => throw new NotImplementedException();
-            public int NotificationPollingDelayMs => throw new NotImplementedException();
+            public IPollingNotifierConnectArgs DefaultConnectArgs => throw new NotImplementedException();
             public TimeSpan ClearCacheInterval => throw new NotImplementedException();
+            public TimeSpan DisconnectTimeout => throw new NotImplementedException();
+            public int NotificationPollingDelayMs => throw new NotImplementedException();
 
-            public Configuration(IApplicationConfiguration innerConfiguration) : base(innerConfiguration) { }
+            public Configuration(IApplicationConfiguration innerApplicationConfiguration) : base(innerApplicationConfiguration) { }
         }
+
         #endregion Configuration
-    }
-
-    public class AllowedNotificationTypeArgs
-    {
-        public bool Updates { get; set; }
-        public bool Commands { get; set; }
-        public bool CommandResults { get; set; }
-        public bool Exceptions { get; set; }
-
-        public NotificationType ToNotificationTypeMask()
-        {
-            var ret = new NotificationType();
-
-            if (this.Updates) ret += (byte)NotificationType.Update;
-            if (this.Commands) ret += (byte)NotificationType.Command;
-            if (this.CommandResults) ret += (byte)NotificationType.CommandResult;
-            if (this.Exceptions) ret += (byte)NotificationType.Exception;
-
-            return ret;
-        }
     }
 }

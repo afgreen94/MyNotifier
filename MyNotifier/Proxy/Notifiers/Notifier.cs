@@ -2,6 +2,7 @@
 using MyNotifier.Contracts.Base;
 using MyNotifier.Contracts.FileIOManager;
 using MyNotifier.Contracts.Notifications;
+using MyNotifier.Contracts.Notifiers;
 using MyNotifier.Contracts.Proxy;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace MyNotifier.Proxy.Notifiers
                         IConfiguration configuration, 
                         ICallContext<Notifier> callContext) : base(configuration, callContext) { this.ioManager = ioManager; }
 
-        protected override async ValueTask<ICallResult> ConnectCoreAsync(object connectArg)
+        protected override async ValueTask<ICallResult> ConnectCoreAsync()
         {
             try
             {

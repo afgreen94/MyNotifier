@@ -264,7 +264,6 @@ namespace MyNotifier.Interests
 
         #region Controllable
 
-
         public class Controller : IControllable
         {
             private readonly IManager manager;
@@ -334,9 +333,6 @@ namespace MyNotifier.Interests
                 return new CommandResult();
             }
         }
-
-
-
 
         #endregion Controllable
     }
