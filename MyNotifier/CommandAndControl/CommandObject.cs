@@ -126,6 +126,10 @@ namespace MyNotifier.CommandAndControl
 
     //        public async ValueTask OnNotificationAsync(object sender, Notification notification) => await this.commandObject.OnCommandAsync((INotifier)sender, notification).ConfigureAwait(false);
     //    }
+
+    //public void RegisterExpectedCommandResult(ExpectedCommandResultToken ecrToken) => this.expectedCommandResults.Add(ecrToken);
+    //private void CheckExpiries() { }
+
     //}
 
 

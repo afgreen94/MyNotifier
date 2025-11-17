@@ -26,6 +26,14 @@ namespace MyNotifier.Contracts.Notifiers
 
             return ret;
         }
+
+        public static AllowedNotificationTypeArgs FromNotificationTypeMask(NotificationType notificationTypeMask) => new AllowedNotificationTypeArgs
+        {
+            Updates = notificationTypeMask.HasFlag(NotificationType.Update),
+            Commands = notificationTypeMask.HasFlag(NotificationType.Command),
+            CommandResults = notificationTypeMask.HasFlag(NotificationType.CommandResult),
+            Exceptions = notificationTypeMask.HasFlag(NotificationType.Exception)
+        };
     }
     public class ConnectArgs : IConnectArgs
     {

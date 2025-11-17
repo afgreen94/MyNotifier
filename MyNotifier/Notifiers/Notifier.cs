@@ -15,7 +15,7 @@ using ISubscriber = MyNotifier.Contracts.Notifiers.ISubscriber;
 
 namespace MyNotifier.Notifiers
 {
-    public abstract class Notifier : INotifier<Notifier.IPollingNotifierConnectArgs>  //polling notifier 
+    public abstract class Notifier : IPollingNotifier  //polling notifier 
     {
 
         protected readonly IConfiguration configuration;
@@ -49,8 +49,7 @@ namespace MyNotifier.Notifiers
         {
             try
             {
-                this.currentConnectArgs = connectArgs ?? this.configuration.DefaultConnectArgs;
-                this.currentTargetNotificationTypeMask = connectArgs.AllowedNotificationTypeArgs.ToNotificationTypeMask();
+                this.SetSessionArgs(connectArgs);
 
                 //check if already connected ?? //force reconnect ??
                 var connectCoreResult = await this.ConnectCoreAsync().ConfigureAwait(false);
@@ -135,6 +134,21 @@ namespace MyNotifier.Notifiers
                                                                                                                               this.pollTaskDescription,
                                                                                                                               this.GetType().Name,
                                                                                                                               callingFunctionName));
+
+        protected virtual void SetSessionArgs(IPollingNotifierConnectArgs connectArgs = null)
+        {
+            if(connectArgs == null) { this.currentConnectArgs = this.configuration.DefaultConnectArgs; }
+            else
+            {
+                this.currentConnectArgs = new PollingNotifierConnectArgs()
+                {
+                    AllowedNotificationTypeArgs = connectArgs.AllowedNotificationTypeArgs ?? this.configuration.DefaultConnectArgs.AllowedNotificationTypeArgs,
+                    NotificationPollingDelayMs = connectArgs.NotificationPollingDelayMs != default ? connectArgs.NotificationPollingDelayMs : this.configuration.NotificationPollingDelayMs
+                };
+                this.currentTargetNotificationTypeMask = this.currentConnectArgs.AllowedNotificationTypeArgs.ToNotificationTypeMask();
+            }
+        }
+
         protected class PollTaskWrapper : BackgroundTaskWrapper
         {
             //private readonly BackgroundTaskData _data = new(new(""), "Polling notifier poll task", "Polls for notifications",
@@ -203,4 +217,6 @@ namespace MyNotifier.Notifiers
 
         #endregion Configuration
     }
+
+    public interface IPollingNotifier : INotifier<Notifier.IPollingNotifierConnectArgs> { }
 }
